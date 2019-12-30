@@ -7,8 +7,16 @@ export function installConsoleCommands() {
 }
 
 const CONSOLE_COMMANDS = {
-  spawnCreep: () => {
+  spawnMiner: () => {
     const spawn = 'Spawn1';
-    return Game.spawns[spawn].spawnCreep([MOVE, CARRY], 'creep1');
+    const id = Memory.nextID || 0;
+    Memory.nextID = id + 1;
+    return Game.spawns[spawn].spawnCreep(
+        [WORK, CARRY, CARRY, MOVE, MOVE], `miner=${id}`, {
+          memory: {
+            role: 'miner',
+            sourceId: Game.spawns[spawn].room.find(FIND_SOURCES)[0].id,
+          },
+        });
   },
 };

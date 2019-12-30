@@ -1,3 +1,4 @@
+import {Miner} from 'roles/miner';
 import {ErrorMapper} from 'utils/ErrorMapper';
 
 import {installConsoleCommands} from './consoleCommands';
@@ -9,4 +10,12 @@ import {garbageCollection} from './garbageCollect';
 export const loop = ErrorMapper.wrapLoop(() => {
   installConsoleCommands();
   garbageCollection();
+
+  for (const name in Game.creeps) {
+    const creep = Game.creeps[name];
+    if (creep.memory.role === 'miner') {
+      const miner = new Miner(creep);
+      miner.run();
+    }
+  }
 });

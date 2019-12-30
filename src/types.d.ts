@@ -3,11 +3,13 @@
 // memory extension samples
 interface CreepMemory {
   role: string;
-  room: string;
-  working: boolean;
+  room?: string;
+  working?: boolean;
+  sourceId: Id<Source>;
 }
 
 interface Memory {
+  nextID: number;
   uuid: number;
   log: any;
 }
