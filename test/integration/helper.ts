@@ -4,6 +4,8 @@ import _ from 'lodash';
 const {ScreepsServer, stdHooks} = require('screeps-server-mockup');
 const DIST_MAIN_JS = 'dist/main.js';
 
+/** Integration tests currently DEFUNT */
+
 /*
  * Helper class for creating a ScreepsServer and resetting it between tests.
  * See https://github.com/Hiryus/screeps-server-mockup for instructions on
