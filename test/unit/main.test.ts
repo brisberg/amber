@@ -1,10 +1,11 @@
-import {assert} from "chai";
-import {loop} from "../../src/main";
-import {Game, Memory} from "./mock"
+import {assert} from 'chai';
+import {loop} from '../../src/main';
+import {Game, Memory} from './mock';
 
-describe("main", () => {
+describe('main', () => {
   before(() => {
-    // runs before all test in this block
+    // runs before all tests in this block
+    return;
   });
 
   beforeEach(() => {
@@ -15,11 +16,11 @@ describe("main", () => {
     global.Memory = _.clone(Memory);
   });
 
-  it("should export a loop function", () => {
-    assert.isTrue(typeof loop === "function");
+  it('should export a loop function', () => {
+    assert.isTrue(typeof loop === 'function');
   });
 
-  it("should return void when called with no context", () => {
+  it('should return void when called with no context', () => {
     assert.isUndefined(loop());
   });
 });
