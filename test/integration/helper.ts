@@ -1,6 +1,7 @@
-const { readFileSync } = require('fs');
-const _ = require('lodash');
-const { ScreepsServer, stdHooks } = require('screeps-server-mockup');
+import {readFileSync} from 'fs';
+import _ from 'lodash';
+// tslint:disable:no-var-requires
+const {ScreepsServer, stdHooks} = require('screeps-server-mockup');
 const DIST_MAIN_JS = 'dist/main.js';
 
 /*
@@ -9,8 +10,8 @@ const DIST_MAIN_JS = 'dist/main.js';
  * manipulating the terrain and game state.
  */
 class IntegrationTestHelper {
-  private _server;
-  private _player;
+  private _server: any;
+  private _player: any;
 
   get server() {
     return this._server;
@@ -20,7 +21,7 @@ class IntegrationTestHelper {
     return this._player;
   }
 
-  async beforeEach() {
+  public async beforeEach() {
     this._server = new ScreepsServer();
 
     // reset world but add invaders and source keepers bots
@@ -31,15 +32,16 @@ class IntegrationTestHelper {
 
     // add a player with the built dist/main.js file
     const modules = {
-        main: readFileSync(DIST_MAIN_JS).toString(),
+      main: readFileSync(DIST_MAIN_JS).toString(),
     };
-    this._player = await this._server.world.addBot({ username: 'player', room: 'W0N1', x: 15, y: 15, modules });
+    this._player = await this._server.world.addBot(
+        {username: 'player', room: 'W0N1', x: 15, y: 15, modules});
 
     // Start server
     await this._server.start();
   }
 
-  async afterEach() {
+  public async afterEach() {
     await this._server.stop();
   }
 }
@@ -58,6 +60,6 @@ before(() => {
 
 after(() => {
   process.exit();
-})
+});
 
 export const helper = new IntegrationTestHelper();
