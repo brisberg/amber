@@ -15,6 +15,7 @@ interface Memory {
 // `global` extension samples
 declare namespace NodeJS {
   interface Global {
-    log: any;
+    // Console Commands
+    cc: {[command: string]: () => void};
   }
 }
