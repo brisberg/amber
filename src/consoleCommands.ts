@@ -1,3 +1,5 @@
+import {createWorkerBody} from 'utils/workerUtils';
+
 /**
  * Installs all Console Commands to the global scope. Can be accessed by:
  * `cc.command()`
@@ -12,7 +14,7 @@ const CONSOLE_COMMANDS = {
     const id = Memory.nextID || 0;
     Memory.nextID = id + 1;
     return Game.spawns[spawn].spawnCreep(
-        [WORK, CARRY, CARRY, MOVE, MOVE], `miner=${id}`, {
+        createWorkerBody(1, 2, 2), `miner=${id}`, {
           memory: {
             role: 'miner',
             sourceId: Game.spawns[spawn].room.find(FIND_SOURCES)[0].id,
