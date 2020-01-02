@@ -18,3 +18,9 @@ export function createWorkerBody(work: number, carry: number, move: number) {
 
   return body;
 }
+
+export function totalCost(body: BodyPartConstant[]) {
+  return body.reduce((total, part) => {
+    return total + BODYPART_COST[part];
+  }, 0);
+}

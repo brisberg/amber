@@ -1,3 +1,5 @@
+// import {SpawnRequest} from 'spawnQueue';
+
 // example declaration file - remove these and add your own custom typings
 
 // memory extension samples
@@ -12,6 +14,10 @@ interface Memory {
   nextID: number;
   uuid: number;
   log: any;
+}
+
+interface SpawnMemory {
+  requests: any[];
 }
 
 // `global` extension samples

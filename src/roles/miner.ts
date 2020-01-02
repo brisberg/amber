@@ -27,7 +27,7 @@ export class Miner {
       } else {
         const spawn = Game.spawns.Spawn1;
         if (spawn.energy < spawn.energyCapacity) {
-          const amount = Math.max(
+          const amount = Math.min(
               this.creep.store.energy, spawn.energyCapacity - spawn.energy);
           if (this.creep.transfer(spawn, RESOURCE_ENERGY, amount) ===
               ERR_NOT_IN_RANGE) {
