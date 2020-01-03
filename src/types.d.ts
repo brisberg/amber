@@ -1,5 +1,3 @@
-// import {SpawnRequest} from 'spawnQueue';
-
 // example declaration file - remove these and add your own custom typings
 
 // memory extension samples
@@ -23,6 +21,9 @@ interface SpawnMemory {
 // `global` extension samples
 declare namespace NodeJS {
   interface Global {
+    // Global Spawn Queue instance
+    spawnQueue:
+        import('/Users/brisberg/DevProjects/amber/src/spawnQueue').SpawnQueue;
     // Console Commands
     cc: {[command: string]: () => void};
   }

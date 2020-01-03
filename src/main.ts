@@ -9,12 +9,13 @@ import {garbageCollection} from './garbageCollect';
 // names in error messages change This utility uses source maps to get the line
 // numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
-  const spawnQueue = new SpawnQueue(Game.spawns.Spawn1);
+  // Initialize global constructs
+  const queue = global.spawnQueue = new SpawnQueue(Game.spawns.Spawn1);
 
-  installConsoleCommands(spawnQueue);
+  installConsoleCommands();
   garbageCollection();
 
-  spawnQueue.run();
+  queue.run();
 
   for (const name in Game.creeps) {
     const creep = Game.creeps[name];
