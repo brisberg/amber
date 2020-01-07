@@ -10,6 +10,7 @@ interface CreepMemory {
 
 interface Memory {
   nextID: number;
+  missions: {[name: string]: any};
   uuid: number;
   log: any;
 }
