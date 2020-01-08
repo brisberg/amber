@@ -29,31 +29,41 @@ This is distinct from how BonzAI is organized, where the Agent class is task agn
 
 First plan:
 
-Task - Tasks are behavior for a single creep to complete a specific task. They may be on going, or finite. They will know about their requirements (Needs a WORK, CARRY, or HEAL part for example), and they know their body shape preferences. Tasks can be reassigned at will, to any Creep that meets the minimum requirements.
+#### Role (Task)
+Tasks are behavior for a single creep to complete a specific task. They may be on going, or finite. They will know about their requirements (Needs a WORK, CARRY, or HEAL part for example), and they know their body shape preferences. Tasks can be reassigned at will, to any Creep that meets the minimum requirements.
 
+```
 interface Task {
   hasRequiredParts(creep: Creep) => boolean;
   step: (creep: Creep) => TaskResult;
 }
+```
 
 Tasks will usually result in a single Creep action taken by the creep at the end of the step() function.
-
 For now Tasks will handle movement to complete them (i.e. move to a source and mine the source), though I may take this back.
 
-Mission - Missions are higher order abstractions that coordinate one or several creeps to complete an objective. These objectives may be things like: "Mine a source and transport output to spawn", "Take energy from a container/storage and upgrade a controller", "Build a road between two points", "Repair a road / structure", "Kill a source Keeper".
+Tasks only require a Creep body and the Memory of the creep to progress on the task. All other concerns will be handled by higher level abstractions.
 
-In general, Missions will deal with few locations, located within a single room. There can be duplicate missions within the same room. For example, a room with two sources will have two "Mine a source and transport output to spawn" Missions.
+#### Objectives
+Objectives are higher order abstractions that coordinate one or several creeps to complete a single objective. These objectives may be things like: "Mine a source and drop energy in a container", "Take energy from a container/storage and upgrade a controller", "Build a road between two points", "Repair a road / structure", "Kill a source Keeper".
 
-Missions will have a list of creeps assigned to them. Missions will decide which tasks to assign each creep and the parameters of these tasks. For example, a "Mine and Transport" mission will decide to assign the "Move and Mine" task to a creep until it is full, and then assign the "Move and Deliver" task until it delivers it to spawn.
+In general, Objectives will deal with few locations, located within a single room. There can be duplicate Objectives within the same room. For example, a room with two sources will have two "Mine a source" Objectives.
 
-Missions will decide how many creeps of what parameters they need. If they do not have enough assigned, they will request a new one from the nearest Spawn.
+Objectives will have a list of creeps assigned to them. Objectives will decide which tasks to assign each creep and the parameters of these tasks. For example, a "Mine and Transport" mission will decide to assign the "Move and Mine" task to a creep until it is full, and then assign the "Move and Deliver" task until it delivers it to spawn.
 
-RoomController - RoomController (Operation) will evaluate the state of a room and generate a set of missions for all objectives/processess which need to be completed for the room.
+Objectives will decide how many creeps of what parameters they need. If they do not have enough assigned, they will request a new one from the nearest Spawn.
+
+#### RoomController
+RoomController (Operation) will evaluate the state of a room and generate a set of Objectives for all objectives/processess which need to be completed for the room.
+
+I kindof like the idea of the room posessing a "pool" of stray creeps. Which can be assigned on an adhoc basis. This way we could have several paving objectives for instance, for each road. But the objective will only request a creep when a new pass is required. If all roads are fine it will return them to the pool. If the pool is empty and it needs another only then will it be spawned.
 
 
-
-
-
-First Pass:
+## First Pass:
 
 In the spirit of "Fail Fast" I should make a simplistic, mostly hardcoded system to spawn some initial creeps, spawn real miners and transports, and upgraders. This can work pretty simply since that is the whole goal.
+
+
+Second Pass:
+
+I am thinking of these abstraction levels for organizing behavior in Screeps. The broad idea is encapsulation and component based design. Each unit should store enough memory to know how to progress on its task. The units above have more context and will make coordination decisions by adding/removing lower units or adjusting their memory. Units below will then react to the best of their ability.
