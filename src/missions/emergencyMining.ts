@@ -49,7 +49,7 @@ export class EmergencyMining {
         options: {
           memory: {
             containerID: null,
-            role: 'miner',
+            role: 'harvester',
             sourceID: this.room.find(FIND_SOURCES)[0].id,
           },
         },

@@ -13,10 +13,12 @@ export class Harvester {
   private source: Source|null;
   private container: StructureContainer|ConstructionSite<STRUCTURE_CONTAINER>|
       null;
-  private creep: Creep;
-  private mem: HarvesterMemory;
-  private maxBuildCost: number;  // Maximum energy consumption of 'Build' action
-  private maxRepair: number;     // Maximum hits repaired by a 'Repair' action
+  private readonly creep: Creep;
+  private readonly mem: HarvesterMemory;
+  // Maximum energy consumption of 'Build' action
+  private readonly maxBuildCost: number;
+  // Maximum hits repaired by a 'Repair' action
+  private readonly maxRepair: number;
 
   constructor(creep: Creep) {
     this.mem = creep.memory as unknown as HarvesterMemory;

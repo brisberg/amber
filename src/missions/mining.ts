@@ -9,7 +9,7 @@ interface MiningMemory {
   harvesters: string[];
   nextId: number;
   reservations: SpawnReservation[];
-  sourceId: number|null;
+  sourceId: Id<Source>|null;
 }
 
 export class Mining {
@@ -17,13 +17,15 @@ export class Mining {
 
   public name: string;
   public room: Room;
+  public source: Source;
 
   private harvesters: Creep[] = [];
   private mem: MiningMemory;
 
-  constructor(name: string, room: Room) {
+  constructor(name: string, source: Source) {
     this.name = name;
-    this.room = room;
+    this.room = source.room;
+    this.source = source;
 
     // Init memory
     if (!Memory.missions[name]) {
@@ -31,7 +33,7 @@ export class Mining {
         harvesters: [],
         nextId: 0,
         reservations: [],
-        sourceId: null,
+        sourceId: source.id,
       };
       Memory.missions[name] = mem;
     }
