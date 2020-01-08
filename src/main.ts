@@ -1,4 +1,5 @@
 import {EmergencyMining} from 'missions/emergencyMining';
+import {Harvester} from 'roles/harvester';
 import {Miner} from 'roles/miner';
 import {SpawnQueue} from 'spawnQueue';
 
@@ -27,6 +28,10 @@ export const loop = () => {
     const creep = Game.creeps[name];
     if (creep.memory.role === 'miner') {
       const miner = new Miner(creep);
+      miner.run();
+    }
+    if (creep.memory.role === 'harvester') {
+      const miner = new Harvester(creep);
       miner.run();
     }
   }

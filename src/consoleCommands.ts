@@ -18,8 +18,9 @@ const CONSOLE_COMMANDS = {
       name: `miner=${id}`,
       options: {
         memory: {
+          containerID: null,
           role: 'miner',
-          sourceId: Game.spawns[spawn].room.find(FIND_SOURCES)[0].id,
+          sourceID: Game.spawns[spawn].room.find(FIND_SOURCES)[0].id,
         },
       },
       priority: 0,

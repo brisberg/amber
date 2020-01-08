@@ -5,7 +5,9 @@ interface CreepMemory {
   role: string;
   room?: string;
   working?: boolean;
-  sourceId: Id<Source>;
+  sourceID: Id<Source>;
+  containerID: Id<StructureContainer|ConstructionSite<STRUCTURE_CONTAINER>>|
+      null;
 }
 
 interface Memory {

@@ -1,4 +1,3 @@
-import {Miner} from 'roles/miner';
 import {createWorkerBody} from 'utils/workerUtils';
 
 interface SpawnReservation {
@@ -49,8 +48,9 @@ export class EmergencyMining {
         name,
         options: {
           memory: {
+            containerID: null,
             role: 'miner',
-            sourceId: this.room.find(FIND_SOURCES)[0].id,
+            sourceID: this.room.find(FIND_SOURCES)[0].id,
           },
         },
         priority: EmergencyMining.spawnPriority,
@@ -68,12 +68,6 @@ export class EmergencyMining {
         return false;
       }
       return true;
-    });
-
-    // Execute creep update ticks
-    this.miners.forEach((creep) => {
-      const miner = new Miner(creep);
-      miner.run();
     });
   }
 
