@@ -6,9 +6,11 @@ interface CreepMemory {
   room?: string;
   working?: boolean;
   sourceID?: Id<Source>;
+  structID?: Id<StructureContainer|StructureStorage|StructureLink>;
   containerID?: Id<StructureContainer|ConstructionSite<STRUCTURE_CONTAINER>>|
       null;
   targetSiteID?: Id<ConstructionSite>;
+  controllerID?: Id<StructureController>;
 }
 
 interface Memory {

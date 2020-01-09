@@ -1,7 +1,9 @@
 import {BuildMission} from 'missions/build';
 import {HarvestingMission} from 'missions/harvesting';
 import {MiningOperation} from 'missions/miningOperation';
+import {UpgradeMission} from 'missions/upgrade';
 import {Builder} from 'roles/builder';
+import {Fetcher} from 'roles/fetcher';
 import {Harvester} from 'roles/harvester';
 import {Miner} from 'roles/miner';
 import {Upgrader} from 'roles/upgrader';
@@ -23,6 +25,21 @@ export const loop = () => {
   const queue = global.spawnQueue = new SpawnQueue(Game.spawns.Spawn1);
   const op = new MiningOperation(
       'mining_op', Game.spawns.Spawn1.room.find(FIND_SOURCES)[0]);
+
+  const containers =
+      Game.spawns.Spawn1.room.find(FIND_STRUCTURES)
+          .filter((struct) => struct.structureType === STRUCTURE_CONTAINER);
+  // WIP hardcoding the upgrade missions
+  if (containers.length > 0 && !Memory.missions.upgrade) {
+    const upgradeMsn = new UpgradeMission('upgrade');
+    upgradeMsn.setController(Game.spawns.Spawn1.room.controller!);
+    upgradeMsn.setSource(containers[0] as StructureContainer);
+  }
+
+  if (Memory.missions.upgrade) {
+    const msn = new UpgradeMission('upgrade');
+    msn.run();
+  }
 
   installConsoleCommands();
   garbageCollection();
@@ -57,6 +74,10 @@ export const loop = () => {
     if (creep.memory.role === 'upgrader') {
       const upgrader = new Upgrader(creep);
       upgrader.run();
+    }
+    if (creep.memory.role === 'fetcher') {
+      const fetcher = new Fetcher(creep);
+      fetcher.run();
     }
   }
 };
