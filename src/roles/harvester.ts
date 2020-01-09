@@ -41,6 +41,11 @@ export class Harvester {
   }
 
   public run() {
+    if (!this.container) {
+      console.log('Harvester not assigned a valid container');
+      return;
+    }
+
     if (this.source) {
       if (!this.creep.pos.inRangeTo(this.source.pos, 1)) {
         this.creep.moveTo(this.source);
@@ -48,64 +53,33 @@ export class Harvester {
       }
 
       // We have arrived
-      if (!this.container) {
-        // Build a container (TODO: Claim an existing abbandoned container)
-        // Add a construction site
-        const sites = this.source.room.lookForAt(
-            LOOK_CONSTRUCTION_SITES, this.creep.pos.x, this.creep.pos.y);
-        if (sites.length > 0) {
-          // Assumes any construction site at our feet must be container
-          const site = sites[0] as ConstructionSite<STRUCTURE_CONTAINER>;
-          this.setContainer(site);
+
+      if (this.container instanceof ConstructionSite) {
+        // Need to build the container
+        if (this.creep.store.energy > this.maxBuildCost) {
+          this.creep.build(this.container);
+          return;
+        }
+      } else if (this.container instanceof StructureContainer) {
+        // Repair container if it is low
+        const hitsMissing = this.container.hitsMax - this.container.hits;
+        if (hitsMissing > this.maxRepair &&
+            this.creep.store.energy > this.maxRepair * REPAIR_COST) {
+          this.creep.repair(this.container);
+          return;
         }
 
-        // Or add a finished container
-        const container =
-            this.source.room
-                .lookForAt(LOOK_STRUCTURES, this.creep.pos.x, this.creep.pos.y)
-                .filter((lookup) => {
-                  return lookup.structureType === STRUCTURE_CONTAINER;
-                });
-        if (container.length > 0) {
-          this.setContainer(container[0] as StructureContainer);
-        }
-
-        if (!this.container) {
-          this.source.room.createConstructionSite(
-              this.creep.pos.x, this.creep.pos.y, STRUCTURE_CONTAINER);
+        // Store creep energy in container if it has space
+        if (this.creep.store.energy > 40 &&
+            this.container.store.getFreeCapacity() > this.creep.store.energy) {
+          const amount = Math.min(
+              this.creep.store.energy, this.container.store.getFreeCapacity());
+          this.creep.transfer(this.container, RESOURCE_ENERGY, amount);
         }
       }
 
-      if (this.container) {
-        if (this.container instanceof ConstructionSite) {
-          // Need to build the container
-          if (this.creep.store.energy > this.maxBuildCost) {
-            this.creep.build(this.container);
-            return;
-          }
-        } else if (this.container instanceof StructureContainer) {
-          // Repair container if it is low
-          const hitsMissing = this.container.hitsMax - this.container.hits;
-          if (hitsMissing > this.maxRepair &&
-              this.creep.store.energy > this.maxRepair * REPAIR_COST) {
-            this.creep.repair(this.container);
-            return;
-          }
-
-          // Store creep energy in container if it has space
-          if (this.creep.store.energy > 40 &&
-              this.container.store.getFreeCapacity() >
-                  this.creep.store.energy) {
-            const amount = Math.min(
-                this.creep.store.energy,
-                this.container.store.getFreeCapacity());
-            this.creep.transfer(this.container, RESOURCE_ENERGY, amount);
-          }
-        }
-
-        if (this.creep.store.getFreeCapacity() > 0) {
-          this.creep.harvest(this.source);
-        }
+      if (this.creep.store.getFreeCapacity() > 0) {
+        this.creep.harvest(this.source);
       }
     }
   }

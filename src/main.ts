@@ -1,4 +1,5 @@
-import {EmergencyMining} from 'missions/emergencyMining';
+// import {EmergencyMining} from 'missions/emergencyMining';
+import {HarvestingMission} from 'missions/harvesting';
 import {Harvester} from 'roles/harvester';
 import {Miner} from 'roles/miner';
 import {SpawnQueue} from 'spawnQueue';
@@ -16,7 +17,8 @@ export const loop = () => {
     Memory.missions = {};
   }
   const queue = global.spawnQueue = new SpawnQueue(Game.spawns.Spawn1);
-  const mission = new EmergencyMining('mining', Game.spawns.Spawn1.room);
+  const mission = new HarvestingMission(
+      'harvest', Game.spawns.Spawn1.room.find(FIND_SOURCES)[0]);
 
   installConsoleCommands();
   garbageCollection();
