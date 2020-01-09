@@ -4,6 +4,7 @@ import {MiningOperation} from 'missions/miningOperation';
 import {Builder} from 'roles/builder';
 import {Harvester} from 'roles/harvester';
 import {Miner} from 'roles/miner';
+import {Upgrader} from 'roles/upgrader';
 import {SpawnQueue} from 'spawnQueue';
 
 import {installConsoleCommands} from './consoleCommands';
@@ -52,6 +53,10 @@ export const loop = () => {
     if (creep.memory.role === 'builder') {
       const builder = new Builder(creep);
       builder.run();
+    }
+    if (creep.memory.role === 'upgrader') {
+      const upgrader = new Upgrader(creep);
+      upgrader.run();
     }
   }
 };
