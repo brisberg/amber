@@ -1,6 +1,8 @@
 import {Harvester} from 'roles/harvester';
 import {createWorkerBody} from 'utils/workerUtils';
 
+import {MAX_WORK_PER_SOURCE} from '../constants';
+
 import {analyzeSourceForHarvesting, SourceAnalysis} from './sourceAnalysis';
 
 interface SpawnReservation {
@@ -58,6 +60,9 @@ export class HarvestingMission {
     if (this.mem.containerID) {
       this.container = Game.getObjectById(this.mem.containerID);
     }
+    // Purge names of dead/expired creeps
+    this.mem.harvesters =
+        this.mem.harvesters.filter((cName) => Game.creeps[cName]);
     this.harvesters = this.mem.harvesters.map((cName) => Game.creeps[cName]);
   }
 
@@ -66,16 +71,6 @@ export class HarvestingMission {
     // Run source analysis if we don't have one
     if (!this.mem.analysis) {
       this.mem.analysis = analyzeSourceForHarvesting(this.source);
-      this.mem.containerID = this.mem.analysis.containerID;
-      if (this.mem.containerID) {
-        this.container = Game.getObjectById(this.mem.containerID);
-      }
-    }
-
-    // Check for creep allocation
-    if ((this.harvesters.length + this.mem.reservations.length) <
-        this.mem.analysis.maxHarvesters) {
-      this.requestHarvester();
     }
 
     if (!this.container) {
@@ -105,22 +100,60 @@ export class HarvestingMission {
       }
     }
 
-    // Claim reserved creeps
-    this.mem.reservations = this.mem.reservations.filter((reserve) => {
-      const creep = Game.creeps[reserve.creepName];
-      if (creep) {
-        this.mem.harvesters.push(reserve.creepName);
-        this.harvesters.push(creep);
-        return false;
+    if (this.container) {
+      // Check for creep allocation
+      if (this.needMoreHarvesters()) {
+        this.requestHarvester();
       }
-      return true;
-    });
 
-    // Execute creep update ticks
-    this.harvesters.forEach((creep) => {
-      const harvester = new Harvester(creep);
-      harvester.run();
-    });
+      // Claim reserved creeps
+      this.mem.reservations = this.mem.reservations.filter((reserve) => {
+        const creep = Game.creeps[reserve.creepName];
+        if (creep) {
+          this.mem.harvesters.push(reserve.creepName);
+          this.harvesters.push(creep);
+          return false;
+        }
+        return true;
+      });
+
+      // Execute creep update ticks
+      this.harvesters.forEach((creep) => {
+        const harvester = new Harvester(creep);
+        harvester.run();
+      });
+    }
+  }
+
+  private get maxHarvesters() {
+    return this.mem.analysis ? this.mem.analysis.maxHarvesters : 0;
+  }
+
+  /**
+   * Returns true if we need another Harvester.
+   *
+   * Takes into account total WORK parts of existing harvesters and max
+   * harvesters from Source Analysis.
+   */
+  private needMoreHarvesters(): boolean {
+    if (this.harvesters.length + this.mem.reservations.length >=
+        this.maxHarvesters) {
+      return false;
+    }
+
+    let totalWorkParts = 0;
+    for (const harvester of this.harvesters) {
+      totalWorkParts += harvester.getActiveBodyparts(WORK);
+    }
+    for (const res of this.mem.reservations) {
+      totalWorkParts += 2;
+      // TODO: record in reservations how many parts it has
+    }
+    if (totalWorkParts >= MAX_WORK_PER_SOURCE + 1) {
+      return false;
+    }
+
+    return true;
   }
 
   private setContainer(container: StructureContainer|
@@ -140,7 +173,7 @@ export class HarvestingMission {
       name,
       options: {
         memory: {
-          containerID: this.container ? this.container.id : null,
+          containerID: this.mem.containerID,
           role: 'harvester',
           sourceID: this.source.id,
         },
