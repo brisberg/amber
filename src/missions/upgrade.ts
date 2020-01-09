@@ -124,7 +124,7 @@ export class UpgradeMission {
   }
 
   private get maxUpgraders() {
-    return 3;
+    return 5;
   }
 
   /**
