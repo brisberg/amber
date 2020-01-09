@@ -22,7 +22,7 @@ interface HarvestingMemory {
 /**
  * Mission construct to facilitate harvesting of a single Source.
  *
- * This mission will evluate the source, decide where to place the storage
+ * This mission will evaluate the source, decide where to place the storage
  * Container near it. The mission will keep requesting new harvester creeps
  * until there are at least 5 WORK parts at play on the Source.
  */
