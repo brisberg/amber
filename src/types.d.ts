@@ -5,12 +5,14 @@ interface CreepMemory {
   role: string;
   room?: string;
   working?: boolean;
+  phase?: string;
   sourceID?: Id<Source>;
   structID?: Id<StructureContainer|StructureStorage|StructureLink>;
   containerID?: Id<StructureContainer|ConstructionSite<STRUCTURE_CONTAINER>>|
       null;
   targetSiteID?: Id<ConstructionSite>;
   controllerID?: Id<StructureController>;
+  energyNode?: any;
 }
 
 interface Memory {
@@ -37,6 +39,6 @@ declare namespace NodeJS {
     spawnQueue:
         import('/Users/brisberg/DevProjects/amber/src/spawnQueue').SpawnQueue;
     // Console Commands
-    cc: {[command: string]: () => void};
+    cc: {[command: string]: (args: any) => void};
   }
 }

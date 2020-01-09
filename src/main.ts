@@ -1,3 +1,4 @@
+import {RoomEnergyNetwork} from 'energy-network/roomEnergyNetwork';
 import {BuildMission} from 'missions/build';
 import {HarvestingMission} from 'missions/harvesting';
 import {MiningOperation} from 'missions/miningOperation';
@@ -5,6 +6,7 @@ import {UpgradeMission} from 'missions/upgrade';
 import {Builder} from 'roles/builder';
 import {Fetcher} from 'roles/fetcher';
 import {Harvester} from 'roles/harvester';
+import {Hauler} from 'roles/hauler';
 import {Miner} from 'roles/miner';
 import {Upgrader} from 'roles/upgrader';
 import {SpawnQueue} from 'spawnQueue';
@@ -23,18 +25,18 @@ export const loop = () => {
   Memory.operations = Memory.operations || {};
 
   const queue = global.spawnQueue = new SpawnQueue(Game.spawns.Spawn1);
-  const op = new MiningOperation(
-      'mining_op', Game.spawns.Spawn1.room.find(FIND_SOURCES)[0]);
+  // const op = new MiningOperation(
+  //     'mining_op', Game.spawns.Spawn1.room.find(FIND_SOURCES)[0]);
 
-  const containers =
-      Game.spawns.Spawn1.room.find(FIND_STRUCTURES)
-          .filter((struct) => struct.structureType === STRUCTURE_CONTAINER);
-  // WIP hardcoding the upgrade missions
-  if (containers.length > 0 && !Memory.missions.upgrade) {
-    const upgradeMsn = new UpgradeMission('upgrade');
-    upgradeMsn.setController(Game.spawns.Spawn1.room.controller!);
-    upgradeMsn.setSource(containers[0] as StructureContainer);
-  }
+  // const containers =
+  //     Game.spawns.Spawn1.room.find(FIND_STRUCTURES)
+  //         .filter((struct) => struct.structureType === STRUCTURE_CONTAINER);
+  // // WIP hardcoding the upgrade missions
+  // if (containers.length > 0 && !Memory.missions.upgrade) {
+  //   const upgradeMsn = new UpgradeMission('upgrade');
+  //   upgradeMsn.setController(Game.spawns.Spawn1.room.controller!);
+  //   upgradeMsn.setSource(containers[0] as StructureContainer);
+  // }
 
   if (Memory.missions.upgrade) {
     const msn = new UpgradeMission('upgrade');
@@ -44,7 +46,10 @@ export const loop = () => {
   installConsoleCommands();
   garbageCollection();
 
-  op.run();
+  const eNetwork = new RoomEnergyNetwork(Game.spawns.Spawn1.room);
+
+  // op.run();
+  eNetwork.run();
   queue.run();
 
   for (const name in Memory.missions) {
@@ -78,6 +83,10 @@ export const loop = () => {
     if (creep.memory.role === 'fetcher') {
       const fetcher = new Fetcher(creep);
       fetcher.run();
+    }
+    if (creep.memory.role === 'hauler') {
+      const hauler = new Hauler(creep);
+      hauler.run();
     }
   }
 };

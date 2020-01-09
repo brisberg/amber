@@ -1,14 +1,6 @@
-import {NetworkEdgeMemory} from './networkEdge';
+import {EnergyNode} from './energyNode';
+import {NetworkEdge, NetworkEdgeMemory} from './networkEdge';
 import {WalkEdge} from './walkEdge';
-
-export interface EnergyNode {
-  ID: string;
-  room: string;
-  pos: [number, number];
-  polarity: 'source'|'sink';
-  type: 'link'|'structure'|'creep';
-  persistant: boolean;  // Unused for now
-}
 
 interface RoomEnergyNetworkMemory {
   room: string;
@@ -16,7 +8,7 @@ interface RoomEnergyNetworkMemory {
   edges: NetworkEdgeMemory[];
 }
 
-function initNetworkEdgeByType(mem: NetworkEdgeMemory): WalkEdge {
+function initNetworkEdgeByType(mem: NetworkEdgeMemory): NetworkEdge {
   // const edgeLookup: {[type: string]: WalkEdge} = {
   //   walk: WalkEdge.prototype,
   // };
@@ -28,7 +20,7 @@ function initNetworkEdgeByType(mem: NetworkEdgeMemory): WalkEdge {
   // const con = edgeLookup[type];
   // return Object.create(con);
   const cls = edgeClassByType[mem.type];
-  return new (global as any)[cls](mem);
+  return new (global as any)[cls]('walkedge', mem);
 }
 
 /**
@@ -43,7 +35,7 @@ function initNetworkEdgeByType(mem: NetworkEdgeMemory): WalkEdge {
 export class RoomEnergyNetwork {
   private readonly room: Room;
   private readonly nodes: EnergyNode[];
-  private readonly edges: WalkEdge[];  // TODO abstract to NetworkEdge
+  private readonly edges: NetworkEdge[];  // TODO abstract to NetworkEdge
 
   private readonly mem: RoomEnergyNetworkMemory;
 
@@ -62,5 +54,30 @@ export class RoomEnergyNetwork {
 
     this.nodes = this.mem.nodes;
     this.edges = this.mem.edges.map(initNetworkEdgeByType);
+  }
+
+  public run() {
+    if (this.nodes.length >= 2) {
+      // HACK, add links between each successive nodes
+      for (let i = 1; i < this.nodes.length; i++) {
+        const edgeName = (i - 1) + '-' + i;
+        if (!this.edges.some((edge) => edge.name === edgeName)) {
+          const edgeMem: NetworkEdgeMemory<any> = {
+            dest: this.nodes[i],
+            name: edgeName,
+            source: this.nodes[i - 1],
+            state: {},
+            type: 'walk',
+          };
+          this.mem.edges.push(edgeMem);
+          const edge = new WalkEdge(edgeName, edgeMem);
+          this.edges.push(edge);
+        }
+      }
+    }
+
+    for (const edge of this.edges) {
+      edge.run();
+    }
   }
 }

@@ -1,4 +1,4 @@
-import {createWorkerBody} from 'utils/workerUtils';
+import {EnergyNode} from 'energy-network/energyNode';
 
 /**
  * Installs all Console Commands to the global scope. Can be accessed by:
@@ -9,22 +9,23 @@ export function installConsoleCommands() {
 }
 
 const CONSOLE_COMMANDS = {
-  spawnMiner: () => {
-    const spawn = 'Spawn1';
-    const id = Memory.nextID || 0;
-    Memory.nextID = id + 1;
-    global.spawnQueue.requestCreep({
-      body: createWorkerBody(1, 2, 2),
-      name: `miner=${id}`,
-      options: {
-        memory: {
-          containerID: null,
-          role: 'miner',
-          sourceID: Game.spawns[spawn].room.find(FIND_SOURCES)[0].id,
-        },
-      },
-      priority: 0,
-    });
+  addEnergySourceNode: (containerID: Id<StructureContainer>) => {
+    const roomName = Game.spawns.Spawn1.room.name;
+    const container = Game.getObjectById(containerID);
+
+    if (!container) {
+      return;
+    }
+
+    const energyNode: EnergyNode = {
+      ID: 'foo',
+      persistant: true,
+      polarity: 'source',
+      pos: [container.pos.x, container.pos.y],
+      room: roomName,
+      type: 'structure',
+    };
+    Memory.rooms[roomName].network.nodes.push(energyNode);
     return;
   },
 };
