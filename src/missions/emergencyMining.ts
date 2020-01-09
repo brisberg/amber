@@ -3,7 +3,6 @@ import {createWorkerBody} from 'utils/workerUtils';
 
 interface EmergencyMiningMemory {
   creeps: string[];
-  nextId: number;
   reservations: SpawnReservation[];
 }
 
@@ -24,7 +23,6 @@ export class EmergencyMining {
     if (!Memory.missions[name]) {
       Memory.missions[name] = {
         creeps: [],
-        nextId: 0,
         reservations: [],
       };
     }
@@ -39,13 +37,12 @@ export class EmergencyMining {
     if ((this.miners.length + this.mem.reservations.length) <
         EmergencyMining.maxMiners) {
       // Request another miner
-      const name = this.name + this.mem.nextId;
+      const name = this.name + Game.time;
       const res = global.spawnQueue.requestCreep({
         body: this.createMinerBody(),
         name,
         options: {
           memory: {
-            containerID: null,
             role: 'miner',
             sourceID: this.room.find(FIND_SOURCES)[0].id,
           },
@@ -53,7 +50,6 @@ export class EmergencyMining {
         priority: EmergencyMining.spawnPriority,
       });
       this.mem.reservations.push(res);
-      this.mem.nextId++;
     }
 
     // Claim reserved creeps

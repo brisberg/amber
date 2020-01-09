@@ -1,20 +1,15 @@
-import {Harvester} from 'roles/harvester';
 import {SpawnReservation} from 'spawnQueue';
 import {BODY_MANIFEST_INDEX} from 'utils/bodypartManifest';
 import {createWorkerBody} from 'utils/workerUtils';
 
 import {MAX_WORK_PER_SOURCE} from '../constants';
 
-import {analyzeSourceForHarvesting, SourceAnalysis} from './sourceAnalysis';
-
 interface HarvestingMemory {
-  analysis: SourceAnalysis|null;
   harvesters: string[];
-  nextId: number;
+  maxHarvesters: number;
   reservations: SpawnReservation[];
   sourceID: Id<Source>|null;
-  containerID: Id<StructureContainer|ConstructionSite<STRUCTURE_CONTAINER>>|
-      null;
+  containerID: Id<StructureContainer>|null;
 }
 
 /**
@@ -28,103 +23,94 @@ export class HarvestingMission {
   private static spawnPriority = 1;
 
   public name: string;
-  public room: Room;
-  public source: Source;
-  public container: StructureContainer|ConstructionSite<STRUCTURE_CONTAINER>|
-      null = null;
+  public room: Room|null = null;
+  public source: Source|null = null;
+  public container: StructureContainer|null = null;
 
   private harvesters: Creep[] = [];
   private mem: HarvestingMemory;
 
-  constructor(name: string, source: Source) {
+  constructor(name: string) {
     this.name = name;
-    this.room = source.room;
-    this.source = source;
 
     // Init memory
     if (!Memory.missions[name]) {
       const mem: HarvestingMemory = {
-        analysis: null,
         containerID: null,
         harvesters: [],
-        nextId: 0,
+        maxHarvesters: 0,
         reservations: [],
-        sourceID: source.id,
+        sourceID: null,
       };
       Memory.missions[name] = mem;
     }
     this.mem = Memory.missions[name] as HarvestingMemory;
 
+    if (this.mem.sourceID) {
+      const src = Game.getObjectById(this.mem.sourceID);
+      this.source = src;
+      this.room = src ? src.room : null;
+    }
     if (this.mem.containerID) {
       this.container = Game.getObjectById(this.mem.containerID);
     }
+
     // Purge names of dead/expired creeps
     this.mem.harvesters =
         this.mem.harvesters.filter((cName) => Game.creeps[cName]);
     this.harvesters = this.mem.harvesters.map((cName) => Game.creeps[cName]);
   }
 
+  public setSource(source: Source) {
+    this.source = source;
+    this.mem.sourceID = source.id;
+  }
+
+  public setContainer(container: StructureContainer) {
+    this.container = container;
+    this.mem.containerID = container.id;
+  }
+
+  public setMaxHarvesters(max: number) {
+    this.mem.maxHarvesters = max;
+  }
+
   /** Executes one update tick for this mission */
   public run() {
-    // Run source analysis if we don't have one
-    if (!this.mem.analysis) {
-      this.mem.analysis = analyzeSourceForHarvesting(this.source);
+    if (!this.source || !this.container) {
+      return;
     }
 
-    if (!this.container) {
-      // Look for an existing Container or Construction Site at these locations
-      const results = this.room.lookAt(
-          this.mem.analysis.containerPos[0], this.mem.analysis.containerPos[1]);
-      results.some((lookup) => {
-        if (lookup.constructionSite &&
-            lookup.constructionSite.structureType === STRUCTURE_CONTAINER) {
-          this.setContainer(
-              lookup.constructionSite as ConstructionSite<STRUCTURE_CONTAINER>);
-          return true;
-        } else if (
-            lookup.structure &&
-            lookup.structure.structureType === STRUCTURE_CONTAINER) {
-          this.setContainer(lookup.structure as StructureContainer);
-          return true;
-        }
+    // Check for creep allocation
+    if (this.needMoreHarvesters()) {
+      this.requestHarvester();
+    }
+
+    // Claim reserved creeps
+    this.mem.reservations = this.mem.reservations.filter((reserve) => {
+      const creep = Game.creeps[reserve.name];
+      if (creep) {
+        this.mem.harvesters.push(reserve.name);
+        this.harvesters.push(creep);
         return false;
-      });
-
-      if (!this.container) {
-        // No container assigned or none exsists, need to build a new one
-        this.room.createConstructionSite(
-            this.mem.analysis.containerPos[0],
-            this.mem.analysis.containerPos[1], STRUCTURE_CONTAINER);
       }
-    }
+      return true;
+    });
 
-    if (this.container) {
-      // Check for creep allocation
-      if (this.needMoreHarvesters()) {
-        this.requestHarvester();
+    this.harvesters.forEach((harvester) => {
+      // Reassign the harvesters if they were given to us
+      if (harvester.memory.role !== 'harvester') {
+        harvester.memory = {
+          containerID: this.container!.id,
+          role: 'harvester',
+          sourceID: this.source!.id,
+        };
       }
-
-      // Claim reserved creeps
-      this.mem.reservations = this.mem.reservations.filter((reserve) => {
-        const creep = Game.creeps[reserve.name];
-        if (creep) {
-          this.mem.harvesters.push(reserve.name);
-          this.harvesters.push(creep);
-          return false;
-        }
-        return true;
-      });
-
-      // Execute creep update ticks
-      this.harvesters.forEach((creep) => {
-        const harvester = new Harvester(creep);
-        harvester.run();
-      });
-    }
+    });
   }
 
   private get maxHarvesters() {
-    return this.mem.analysis ? this.mem.analysis.maxHarvesters : 0;
+    return this.mem.maxHarvesters || 0;
   }
 
   /**
@@ -153,15 +139,6 @@ export class HarvestingMission {
     return true;
   }
 
-  private setContainer(container: StructureContainer|
-                       ConstructionSite<STRUCTURE_CONTAINER>) {
-    this.container = container;
-    this.mem.containerID = container.id;
-    this.harvesters.forEach((harvester) => {
-      harvester.memory.containerID = container.id;
-    });
-  }
-
   private requestHarvester() {
     // Request another harvester
     const name = this.name + Game.time;
@@ -172,13 +149,12 @@ export class HarvestingMission {
         memory: {
           containerID: this.mem.containerID,
           role: 'harvester',
-          sourceID: this.source.id,
+          sourceID: this.mem.sourceID || undefined,
         },
       },
       priority: HarvestingMission.spawnPriority,
     });
     this.mem.reservations.push(res);
-    this.mem.nextId++;
   }
 
   private createHarvesterBody() {

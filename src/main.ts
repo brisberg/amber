@@ -1,5 +1,7 @@
-// import {EmergencyMining} from 'missions/emergencyMining';
+import {BuildMission} from 'missions/build';
 import {HarvestingMission} from 'missions/harvesting';
+import {MiningOperation} from 'missions/miningOperation';
+import {Builder} from 'roles/builder';
 import {Harvester} from 'roles/harvester';
 import {Miner} from 'roles/miner';
 import {SpawnQueue} from 'spawnQueue';
@@ -13,18 +15,29 @@ import {garbageCollection} from './garbageCollect';
 // export const loop = ErrorMapper.wrapLoop(() => {
 export const loop = () => {
   // Initialize global constructs
-  if (!Memory.missions) {
-    Memory.missions = {};
-  }
+  Memory.missions = Memory.missions || {};
+  Memory.spawns = Memory.spawns || {};
+  Memory.operations = Memory.operations || {};
+
   const queue = global.spawnQueue = new SpawnQueue(Game.spawns.Spawn1);
-  const mission = new HarvestingMission(
-      'harvest', Game.spawns.Spawn1.room.find(FIND_SOURCES)[0]);
+  const op = new MiningOperation(
+      'mining_op', Game.spawns.Spawn1.room.find(FIND_SOURCES)[0]);
 
   installConsoleCommands();
   garbageCollection();
 
-  mission.run();
+  op.run();
   queue.run();
+
+  for (const name in Memory.missions) {
+    if (name.includes('harvest')) {
+      const mission = new HarvestingMission(name);
+      mission.run();
+    } else if (name.includes('build')) {
+      const mission = new BuildMission(name);
+      mission.run();
+    }
+  }
 
   for (const name in Game.creeps) {
     const creep = Game.creeps[name];
@@ -33,8 +46,12 @@ export const loop = () => {
       miner.run();
     }
     if (creep.memory.role === 'harvester') {
-      const miner = new Harvester(creep);
-      miner.run();
+      const harvester = new Harvester(creep);
+      harvester.run();
+    }
+    if (creep.memory.role === 'builder') {
+      const builder = new Builder(creep);
+      builder.run();
     }
   }
 };

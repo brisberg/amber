@@ -5,14 +5,17 @@ interface CreepMemory {
   role: string;
   room?: string;
   working?: boolean;
-  sourceID: Id<Source>;
-  containerID: Id<StructureContainer|ConstructionSite<STRUCTURE_CONTAINER>>|
+  sourceID?: Id<Source>;
+  containerID?: Id<StructureContainer|ConstructionSite<STRUCTURE_CONTAINER>>|
       null;
+  targetSiteID?: Id<ConstructionSite>;
 }
 
 interface Memory {
   nextID: number;
   missions: {[name: string]: any};
+  spawns: {[name: string]: any};
+  operations: {[name: string]: any};
   uuid: number;
   log: any;
 }
