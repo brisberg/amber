@@ -1,8 +1,5 @@
+import {SpawnReservation} from 'spawnQueue';
 import {createWorkerBody} from 'utils/workerUtils';
-
-interface SpawnReservation {
-  creepName: string;
-}
 
 interface EmergencyMiningMemory {
   creeps: string[];
@@ -43,7 +40,7 @@ export class EmergencyMining {
         EmergencyMining.maxMiners) {
       // Request another miner
       const name = this.name + this.mem.nextId;
-      global.spawnQueue.requestCreep({
+      const res = global.spawnQueue.requestCreep({
         body: this.createMinerBody(),
         name,
         options: {
@@ -55,15 +52,15 @@ export class EmergencyMining {
         },
         priority: EmergencyMining.spawnPriority,
       });
-      this.mem.reservations.push({creepName: name});
+      this.mem.reservations.push(res);
       this.mem.nextId++;
     }
 
     // Claim reserved creeps
     this.mem.reservations = this.mem.reservations.filter((reserve) => {
-      const creep = Game.creeps[reserve.creepName];
+      const creep = Game.creeps[reserve.name];
       if (creep) {
-        this.mem.creeps.push(reserve.creepName);
+        this.mem.creeps.push(reserve.name);
         this.miners.push(creep);
         return false;
       }

@@ -1,13 +1,10 @@
 import {Harvester} from 'roles/harvester';
+import {SpawnReservation} from 'spawnQueue';
 import {createWorkerBody} from 'utils/workerUtils';
 
 import {MAX_WORK_PER_SOURCE} from '../constants';
 
 import {analyzeSourceForHarvesting, SourceAnalysis} from './sourceAnalysis';
-
-interface SpawnReservation {
-  creepName: string;
-}
 
 interface HarvestingMemory {
   analysis: SourceAnalysis|null;
@@ -108,9 +105,9 @@ export class HarvestingMission {
 
       // Claim reserved creeps
       this.mem.reservations = this.mem.reservations.filter((reserve) => {
-        const creep = Game.creeps[reserve.creepName];
+        const creep = Game.creeps[reserve.name];
         if (creep) {
-          this.mem.harvesters.push(reserve.creepName);
+          this.mem.harvesters.push(reserve.name);
           this.harvesters.push(creep);
           return false;
         }
@@ -168,7 +165,7 @@ export class HarvestingMission {
   private requestHarvester() {
     // Request another harvester
     const name = this.name + Game.time;
-    global.spawnQueue.requestCreep({
+    const res = global.spawnQueue.requestCreep({
       body: this.createHarvesterBody(),
       name,
       options: {
@@ -180,7 +177,7 @@ export class HarvestingMission {
       },
       priority: HarvestingMission.spawnPriority,
     });
-    this.mem.reservations.push({creepName: name});
+    this.mem.reservations.push(res);
     this.mem.nextId++;
   }
 

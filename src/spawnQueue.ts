@@ -1,4 +1,5 @@
-import {totalCost} from './utils/workerUtils';
+import {BodyPartManifest, generateManifestFromBody} from 'utils/bodypartManifest';
+import {totalCost} from 'utils/workerUtils';
 
 /**
  * Represents the queue of creeps to be build by a given spawner.
@@ -19,6 +20,17 @@ export interface SpawnRequest {
   options?: SpawnOptions;
 }
 
+/**
+ * Interface representing a "promise" to spawn a specified creep in the future.
+ * Returned to missions from the spawn system when a new creep is requested.
+ * These creeps will be spawned eventaully and assigned to the requesting
+ * mission.
+ */
+export interface SpawnReservation {
+  name: string;
+  loadout: BodyPartManifest;
+}
+
 export class SpawnQueue {
   private spawner: StructureSpawn;
   private mem: SpawnMemory;
@@ -32,10 +44,14 @@ export class SpawnQueue {
     }
   }
 
-  public requestCreep(request: SpawnRequest) {
+  public requestCreep(request: SpawnRequest): SpawnReservation {
     // TODO: Validate that creep cost is less than total spawn storage
     this.mem.requests.push(request);
     this.sortQueueByPriority();
+    return {
+      loadout: generateManifestFromBody(request.body),
+      name: request.name,
+    };
   }
 
   /** Executes one update tick of the spawner */
