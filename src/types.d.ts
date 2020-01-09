@@ -22,6 +22,10 @@ interface Memory {
   log: any;
 }
 
+interface RoomMemory {
+  network: any;
+}
+
 interface SpawnMemory {
   requests: any[];
 }
