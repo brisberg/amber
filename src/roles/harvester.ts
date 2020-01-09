@@ -47,7 +47,7 @@ export class Harvester {
     }
 
     if (this.source) {
-      if (!this.creep.pos.inRangeTo(this.source.pos, 1)) {
+      if (!this.creep.pos.inRangeTo(this.source, 1)) {
         this.creep.moveTo(this.source);
         return;
       }
@@ -74,11 +74,19 @@ export class Harvester {
             this.container.store.getFreeCapacity() > this.creep.store.energy) {
           const amount = Math.min(
               this.creep.store.energy, this.container.store.getFreeCapacity());
+          if (!this.creep.pos.inRangeTo(this.container, 1)) {
+            this.creep.moveTo(this.container);
+            return;
+          }
           this.creep.transfer(this.container, RESOURCE_ENERGY, amount);
         }
       }
 
       if (this.creep.store.getFreeCapacity() > 0) {
+        if (!this.creep.pos.inRangeTo(this.source, 1)) {
+          this.creep.moveTo(this.source);
+          return;
+        }
         this.creep.harvest(this.source);
       }
     }
