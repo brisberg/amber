@@ -1,5 +1,6 @@
 import {Harvester} from 'roles/harvester';
 import {SpawnReservation} from 'spawnQueue';
+import {BODY_MANIFEST_INDEX} from 'utils/bodypartManifest';
 import {createWorkerBody} from 'utils/workerUtils';
 
 import {MAX_WORK_PER_SOURCE} from '../constants';
@@ -143,8 +144,7 @@ export class HarvestingMission {
       totalWorkParts += harvester.getActiveBodyparts(WORK);
     }
     for (const res of this.mem.reservations) {
-      totalWorkParts += 2;
-      // TODO: record in reservations how many parts it has
+      totalWorkParts += res.loadout[BODY_MANIFEST_INDEX[WORK]];
     }
     if (totalWorkParts >= MAX_WORK_PER_SOURCE + 1) {
       return false;
