@@ -1,3 +1,5 @@
+import {registerEnergyNode} from 'energy-network/energyNode';
+
 import {BuildMission} from './build';
 import {HarvestingMission} from './harvesting';
 import {analyzeSourceForHarvesting, SourceAnalysis} from './sourceAnalysis';
@@ -23,6 +25,7 @@ export interface MiningOperationMemory {
   sourceID: Id<Source>;
   containerID: Id<StructureContainer|ConstructionSite<STRUCTURE_CONTAINER>>|
       null;
+  eNodeFlag: string|null;
 }
 
 export class MiningOperation {
@@ -45,6 +48,7 @@ export class MiningOperation {
         analysis: null,
         buildMission: null,
         containerID: null,
+        eNodeFlag: null,
         harvestMission: null,
         sourceID: source.id,
       };
@@ -93,6 +97,18 @@ export class MiningOperation {
       buildMsn.setSource(this.source);
       this.mem.buildMission = buildMsn.name;
     } else if (this.container instanceof StructureContainer) {
+      // Attack ourselves to the enrgy network
+      if (!this.mem.eNodeFlag) {
+        const flag = registerEnergyNode(
+            this.room, [this.container.pos.x, this.container.pos.y], {
+              persistant: true,
+              polarity: 'source',
+              structureID: this.container.id,
+              type: 'structure',
+            });
+        this.mem.eNodeFlag = flag.name;
+      }
+
       // Transfer Phase
       if (this.mem.buildMission && !this.mem.harvestMission) {
         // Cleanup the build missions and reassign all creeps to the new Harvest
@@ -104,6 +120,7 @@ export class MiningOperation {
         harvestMsn.setSource(this.source);
         harvestMsn.setContainer(this.container);
         harvestMsn.setMaxHarvesters(this.mem.analysis.maxHarvesters);
+        // Transfer the creeps as harvesters to the harvesting missions
         Memory.missions[harvestMsn.name].harvesters = creeps;
       } else if (!this.mem.harvestMission) {
         const harvestMsn = new HarvestingMission(this.name + '_harvest');

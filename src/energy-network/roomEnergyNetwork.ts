@@ -57,16 +57,19 @@ export class RoomEnergyNetwork {
     this.syncNodesFromFlags();
 
     // TODO: Graph analysis
-    if (this.nodes.length >= 2) {
-      // HACK, add links between each successive nodes
-      for (let i = 1; i < this.nodes.length; i++) {
-        const edgeName = (i - 1) + '-' + i;
+    if (this.nodes.length === 2) {
+      // HACK, add links from the source to the sink
+      const source = this.nodes.find((node) => node.mem.polarity === 'source');
+      const sink = this.nodes.find((node) => node.mem.polarity === 'sink');
+
+      if (source && sink) {
+        const edgeName = 'source-sink';
         const edgeExists = this.edges.length > 0;
         if (!edgeExists) {
           const edgeMem: NetworkEdgeMemory<any> = {
-            dest: this.nodes[i].mem,
+            dest: sink.mem,
             name: edgeName,
-            source: this.nodes[i - 1].mem,
+            source: source.mem,
             state: {},
             type: 'walk',
           };

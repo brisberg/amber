@@ -1,3 +1,4 @@
+import {registerEnergyNode} from 'energy-network/energyNode';
 import {BodyPartManifest, generateManifestFromBody} from 'utils/bodypartManifest';
 import {totalCost} from 'utils/workerUtils';
 
@@ -41,6 +42,17 @@ export class SpawnQueue {
 
     if (!this.mem) {
       Memory.spawns[spawner.name] = {requests: []};
+    }
+
+    if (!Game.flags['enode_' + this.spawner.name]) {
+      // Register us as an Energy Sink
+      registerEnergyNode(
+          this.spawner.room, [this.spawner.pos.x, this.spawner.pos.y], {
+            persistant: true,
+            polarity: 'sink',
+            structureID: this.spawner.id,
+            type: 'structure',
+          });
     }
   }
 

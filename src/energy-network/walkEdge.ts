@@ -42,6 +42,10 @@ export class WalkEdge extends NetworkEdge<WalkEdgeMemory> {
 
   public retire() {
     // Unimplemented
+    if (this.transportMission) {
+      // TODO: Do something with the orphaned creeps
+      TransportMission.cleanup(this.transportMission.name);
+    }
     return;
   }
 }

@@ -26,23 +26,23 @@ export const loop = () => {
   Memory.rooms = Memory.rooms || {};
 
   const queue = global.spawnQueue = new SpawnQueue(Game.spawns.Spawn1);
-  // const op = new MiningOperation(
-  //     'mining_op', Game.spawns.Spawn1.room.find(FIND_SOURCES)[0]);
+  const op = new MiningOperation(
+      'mining_op', Game.spawns.Spawn1.room.find(FIND_SOURCES)[0]);
 
   // const containers =
   //     Game.spawns.Spawn1.room.find(FIND_STRUCTURES)
   //         .filter((struct) => struct.structureType === STRUCTURE_CONTAINER);
-  // // WIP hardcoding the upgrade missions
+  // WIP hardcoding the upgrade missions
   // if (containers.length > 0 && !Memory.missions.upgrade) {
   //   const upgradeMsn = new UpgradeMission('upgrade');
   //   upgradeMsn.setController(Game.spawns.Spawn1.room.controller!);
   //   upgradeMsn.setSource(containers[0] as StructureContainer);
   // }
 
-  if (Memory.missions.upgrade) {
-    const msn = new UpgradeMission('upgrade');
-    msn.run();
-  }
+  // if (Memory.missions.upgrade) {
+  //   const msn = new UpgradeMission('upgrade');
+  //   msn.run();
+  // }
 
   installConsoleCommands();
   garbageCollection();
@@ -54,7 +54,7 @@ export const loop = () => {
 
   const eNetwork = new RoomEnergyNetwork(Game.spawns.Spawn1.room);
 
-  // op.run();
+  op.run();
   eNetwork.run();
   queue.run();
 

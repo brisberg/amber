@@ -11,6 +11,9 @@ export interface SourceAnalysis {
   maxHarvesters: number;
 }
 
+/** Radius around the source to search for a reusable container */
+const SEARCH_RADIUS = 1;
+
 /**
  * Analyzes a source and returns a report containing information relevent for
  * setting up a harvesting missions for the source.
@@ -43,7 +46,7 @@ export function analyzeSourceForHarvesting(source: Source): SourceAnalysis {
 
   const path = room.findPath(startPos, source.pos, {
     ignoreCreeps: true,
-    swampCost: 1,
+    swampCost: SEARCH_RADIUS,
   });
 
   const end = path[path.length - 2];
@@ -51,8 +54,9 @@ export function analyzeSourceForHarvesting(source: Source): SourceAnalysis {
 
   // Alternatively, Locate and reuse an existing Container or Construction site
   const sites = room.lookForAtArea(
-      LOOK_CONSTRUCTION_SITES, source.pos.y - 1, source.pos.x - 1,
-      source.pos.y + 1, source.pos.x + 1, true);
+      LOOK_CONSTRUCTION_SITES, source.pos.y - SEARCH_RADIUS,
+      source.pos.x - SEARCH_RADIUS, source.pos.y + SEARCH_RADIUS,
+      source.pos.x + SEARCH_RADIUS, true);
   sites.forEach((site) => {
     if (site.constructionSite.structureType === STRUCTURE_CONTAINER) {
       // Reuse this Container construction site
@@ -61,8 +65,9 @@ export function analyzeSourceForHarvesting(source: Source): SourceAnalysis {
   });
 
   const structs = room.lookForAtArea(
-      LOOK_STRUCTURES, source.pos.y - 1, source.pos.x - 1, source.pos.y + 1,
-      source.pos.x + 1, true);
+      LOOK_STRUCTURES, source.pos.y - SEARCH_RADIUS,
+      source.pos.x - SEARCH_RADIUS, source.pos.y + SEARCH_RADIUS,
+      source.pos.x + SEARCH_RADIUS, true);
   structs.forEach((struct) => {
     if (struct.structure.structureType === STRUCTURE_CONTAINER) {
       // Reuse this Container

@@ -26,9 +26,10 @@ export class Hauler {
 
     // HACK Assuming node is a container for now
     const structs = this.creep.room.lookForAt(LOOK_STRUCTURES, tarX, tarY);
-    const container = structs.find(
-                          (struct) => struct.structureType ===
-                              STRUCTURE_CONTAINER) as StructureContainer |
+    const container = structs.find((struct) => {
+      return struct.structureType === STRUCTURE_CONTAINER ||
+          struct.structureType === STRUCTURE_SPAWN;
+    }) as StructureContainer |
         undefined;
 
     if (container) {
