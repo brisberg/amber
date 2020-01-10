@@ -131,6 +131,8 @@ export class TransportMission {
       name,
       options: {
         memory: {
+          energyNode: this.source,
+          phase: 'fetch',
           role: 'hauler',
         },
       },

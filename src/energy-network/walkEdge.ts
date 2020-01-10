@@ -25,6 +25,9 @@ export class WalkEdge extends NetworkEdge<WalkEdgeMemory> {
       if (!this.transportMission) {
         // Start a new transport mission
         this.transportMission = new TransportMission(this.name + '_transport');
+        this.transportMission.setSource(this.source);
+        this.transportMission.setDestination(this.dest);
+        this.mem.state.transportMsn = this.transportMission.name;
       }
 
       if (this.transportMission) {

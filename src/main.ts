@@ -23,6 +23,7 @@ export const loop = () => {
   Memory.missions = Memory.missions || {};
   Memory.spawns = Memory.spawns || {};
   Memory.operations = Memory.operations || {};
+  Memory.rooms = Memory.rooms || {};
 
   const queue = global.spawnQueue = new SpawnQueue(Game.spawns.Spawn1);
   // const op = new MiningOperation(
@@ -46,6 +47,11 @@ export const loop = () => {
   installConsoleCommands();
   garbageCollection();
 
+  const roomName = Game.spawns.Spawn1.room.name;
+  if (!Memory.rooms[roomName]) {
+    Memory.rooms[roomName] = {network: null};
+  }
+
   const eNetwork = new RoomEnergyNetwork(Game.spawns.Spawn1.room);
 
   // op.run();
@@ -64,6 +70,11 @@ export const loop = () => {
 
   for (const name in Game.creeps) {
     const creep = Game.creeps[name];
+
+    if (creep.spawning) {
+      continue;
+    }
+
     if (creep.memory.role === 'miner') {
       const miner = new Miner(creep);
       miner.run();

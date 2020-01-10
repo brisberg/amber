@@ -9,18 +9,12 @@ interface RoomEnergyNetworkMemory {
 }
 
 function initNetworkEdgeByType(mem: NetworkEdgeMemory): NetworkEdge {
-  // const edgeLookup: {[type: string]: WalkEdge} = {
-  //   walk: WalkEdge.prototype,
-  // };
-
-  const edgeClassByType: {[type: string]: string} = {
-    walk: 'WalkEdge',
-  };
-
-  // const con = edgeLookup[type];
-  // return Object.create(con);
-  const cls = edgeClassByType[mem.type];
-  return new (global as any)[cls]('walkedge', mem);
+  switch (mem.type) {
+    case 'walk': {
+      return new WalkEdge(mem.name, mem);
+    }
+    default: { throw Error('Unknown Network Edge Type'); }
+  }
 }
 
 /**
@@ -61,7 +55,8 @@ export class RoomEnergyNetwork {
       // HACK, add links between each successive nodes
       for (let i = 1; i < this.nodes.length; i++) {
         const edgeName = (i - 1) + '-' + i;
-        if (!this.edges.some((edge) => edge.name === edgeName)) {
+        const edgeExists = this.edges.length > 0;
+        if (!edgeExists) {
           const edgeMem: NetworkEdgeMemory<any> = {
             dest: this.nodes[i],
             name: edgeName,
