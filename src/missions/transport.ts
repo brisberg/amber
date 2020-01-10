@@ -1,12 +1,12 @@
-import {EnergyNode} from 'energy-network/energyNode';
+import {EnergyNode, EnergyNodeMemory} from 'energy-network/energyNode';
 import {SpawnReservation} from 'spawnQueue';
 import {createWorkerBody} from 'utils/workerUtils';
 
 interface TransportMissionMemory {
   haulers: string[];
   reservations: SpawnReservation[];
-  source: EnergyNode|null;
-  dest: EnergyNode|null;
+  source: EnergyNodeMemory|null;
+  dest: EnergyNodeMemory|null;
 }
 
 /**
@@ -19,7 +19,6 @@ export class TransportMission {
   private static spawnPriority = 1;
 
   public name: string;
-  public room: Room|null = null;
   public source: EnergyNode|null = null;
   public dest: EnergyNode|null = null;
 
@@ -42,13 +41,11 @@ export class TransportMission {
     this.mem = Memory.missions[name] as TransportMissionMemory;
 
     if (this.mem.source) {
-      const source = this.mem.source;
-      this.room = Game.rooms[source.room] || null;
-      this.source = source;
+      this.source = new EnergyNode(Game.flags[this.mem.source.flag]);
     }
 
     if (this.mem.dest) {
-      this.dest = this.mem.dest;
+      this.dest = new EnergyNode(Game.flags[this.mem.dest.flag]);
     }
 
     // Purge names of dead/expired creeps
@@ -57,12 +54,12 @@ export class TransportMission {
   }
 
   public setSource(source: EnergyNode) {
-    this.mem.source = source;
+    this.mem.source = source.mem;
     this.source = source;
   }
 
   public setDestination(dest: EnergyNode) {
-    this.mem.dest = dest;
+    this.mem.dest = dest.mem;
     this.dest = dest;
   }
 

@@ -32,6 +32,10 @@ interface SpawnMemory {
   requests: any[];
 }
 
+interface FlagMemory {
+  state?: any;
+}
+
 // `global` extension samples
 declare namespace NodeJS {
   interface Global {

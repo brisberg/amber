@@ -1,17 +1,17 @@
-import {EnergyNode} from './energyNode';
+import {EnergyNodeMemory} from './energyNode';
 
 export interface NetworkEdgeMemory<T = any> {
   name: string;
   type: string;
-  source: EnergyNode;
-  dest: EnergyNode;
+  source: EnergyNodeMemory;
+  dest: EnergyNodeMemory;
   state: T;
 }
 
 export abstract class NetworkEdge<T = any> {
   public readonly name: string;
-  protected readonly source: EnergyNode;
-  protected readonly dest: EnergyNode;
+  protected readonly source: EnergyNodeMemory;
+  protected readonly dest: EnergyNodeMemory;
   protected readonly mem: NetworkEdgeMemory<T>;
 
   constructor(name: string, mem: NetworkEdgeMemory<T>) {

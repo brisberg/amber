@@ -1,5 +1,6 @@
 import {TransportMission} from 'missions/transport';
 
+import {EnergyNode} from './energyNode';
 import {NetworkEdge, NetworkEdgeMemory} from './networkEdge';
 
 interface WalkEdgeMemory {
@@ -25,8 +26,10 @@ export class WalkEdge extends NetworkEdge<WalkEdgeMemory> {
       if (!this.transportMission) {
         // Start a new transport mission
         this.transportMission = new TransportMission(this.name + '_transport');
-        this.transportMission.setSource(this.source);
-        this.transportMission.setDestination(this.dest);
+        this.transportMission.setSource(
+            new EnergyNode(Game.flags[this.source.flag]));
+        this.transportMission.setDestination(
+            new EnergyNode(Game.flags[this.dest.flag]));
         this.mem.state.transportMsn = this.transportMission.name;
       }
 

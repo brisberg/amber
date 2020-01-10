@@ -1,10 +1,10 @@
-import {EnergyNode} from './energyNode';
+import {EnergyNode, EnergyNodeMemory} from './energyNode';
 import {NetworkEdge, NetworkEdgeMemory} from './networkEdge';
 import {WalkEdge} from './walkEdge';
 
 interface RoomEnergyNetworkMemory {
   room: string;
-  nodes: EnergyNode[];
+  nodes: string[];  // Array of flag names
   edges: NetworkEdgeMemory[];
 }
 
@@ -46,11 +46,13 @@ export class RoomEnergyNetwork {
     }
     this.mem = Memory.rooms[room.name].network;
 
-    this.nodes = this.mem.nodes;
+    this.nodes = this.mem.nodes.map((flag) => new EnergyNode(Game.flags[flag]));
     this.edges = this.mem.edges.map(initNetworkEdgeByType);
   }
 
   public run() {
+    // TODO: Sync node memory with the flags that exist
+
     if (this.nodes.length >= 2) {
       // HACK, add links between each successive nodes
       for (let i = 1; i < this.nodes.length; i++) {
@@ -58,9 +60,9 @@ export class RoomEnergyNetwork {
         const edgeExists = this.edges.length > 0;
         if (!edgeExists) {
           const edgeMem: NetworkEdgeMemory<any> = {
-            dest: this.nodes[i],
+            dest: this.nodes[i].mem,
             name: edgeName,
-            source: this.nodes[i - 1],
+            source: this.nodes[i - 1].mem,
             state: {},
             type: 'walk',
           };
