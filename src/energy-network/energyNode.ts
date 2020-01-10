@@ -1,3 +1,5 @@
+import {ENERGY_NODE_FLAG_COLOR} from 'flagConstants';
+
 /**
  * Energy Node is a generic representation of a Node of the Energy network. This
  * could a Structure (Container, Link, Storage, Terminal) or a Creep drop zone.
@@ -76,7 +78,7 @@ export function registerEnergyNode(
     type: opts.type,
   };
 
-  room.createFlag(pos[0], pos[1], flagName);
+  room.createFlag(pos[0], pos[1], flagName, ENERGY_NODE_FLAG_COLOR);
   // We just made this flag, guaranteed to exist
   const flag = findFlag(flagName)!;
   Memory.flags[flagName] = {state: mem};

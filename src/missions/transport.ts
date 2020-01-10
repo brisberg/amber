@@ -65,6 +65,10 @@ export class TransportMission {
 
   /** Executes one update tick for this mission */
   public run() {
+    if (!this.source || !this.dest) {
+      return;
+    }
+
     // Check for creep allocation
     if (this.needMoreHaulers()) {
       this.requestHauler();
@@ -87,14 +91,14 @@ export class TransportMission {
           creep.store.getFreeCapacity() === 0) {
         // Have energy, travel to destination
         creep.memory = {
-          energyNode: this.dest,
+          energyNode: this.dest!.flag.name,
           phase: 'deliver',
           role: 'hauler',
         };
       } else if (creep.memory.phase === 'deliver' && creep.store.energy === 0) {
         // Fetch more energy
         creep.memory = {
-          energyNode: this.source,
+          energyNode: this.source!.flag.name,
           phase: 'fetch',
           role: 'hauler',
         };
@@ -128,7 +132,7 @@ export class TransportMission {
       name,
       options: {
         memory: {
-          energyNode: this.source,
+          energyNode: this.source!.flag.name,
           phase: 'fetch',
           role: 'hauler',
         },

@@ -39,4 +39,9 @@ export class WalkEdge extends NetworkEdge<WalkEdgeMemory> {
     }
     return;
   }
+
+  public retire() {
+    // Unimplemented
+    return;
+  }
 }

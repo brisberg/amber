@@ -1,3 +1,5 @@
+import {ENERGY_NODE_FLAG_COLOR} from 'flagConstants';
+
 import {EnergyNode, EnergyNodeMemory} from './energyNode';
 import {NetworkEdge, NetworkEdgeMemory} from './networkEdge';
 import {WalkEdge} from './walkEdge';
@@ -52,7 +54,9 @@ export class RoomEnergyNetwork {
 
   public run() {
     // TODO: Sync node memory with the flags that exist
+    this.syncNodesFromFlags();
 
+    // TODO: Graph analysis
     if (this.nodes.length >= 2) {
       // HACK, add links between each successive nodes
       for (let i = 1; i < this.nodes.length; i++) {
@@ -75,6 +79,46 @@ export class RoomEnergyNetwork {
 
     for (const edge of this.edges) {
       edge.run();
+    }
+  }
+
+  public registerEnergyNode(flag: Flag) {
+    this.mem.nodes.push(flag.name);
+    this.nodes.push(new EnergyNode(flag));
+    // this.discardAnalysisCache();
+    return;
+  }
+
+  public unregisterEnergyNode(name: string) {
+    // Prune the name from our list of nodes
+    this.mem.nodes = this.mem.nodes.filter((node) => node !== name);
+    const obsoliteEdges = this.edges.filter((edge) => {
+      return edge.source.flag === name || edge.dest.flag === name;
+    });
+    obsoliteEdges.forEach((edge) => edge.retire());
+    this.mem.edges = this.edges.filter((edge) => !obsoliteEdges.includes(edge))
+                         .map((edge) => edge.mem);
+    // this.discardAnalysisCache();
+    return;
+  }
+
+  /** Looks at all flags in the room and use them to update our node list  */
+  private syncNodesFromFlags() {
+    const flags =
+        this.room.find(FIND_FLAGS, {filter: {color: ENERGY_NODE_FLAG_COLOR}});
+
+    for (const flag of flags) {
+      if (this.mem.nodes.indexOf(flag.name) === -1) {
+        // New flag found
+        this.registerEnergyNode(flag);
+      }
+    }
+
+    for (const name of this.mem.nodes) {
+      if (flags.findIndex((flag) => flag.name === name) === -1) {
+        // Flag was removed, delete the node
+        this.unregisterEnergyNode(name);
+      }
     }
   }
 }

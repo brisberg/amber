@@ -10,16 +10,23 @@ export interface NetworkEdgeMemory<T = any> {
 
 export abstract class NetworkEdge<T = any> {
   public readonly name: string;
-  protected readonly source: EnergyNodeMemory;
-  protected readonly dest: EnergyNodeMemory;
-  protected readonly mem: NetworkEdgeMemory<T>;
+  public readonly source: EnergyNodeMemory;
+  public readonly dest: EnergyNodeMemory;
+  protected readonly _mem: NetworkEdgeMemory<T>;
 
   constructor(name: string, mem: NetworkEdgeMemory<T>) {
     this.name = name;
     this.source = mem.source;
     this.dest = mem.dest;
-    this.mem = mem;
+    this._mem = mem;
   }
 
   public abstract run(): void;
+
+  /** Removes all sub tasks of this edge. Edge can then be safely removed */
+  public abstract retire(): void;
+
+  public get mem() {
+    return this._mem;
+  }
 }
