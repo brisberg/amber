@@ -63,8 +63,10 @@ export class Builder {
         } else {
           const path = this.creep.pos.findPathTo(
               this.target.pos.x, this.target.pos.y, {range: 3});
-          const lastStep = path[path.length - 2];
-          this.creep.memory.destPos = [lastStep.x, lastStep.y];
+          if (path.length > 0) {
+            const lastStep = path[path.length - 2];
+            this.creep.memory.destPos = [lastStep.x, lastStep.y];
+          }
         }
       }
 

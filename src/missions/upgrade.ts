@@ -1,3 +1,4 @@
+import {EnergyNode} from 'energy-network/energyNode';
 import {SpawnReservation} from 'spawnQueue';
 import {createWorkerBody} from 'utils/workerUtils';
 
@@ -15,11 +16,7 @@ type SourceType = 'rawSource'|'structure'|'creep';
 interface UpgradeMissionMemory {
   upgraders: string[];
   reservations: SpawnReservation[];
-  source: {
-    // sourceID?: Id<Source>,
-    structure?: Id<StructureContainer>,
-    // creep:
-  };
+  sourceNodeFlag: string|null;
   controllerID: Id<StructureController>|null;
 }
 
@@ -34,6 +31,7 @@ export class UpgradeMission {
 
   public name: string;
   public room: Room|null = null;
+  public sourceNode: EnergyNode|null = null;
   public controller: StructureController|null = null;
 
   private upgraders: Creep[] = [];
@@ -47,12 +45,17 @@ export class UpgradeMission {
       const mem: UpgradeMissionMemory = {
         controllerID: null,
         reservations: [],
-        source: {},
+        sourceNodeFlag: null,
         upgraders: [],
       };
       Memory.missions[name] = mem;
     }
     this.mem = Memory.missions[name] as UpgradeMissionMemory;
+
+    // Energy Source Node
+    if (this.mem.sourceNodeFlag) {
+      this.sourceNode = new EnergyNode(Game.flags[this.mem.sourceNodeFlag]);
+    }
 
     if (this.mem.controllerID) {
       const controller = Game.getObjectById(this.mem.controllerID);
@@ -72,8 +75,9 @@ export class UpgradeMission {
     this.mem.controllerID = controller.id;
   }
 
-  public setSource(cont: StructureContainer) {
-    this.mem.source.structure = cont.id;
+  public setSource(node: EnergyNode) {
+    this.sourceNode = node;
+    this.mem.sourceNodeFlag = node.flag.name;
   }
 
   /** Executes one update tick for this mission */
@@ -99,28 +103,19 @@ export class UpgradeMission {
       return true;
     });
 
-    // Determine our source
-    // TODO: Only works with sources for now
-    const source = Game.getObjectById(this.mem.source.structure!);
-
-    // Direct each creep to mine or build
-    this.upgraders.forEach((creep) => {
-      if (creep.memory.role === 'upgrader' && creep.store.energy === 0) {
-        // Fetch more energy
-        creep.memory = {
-          containerID: this.mem.source.structure,
-          role: 'fetcher',
-        };
-      } else if (
-          creep.memory.role === 'fetcher' &&
-          creep.store.getFreeCapacity() === 0) {
-        // Have energy, build the structure
-        creep.memory = {
-          controllerID: this.mem.controllerID!,
-          role: 'upgrader',
-        };
-      }
-    });
+    if (this.sourceNode) {
+      // Direct each creep to upgrade from the sourceNode
+      this.upgraders.forEach((creep) => {
+        if (creep.memory.role !== 'upgrader') {
+          // Upgrade controller
+          creep.memory = {
+            controllerID: this.mem.controllerID!,
+            eNodeFlag: this.mem.sourceNodeFlag!,
+            role: 'upgrader',
+          };
+        }
+      });
+    }
   }
 
   private get maxUpgraders() {
@@ -148,12 +143,6 @@ export class UpgradeMission {
     const res = global.spawnQueue.requestCreep({
       body: this.createHarvesterBody(),
       name,
-      options: {
-        memory: {
-          controllerID: this.mem.controllerID!,
-          role: 'upgrader',
-        },
-      },
       priority: UpgradeMission.spawnPriority,
     });
     this.mem.reservations.push(res);

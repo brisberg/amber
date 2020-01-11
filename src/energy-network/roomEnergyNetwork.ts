@@ -1,6 +1,6 @@
 import {ENERGY_NODE_FLAG_COLOR} from 'flagConstants';
 
-import {EnergyNode, EnergyNodeMemory} from './energyNode';
+import {EnergyNode} from './energyNode';
 import {NetworkEdge, NetworkEdgeMemory} from './networkEdge';
 import {WalkEdge} from './walkEdge';
 
@@ -56,7 +56,8 @@ export class RoomEnergyNetwork {
     // TODO: Sync node memory with the flags that exist
     this.syncNodesFromFlags();
 
-    // TODO: Graph analysis
+    // TODO: Graph analysis. Should use a Minimum Spanning Tree algorithm to
+    // devise which roads we need.
     if (this.nodes.length >= 2) {
       // HACK, add links from the source to the sink
       const source = this.nodes.find((node) => node.mem.polarity === 'source');
@@ -85,6 +86,10 @@ export class RoomEnergyNetwork {
     for (const edge of this.edges) {
       edge.run();
     }
+  }
+
+  public hasSource(): boolean {
+    return this.nodes.some((node) => node.mem.polarity === 'source');
   }
 
   public registerEnergyNode(flag: Flag) {

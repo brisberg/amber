@@ -113,14 +113,14 @@ export class BuildMission {
     this.builders.forEach((creep) => {
       if (this.rawSource) {
         // Harvest the energy ourselves right from the source
-        if (creep.memory.role === 'builder' && creep.store.energy === 0) {
+        if (creep.memory.role !== 'miner' && creep.store.energy === 0) {
           // Fetch more energy
           creep.memory = {
             role: 'miner',
             sourceID: this.rawSource.id,
           };
         } else if (
-            creep.memory.role === 'miner' &&
+            creep.memory.role !== 'builder' &&
             creep.store.getFreeCapacity() === 0) {
           // Have energy, build the structure
           creep.memory = {

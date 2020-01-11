@@ -1,66 +1,72 @@
-import {registerEnergyNode} from 'energy-network/energyNode';
+import {EnergyNode, registerEnergyNode} from 'energy-network/energyNode';
 
 import {BuildMission} from './build';
-import {HarvestingMission} from './harvesting';
-import {analyzeSourceForHarvesting, SourceAnalysis} from './sourceAnalysis';
+import {UpgradeMission} from './upgrade';
+import {analyzeControllerForUpgrading, UpgradeControllerAnalysis} from './upgradeAnalysis';
 
 /**
- * Mining Operation
+ * Upgrade Operation
  *
  * This Operation will facilitate all of the sub operations required to set up a
- * harvesting operation.
+ * upgrade controller operation.
  *
- * It will perform Source Analysis on a given source node, designate where the
+ * It will perform Analysis on a Room Controller, designate where the
  * Container should be placed. It will run a Build missions to get this
  * container constructed. Once the Build is completed, it will scrap that
- * mission and start a new Harvest mission on the node.
+ * mission and start a new Harvest mission on the node, and connect up to the
+ * Energy Network.
  *
- * This will reassign all the worker from the build to the harvest.
+ * This will reassign all the worker from the build to the upgrade.
  */
 
-export interface MiningOperationMemory {
-  analysis: SourceAnalysis|null;
-  buildMission: string|null;
-  harvestMission: string|null;
-  sourceID: Id<Source>;
+export interface UpgradeOperationMemory {
+  analysis: UpgradeControllerAnalysis|null;
+  buildMsn: string|null;
+  upgradeMsn: string|null;
+  controllerID: Id<StructureController>;
   containerID: Id<StructureContainer|ConstructionSite<STRUCTURE_CONTAINER>>|
       null;
   eNodeFlag: string|null;
 }
 
-export class MiningOperation {
+export class UpgradeOperation {
   private readonly name: string;
   private readonly room: Room;
-  private readonly source: Source;
-  private readonly mem: MiningOperationMemory;
+  private readonly controller: StructureController;
+  private readonly mem: UpgradeOperationMemory;
 
   private container: StructureContainer|ConstructionSite<STRUCTURE_CONTAINER>|
       null = null;
+  private sourceNode: EnergyNode|null = null;
 
-  constructor(name: string, source: Source) {
+  constructor(name: string, controller: StructureController) {
     this.name = name;
-    this.room = source.room;
-    this.source = source;
+    this.room = controller.room;
+    this.controller = controller;
 
     // Init memory
     if (!Memory.operations[name]) {
-      const mem: MiningOperationMemory = {
+      const mem: UpgradeOperationMemory = {
         analysis: null,
-        buildMission: null,
+        buildMsn: null,
         containerID: null,
+        controllerID: controller.id,
         eNodeFlag: null,
-        harvestMission: null,
-        sourceID: source.id,
+        upgradeMsn: null,
       };
       Memory.operations[name] = mem;
     }
-    this.mem = Memory.operations[name] as MiningOperationMemory;
+    this.mem = Memory.operations[name] as UpgradeOperationMemory;
+
+    if (this.mem.eNodeFlag) {
+      this.sourceNode = new EnergyNode(Game.flags[this.mem.eNodeFlag]);
+    }
   }
 
   public run() {
     // Run source analysis if we don't have one
     if (!this.mem.analysis) {
-      this.mem.analysis = analyzeSourceForHarvesting(this.source);
+      this.mem.analysis = analyzeControllerForUpgrading(this.controller);
     }
 
     if (!this.container) {
@@ -90,14 +96,15 @@ export class MiningOperation {
       }
     }
 
-    if (this.container instanceof ConstructionSite && !this.mem.buildMission) {
+    if (this.container instanceof ConstructionSite && !this.mem.buildMsn) {
       // Build Phase
       const buildMsn = new BuildMission(this.name + '_build');
       buildMsn.setTargetSite(this.container);
-      buildMsn.useRawSource(this.source);  // We know we have a source near by
-      this.mem.buildMission = buildMsn.name;
+      // TODO: Link up the build mission to the energy network
+      // buildMsn.setSource(this.source);
+      this.mem.buildMsn = buildMsn.name;
     } else if (this.container instanceof StructureContainer) {
-      // Attach ourselves to the enrgy network
+      // Attack ourselves to the enrgy network
       if (!this.mem.eNodeFlag) {
         const flag = registerEnergyNode(
             this.room, [this.container.pos.x, this.container.pos.y], {
@@ -107,27 +114,26 @@ export class MiningOperation {
               type: 'structure',
             });
         this.mem.eNodeFlag = flag.name;
+        this.sourceNode = new EnergyNode(Game.flags[flag.name]);
       }
 
       // Transfer Phase
-      if (this.mem.buildMission && !this.mem.harvestMission) {
+      if (this.mem.buildMsn && !this.mem.upgradeMsn && this.sourceNode) {
         // Cleanup the build missions and reassign all creeps to the new Harvest
         // missions
-        const creeps = BuildMission.cleanup(this.mem.buildMission);
-        this.mem.buildMission = null;
-        const harvestMsn = new HarvestingMission(this.name + '_harvest');
-        this.mem.harvestMission = harvestMsn.name;
-        harvestMsn.setSource(this.source);
-        harvestMsn.setContainer(this.container);
-        harvestMsn.setMaxHarvesters(this.mem.analysis.maxHarvesters);
+        const creeps = BuildMission.cleanup(this.mem.buildMsn);
+        this.mem.buildMsn = null;
+        const upgradeMsn = new UpgradeMission(this.name + '_upgrade');
+        this.mem.upgradeMsn = upgradeMsn.name;
+        upgradeMsn.setController(this.controller);
+        upgradeMsn.setSource(this.sourceNode);
         // Transfer the creeps as harvesters to the harvesting missions
-        Memory.missions[harvestMsn.name].harvesters = creeps;
-      } else if (!this.mem.harvestMission) {
-        const harvestMsn = new HarvestingMission(this.name + '_harvest');
-        this.mem.harvestMission = harvestMsn.name;
-        harvestMsn.setSource(this.source);
-        harvestMsn.setContainer(this.container);
-        harvestMsn.setMaxHarvesters(this.mem.analysis.maxHarvesters);
+        Memory.missions[upgradeMsn.name].harvesters = creeps;
+      } else if (!this.mem.upgradeMsn && this.sourceNode) {
+        const upgradeMsn = new UpgradeMission(this.name + '_upgrade');
+        this.mem.upgradeMsn = upgradeMsn.name;
+        upgradeMsn.setController(this.controller);
+        upgradeMsn.setSource(this.sourceNode);
       }
     }
   }
