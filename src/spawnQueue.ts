@@ -1,3 +1,4 @@
+import {registerEnergyNode} from 'energy-network/energyNode';
 import {BodyPartManifest, generateManifestFromBody} from 'utils/bodypartManifest';
 import {totalCost} from 'utils/workerUtils';
 
@@ -42,6 +43,17 @@ export class SpawnQueue {
     if (!this.mem) {
       Memory.spawns[spawner.name] = {requests: []};
     }
+
+    if (!Game.flags['enode_' + this.spawner.name]) {
+      // Register us as an Energy Sink
+      registerEnergyNode(
+          this.spawner.room, [this.spawner.pos.x, this.spawner.pos.y], {
+            persistant: true,
+            polarity: 'sink',
+            structureID: this.spawner.id,
+            type: 'structure',
+          });
+    }
   }
 
   public requestCreep(request: SpawnRequest): SpawnReservation {
@@ -70,7 +82,12 @@ export class SpawnQueue {
     }
   }
 
+  /**
+   * Sorts the request queue in descenting priority order.
+   *
+   * (Priority 1 is the highest priority)
+   */
   private sortQueueByPriority() {
-    this.mem.requests.sort((a, b) => b.priority - a.priority);
+    this.mem.requests.sort((a, b) => a.priority - b.priority);
   }
 }

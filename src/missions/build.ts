@@ -1,25 +1,12 @@
+import {EnergyNode, registerEnergyNode} from 'energy-network/energyNode';
 import {SpawnReservation} from 'spawnQueue';
 import {createWorkerBody} from 'utils/workerUtils';
-
-/**
- * Energy source for this missions.
- *
- * RawSource - Source which the builders mine manually (rarely used, mainly
- * during bootstrap)
- * Structure - Storage, Container or Link structure, by far the most common.
- * Creep - Collect directly from Hauler creeps who will be at the specified
- * location. Often used for remote construction.
- */
-type SourceType = 'rawSource'|'structure'|'creep';
 
 interface BuildMissionMemory {
   builders: string[];
   reservations: SpawnReservation[];
-  source: {
-    sourceID?: Id<Source>,
-    structure?: Id<StructureContainer|StructureStorage|StructureLink>,
-    // creep:
-  };
+  eNodeFlag: string|null;
+  rawSourceID: Id<Source>|null;  // Only set for harvest/build missions
   targetSiteID: Id<ConstructionSite>|null;
 }
 
@@ -30,12 +17,14 @@ interface BuildMissionMemory {
  * several sources for the energy.
  */
 export class BuildMission {
-  private static spawnPriority = 1;
+  private static spawnPriority = 3;
 
   public name: string;
   public room: Room|null = null;
   public target: ConstructionSite|null = null;
 
+  private rawSource: Source|null = null;
+  private eNode: EnergyNode|null = null;
   private builders: Creep[] = [];
   private mem: BuildMissionMemory;
 
@@ -46,8 +35,9 @@ export class BuildMission {
     if (!Memory.missions[name]) {
       const mem: BuildMissionMemory = {
         builders: [],
+        eNodeFlag: null,
+        rawSourceID: null,
         reservations: [],
-        source: {},
         targetSiteID: null,
       };
       Memory.missions[name] = mem;
@@ -56,9 +46,17 @@ export class BuildMission {
 
     if (this.mem.targetSiteID) {
       const target = Game.getObjectById(this.mem.targetSiteID);
-      // TODO: handle blind constructio
+      // TODO: handle blind construction
       this.room = target ? target.room! : null;
       this.target = target;
+    }
+
+    if (this.mem.rawSourceID) {
+      this.rawSource = Game.getObjectById(this.mem.rawSourceID);
+    }
+
+    if (this.mem.eNodeFlag) {
+      this.eNode = new EnergyNode(Game.flags[this.mem.eNodeFlag]);
     }
 
     // Purge names of dead/expired creeps
@@ -71,8 +69,8 @@ export class BuildMission {
     this.mem.targetSiteID = target.id;
   }
 
-  public setSource(source: Source) {
-    this.mem.source.sourceID = source.id;
+  public useRawSource(source: Source) {
+    this.mem.rawSourceID = source.id;
   }
 
   /** Executes one update tick for this mission */
@@ -80,6 +78,19 @@ export class BuildMission {
     if (this.mem.targetSiteID && !Game.getObjectById(this.mem.targetSiteID)) {
       // Construction complete
       // Remove this mission and deallocate all of the creeps
+    }
+
+    // Connect to Energy Network for source
+    if (!this.rawSource && !this.eNode) {
+      // Hack, just create the node below the target
+      const flag = registerEnergyNode(
+          this.room!, [this.target!.pos.x, this.target!.pos.y + 2], {
+            persistant: false,
+            polarity: 'sink',
+            type: 'creep',
+          });
+      this.mem.eNodeFlag = flag.name;
+      this.eNode = new EnergyNode(flag);
     }
 
     // Check for creep allocation
@@ -98,26 +109,37 @@ export class BuildMission {
       return true;
     });
 
-    // Determine our source
-    // TODO: Only works with sources for now
-    const source = Game.getObjectById(this.mem.source.sourceID!);
-
     // Direct each creep to mine or build
     this.builders.forEach((creep) => {
-      if (creep.memory.role === 'builder' && creep.store.energy === 0) {
-        // Fetch more energy
-        creep.memory = {
-          role: 'miner',
-          sourceID: this.mem.source.sourceID,
-        };
-      } else if (
-          creep.memory.role === 'miner' &&
-          creep.store.getFreeCapacity() === 0) {
-        // Have energy, build the structure
-        creep.memory = {
-          role: 'builder',
-          targetSiteID: this.mem.targetSiteID!,
-        };
+      if (this.rawSource) {
+        // Harvest the energy ourselves right from the source
+        if (creep.memory.role !== 'miner' && creep.store.energy === 0) {
+          // Fetch more energy
+          creep.memory = {
+            role: 'miner',
+            sourceID: this.rawSource.id,
+          };
+        } else if (
+            creep.memory.role !== 'builder' &&
+            creep.store.getFreeCapacity() === 0) {
+          // Have energy, build the structure
+          creep.memory = {
+            role: 'builder',
+            targetSiteID: this.mem.targetSiteID!,
+          };
+        }
+      }
+
+      if (this.eNode) {
+        // Gather the energy from the energy network
+        if (creep.memory.role !== 'builder') {
+          // Get settled and start building from the network
+          creep.memory = {
+            eNodeFlag: this.mem.eNodeFlag!,
+            role: 'builder',
+            targetSiteID: this.mem.targetSiteID!,
+          };
+        }
       }
     });
   }
@@ -145,20 +167,14 @@ export class BuildMission {
     // Request another Builder
     const name = this.name + Game.time;
     const res = global.spawnQueue.requestCreep({
-      body: this.createHarvesterBody(),
+      body: this.createBuilderBody(),
       name,
-      options: {
-        memory: {
-          role: 'builder',
-          targetSiteID: this.mem.targetSiteID!,
-        },
-      },
       priority: BuildMission.spawnPriority,
     });
     this.mem.reservations.push(res);
   }
 
-  private createHarvesterBody() {
+  private createBuilderBody() {
     return createWorkerBody(2, 1, 1);
   }
 
