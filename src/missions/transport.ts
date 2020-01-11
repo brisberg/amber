@@ -17,7 +17,7 @@ interface TransportMissionMemory {
  * This mission will coordinate requesting hauler creeps.
  */
 export class TransportMission {
-  private static spawnPriority = 1;
+  private static spawnPriority = 2;
 
   public name: string;
   public source: EnergyNode|null = null;

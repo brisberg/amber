@@ -27,7 +27,7 @@ interface UpgradeMissionMemory {
  * several sources for the energy.
  */
 export class UpgradeMission {
-  private static spawnPriority = 1;
+  private static spawnPriority = 4;
 
   public name: string;
   public room: Room|null = null;

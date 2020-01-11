@@ -31,7 +31,7 @@ function initNetworkEdgeByType(mem: NetworkEdgeMemory): NetworkEdge {
 export class RoomEnergyNetwork {
   private readonly room: Room;
   private readonly nodes: EnergyNode[];
-  private readonly edges: NetworkEdge[];  // TODO abstract to NetworkEdge
+  private readonly edges: NetworkEdge[];
 
   private readonly mem: RoomEnergyNetworkMemory;
 
@@ -59,26 +59,48 @@ export class RoomEnergyNetwork {
     // TODO: Graph analysis. Should use a Minimum Spanning Tree algorithm to
     // devise which roads we need.
     if (this.nodes.length >= 2) {
-      // HACK, add links from the source to the sink
+      // HACK, add links from the source to each sink
       const source = this.nodes.find((node) => node.mem.polarity === 'source');
-      const sink = this.nodes.find(
-          (node) =>
-              node.mem.polarity === 'sink' && node.mem.type !== 'structure');
+      const permSinks = this.nodes.filter(
+          (node) => node.mem.polarity === 'sink' && node.mem.persistant);
+      const tempSinks = this.nodes.filter(
+          (node) => node.mem.polarity === 'sink' && !node.mem.persistant);
 
-      if (source && sink) {
-        const edgeName = 'source-sink';
-        const edgeExists = this.edges.length > 0;
-        if (!edgeExists) {
-          const edgeMem: NetworkEdgeMemory<any> = {
-            dest: sink.mem,
-            name: edgeName,
-            source: source.mem,
-            state: {},
-            type: 'walk',
-          };
-          this.mem.edges.push(edgeMem);
-          const edge = new WalkEdge(edgeName, edgeMem);
-          this.edges.push(edge);
+      if (source && permSinks.length > 0) {
+        for (const sink of permSinks) {
+          const edgeName = source.flag.name + '-' + sink.flag.name;
+          const edgeExists = this.edges.some((edge) => edge.name === edgeName);
+          if (!edgeExists) {
+            const edgeMem: NetworkEdgeMemory<any> = {
+              dest: sink.mem,
+              name: edgeName,
+              source: source.mem,
+              state: {},
+              type: 'walk',
+            };
+            this.mem.edges.push(edgeMem);
+            const edge = new WalkEdge(edgeName, edgeMem);
+            this.edges.push(edge);
+          }
+        }
+      }
+
+      if (source && tempSinks.length > 0) {
+        for (const sink of tempSinks) {
+          const edgeName = source.flag.name + '-' + sink.flag.name;
+          const edgeExists = this.edges.some((edge) => edge.name === edgeName);
+          if (!edgeExists) {
+            const edgeMem: NetworkEdgeMemory<any> = {
+              dest: sink.mem,
+              name: edgeName,
+              source: source.mem,
+              state: {},
+              type: 'walk',
+            };
+            this.mem.edges.push(edgeMem);
+            const edge = new WalkEdge(edgeName, edgeMem);
+            this.edges.push(edge);
+          }
         }
       }
     }

@@ -20,7 +20,7 @@ interface HarvestingMemory {
  * until there are at least 5 WORK parts at play on the Source.
  */
 export class HarvestingMission {
-  private static spawnPriority = 1;
+  private static spawnPriority = 3;
 
   public name: string;
   public room: Room|null = null;

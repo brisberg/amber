@@ -17,7 +17,7 @@ interface BuildMissionMemory {
  * several sources for the energy.
  */
 export class BuildMission {
-  private static spawnPriority = 1;
+  private static spawnPriority = 3;
 
   public name: string;
   public room: Room|null = null;

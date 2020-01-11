@@ -45,17 +45,18 @@ export class Builder {
     if (this.target) {
       if (!this.creep.memory.destPos) {
         if (this.eNode) {
-          // Search all of the cells bounded by target and enode for a cell
-          // TODO: Rewrite this to use a path between the two points to find a
-          // good spot which is the required distance from both
-          const {x, y, dx, dy} =
-              this.calculateBoundingRect(this.target.pos, this.eNode.flag.pos);
-          for (let i = 0; i < dx; i++) {
-            for (let j = 0; j < dy; j++) {
-              const pos: [number, number] = [x + i, y + j];
-              if (this.target.pos.getRangeTo(pos[0], pos[1]) <= 3 &&
-                  this.eNode.flag.pos.getRangeTo(pos[0], pos[1])) {
-                this.mem.destPos = pos;
+          if (!this.mem.destPos) {
+            // Determine the best location between the site and the sourceNode
+            const path = this.eNode.flag.pos.findPathTo(this.target, {
+              ignoreRoads: true,
+              swampCost: 1,
+            });
+            for (const step of path) {
+              const pos = this.creep.room.getPositionAt(step.x, step.y)!;
+              if (pos.inRangeTo(this.target.pos.x, this.target.pos.y, 3) &&
+                  pos.inRangeTo(
+                      this.eNode.flag.pos.x, this.eNode.flag.pos.y, 1)) {
+                this.mem.destPos = [pos.x, pos.y];
                 break;
               }
             }
