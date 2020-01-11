@@ -57,10 +57,12 @@ export class RoomEnergyNetwork {
     this.syncNodesFromFlags();
 
     // TODO: Graph analysis
-    if (this.nodes.length === 2) {
+    if (this.nodes.length >= 2) {
       // HACK, add links from the source to the sink
       const source = this.nodes.find((node) => node.mem.polarity === 'source');
-      const sink = this.nodes.find((node) => node.mem.polarity === 'sink');
+      const sink = this.nodes.find(
+          (node) =>
+              node.mem.polarity === 'sink' && node.mem.type !== 'structure');
 
       if (source && sink) {
         const edgeName = 'source-sink';

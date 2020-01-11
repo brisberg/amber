@@ -2,10 +2,12 @@
 
 // memory extension samples
 interface CreepMemory {
+  destPos?: [number, number];
   role: string;
   room?: string;
   working?: boolean;
   phase?: string;
+  mission?: string;
   sourceID?: Id<Source>;
   structID?: Id<StructureContainer|StructureStorage|StructureLink>;
   containerID?: Id<StructureContainer|ConstructionSite<STRUCTURE_CONTAINER>>|
@@ -13,6 +15,7 @@ interface CreepMemory {
   targetSiteID?: Id<ConstructionSite>;
   controllerID?: Id<StructureController>;
   energyNode?: any;
+  eNodeFlag?: string;
 }
 
 interface Memory {

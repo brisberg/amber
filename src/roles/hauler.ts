@@ -3,6 +3,7 @@ import {EnergyNode} from 'energy-network/energyNode';
 interface HaulerMemory {
   phase: 'deliver'|'fetch';
   energyNode: string;
+  mission: string;  // Name of our parent mission so we can identify coworkers
 }
 
 export class Hauler {
@@ -19,29 +20,29 @@ export class Hauler {
   public run() {
     const tarX = this.energyNode.flag.pos.x;
     const tarY = this.energyNode.flag.pos.y;
-    if (!this.creep.pos.inRangeTo(tarX, tarY, 1)) {
-      this.creep.moveTo(tarX, tarY);
-      return;
+
+    if (this.energyNode.isOccupied()) {
+      // Stay back from occupied nodes
+      if (!this.creep.pos.inRangeTo(tarX, tarY, 3)) {
+        this.creep.moveTo(tarX, tarY);
+        return;
+      }
+    } else {
+      // Actually move into Creep nodes
+      const range = this.energyNode.mem.type === 'creep' ? 0 : 1;
+      if (!this.creep.pos.inRangeTo(tarX, tarY, range)) {
+        this.creep.moveTo(tarX, tarY);
+        return;
+      }
     }
 
-    // HACK Assuming node is a container for now
-    const structs = this.creep.room.lookForAt(LOOK_STRUCTURES, tarX, tarY);
-    const container = structs.find((struct) => {
-      return struct.structureType === STRUCTURE_CONTAINER ||
-          struct.structureType === STRUCTURE_SPAWN;
-    }) as StructureContainer |
-        undefined;
-
-    if (container) {
+    if (this.energyNode) {
       if (this.mem.phase === 'fetch') {
-        const amount = Math.min(
-            container.store.energy, this.creep.store.getFreeCapacity());
-        this.creep.withdraw(container, RESOURCE_ENERGY, amount);
+        this.energyNode.transferTo(this.creep);
         return;
-      } else {
-        const amount = Math.min(
-            container.store.getFreeCapacity(), this.creep.store.energy);
-        this.creep.transfer(container, RESOURCE_ENERGY, amount);
+      } else if (this.energyNode.mem.type !== 'creep') {
+        // Hack a bit so we remain stationary when the 'creep' at a Creep Node
+        this.energyNode.transferFrom(this.creep);
       }
     }
   }

@@ -7,6 +7,7 @@ interface TransportMissionMemory {
   reservations: SpawnReservation[];
   source: EnergyNodeMemory|null;
   dest: EnergyNodeMemory|null;
+  _path?: string;  // TODO: still unused
 }
 
 /**
@@ -46,6 +47,12 @@ export class TransportMission {
 
     if (this.mem.dest) {
       this.dest = new EnergyNode(Game.flags[this.mem.dest.flag]);
+    }
+
+    // Cache a path for the route to follow
+    if (this.source && this.dest && !this.mem._path) {
+      this.mem._path = Room.serializePath(
+          this.source.flag.pos.findPathTo(this.dest.flag.pos));
     }
 
     // Purge names of dead/expired creeps
@@ -92,6 +99,7 @@ export class TransportMission {
         // Have energy, travel to destination
         creep.memory = {
           energyNode: this.dest!.flag.name,
+          mission: this.name,
           phase: 'deliver',
           role: 'hauler',
         };
@@ -99,6 +107,7 @@ export class TransportMission {
         // Fetch more energy
         creep.memory = {
           energyNode: this.source!.flag.name,
+          mission: this.name,
           phase: 'fetch',
           role: 'hauler',
         };

@@ -94,7 +94,8 @@ export class MiningOperation {
       // Build Phase
       const buildMsn = new BuildMission(this.name + '_build');
       buildMsn.setTargetSite(this.container);
-      buildMsn.setSource(this.source);
+      // buildMsn.useRawSource(this.source);  // We know we have a source near
+      // by
       this.mem.buildMission = buildMsn.name;
     } else if (this.container instanceof StructureContainer) {
       // Attack ourselves to the enrgy network
