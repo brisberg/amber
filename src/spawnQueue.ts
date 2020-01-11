@@ -82,7 +82,12 @@ export class SpawnQueue {
     }
   }
 
+  /**
+   * Sorts the request queue in descenting priority order.
+   *
+   * (Priority 1 is the highest priority)
+   */
   private sortQueueByPriority() {
-    this.mem.requests.sort((a, b) => b.priority - a.priority);
+    this.mem.requests.sort((a, b) => a.priority - b.priority);
   }
 }
