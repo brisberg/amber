@@ -32,15 +32,6 @@ export class Builder {
     }
   }
 
-  private calculateBoundingRect(pos1: RoomPosition, pos2: RoomPosition) {
-    return {
-      dx: Math.abs(pos1.x - pos2.x + 1),
-      dy: Math.abs(pos1.y - pos2.y + 1),
-      x: Math.min(pos1.x, pos2.x),
-      y: Math.min(pos1.y, pos2.y),
-    };
-  }
-
   public run() {
     if (this.target) {
       if (!this.creep.memory.destPos) {

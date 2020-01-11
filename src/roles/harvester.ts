@@ -47,7 +47,8 @@ export class Harvester {
     }
 
     if (this.source) {
-      if (!this.creep.pos.inRangeTo(this.source, 1)) {
+      if (!this.creep.pos.inRangeTo(this.source, 1) &&
+          this.creep.store.energy < 40) {
         this.creep.moveTo(this.source);
         return;
       }
