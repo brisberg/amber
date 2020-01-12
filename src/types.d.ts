@@ -2,20 +2,10 @@
 
 // memory extension samples
 interface CreepMemory {
-  destPos?: [number, number];
-  role: string;
-  room?: string;
-  working?: boolean;
-  phase?: string;
-  mission?: string;
-  sourceID?: Id<Source>;
-  structID?: Id<StructureContainer|StructureStorage|StructureLink>;
-  containerID?: Id<StructureContainer|ConstructionSite<STRUCTURE_CONTAINER>>|
-      null;
-  targetSiteID?: Id<ConstructionSite>;
-  controllerID?: Id<StructureController>;
-  energyNode?: any;
-  eNodeFlag?: string;
+  mission: string|null;
+  bodyType: string;
+  behavior: string;
+  mem: any;
 }
 
 interface Memory {
@@ -43,8 +33,9 @@ interface FlagMemory {
 declare namespace NodeJS {
   interface Global {
     // Global Spawn Queue instance
-    spawnQueue:
-        import('/Users/brisberg/DevProjects/amber/src/spawnQueue').SpawnQueue;
+    spawnQueue: import('./spawn-system/spawnQueue').SpawnQueue;
+    // Global Energy Network instance
+    eNetwork: import('./energy-network/roomEnergyNetwork').RoomEnergyNetwork;
     // Console Commands
     cc: {[command: string]: (args: any) => void};
   }
