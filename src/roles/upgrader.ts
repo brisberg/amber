@@ -1,4 +1,5 @@
 import {EnergyNode} from 'energy-network/energyNode';
+import {findMidPoint} from '../utils/midpoint';
 
 interface UpgraderMemory {
   role: string;
@@ -32,19 +33,11 @@ export class Upgrader {
   public run() {
     if (this.controller && this.sourceNode) {
       if (!this.mem.destPos) {
-        // Determine the best location between the controller and the sourceNode
-        const path = this.sourceNode.flag.pos.findPathTo(this.controller, {
-          ignoreRoads: true,
-          swampCost: 1,
-        });
-        for (const step of path) {
-          const pos = this.creep.room.getPositionAt(step.x, step.y)!;
-          if (pos.inRangeTo(this.controller.pos.x, this.controller.pos.y, 3) &&
-              pos.inRangeTo(
-                  this.sourceNode.flag.pos.x, this.sourceNode.flag.pos.y, 1)) {
-            this.mem.destPos = [pos.x, pos.y];
-            break;
-          }
+        const midPoint =
+            findMidPoint(this.sourceNode.flag.pos, 1, this.controller.pos, 3);
+
+        if (midPoint) {
+          this.mem.destPos = [midPoint.x, midPoint.y];
         }
       }
 

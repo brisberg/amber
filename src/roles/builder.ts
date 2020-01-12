@@ -1,4 +1,5 @@
 import {EnergyNode} from 'energy-network/energyNode';
+import {findMidPoint} from 'utils/midpoint';
 
 interface BuilderMemory {
   role: string;
@@ -36,23 +37,18 @@ export class Builder {
     if (this.target) {
       if (!this.creep.memory.destPos) {
         if (this.eNode) {
+          // We have a eNode, find a static position between it and the target
           if (!this.mem.destPos) {
-            // Determine the best location between the site and the sourceNode
-            const path = this.eNode.flag.pos.findPathTo(this.target, {
-              ignoreRoads: true,
-              swampCost: 1,
-            });
-            for (const step of path) {
-              const pos = this.creep.room.getPositionAt(step.x, step.y)!;
-              if (pos.inRangeTo(this.target.pos.x, this.target.pos.y, 3) &&
-                  pos.inRangeTo(
-                      this.eNode.flag.pos.x, this.eNode.flag.pos.y, 1)) {
-                this.mem.destPos = [pos.x, pos.y];
-                break;
-              }
+            const midPoint =
+                findMidPoint(this.eNode.flag.pos, 1, this.target.pos, 3);
+
+            if (midPoint) {
+              this.mem.destPos = [midPoint.x, midPoint.y];
             }
           }
         } else {
+          // No eNode, meaning we are manually harvesting our energy. Just get
+          // close.
           const path = this.creep.pos.findPathTo(
               this.target.pos.x, this.target.pos.y, {range: 3});
           if (path.length > 0) {

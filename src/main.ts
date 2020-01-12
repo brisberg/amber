@@ -44,8 +44,6 @@ export const loop = () => {
   installConsoleCommands();
   garbageCollection();
 
-
-
   mOp.run();
   eNetwork.run();
   queue.run();

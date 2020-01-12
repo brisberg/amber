@@ -116,7 +116,7 @@ export class TransportMission {
   }
 
   private get maxhaulers() {
-    return 3;
+    return 1;
   }
 
   /**
