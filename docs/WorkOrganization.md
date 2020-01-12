@@ -67,3 +67,19 @@ In the spirit of "Fail Fast" I should make a simplistic, mostly hardcoded system
 Second Pass:
 
 I am thinking of these abstraction levels for organizing behavior in Screeps. The broad idea is encapsulation and component based design. Each unit should store enough memory to know how to progress on its task. The units above have more context and will make coordination decisions by adding/removing lower units or adjusting their memory. Units below will then react to the best of their ability.
+
+
+
+1/12/2020
+
+### Creep Behaviors
+
+I can considering changing the Role/task directory to behavior. As they are really specific behavior classes for creeps. This is something I had played with in my previous attempt.
+
+Creep behaviors would be simple functions which take a single creep (and it's memory) and progress the behavior one tick.
+
+Creep behaviors should be composable, mean that behaviors can have sub behaviors. This means that by definiing some basic behaviors we can build them into more complex behaviors.
+
+The only difference between behaviors and missions is that behaviors control at most one creep, while missions can control several.
+
+This should allow for reusability between behaviors better than I am doing now.
