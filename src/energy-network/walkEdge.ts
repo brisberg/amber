@@ -26,10 +26,14 @@ export class WalkEdge extends NetworkEdge<WalkEdgeMemory> {
       if (!this.transportMission) {
         // Start a new transport mission
         this.transportMission = new TransportMission(this.name + '_transport');
-        this.transportMission.setSource(
-            new EnergyNode(Game.flags[this.source.flag]));
-        this.transportMission.setDestination(
-            new EnergyNode(Game.flags[this.dest.flag]));
+        if (Game.flags[this.source.flag]) {
+          this.transportMission.setSource(
+              new EnergyNode(Game.flags[this.source.flag]));
+        }
+        if (Game.flags[this.source.flag]) {
+          this.transportMission.setDestination(
+              new EnergyNode(Game.flags[this.dest.flag]));
+        }
         this.mem.state.transportMsn = this.transportMission.name;
       }
 
@@ -43,6 +47,7 @@ export class WalkEdge extends NetworkEdge<WalkEdgeMemory> {
   public retire() {
     // Unimplemented
     if (this.transportMission) {
+      console.log('retiring edge ' + this.name);
       // TODO: Do something with the orphaned creeps
       TransportMission.cleanup(this.transportMission.name);
     }

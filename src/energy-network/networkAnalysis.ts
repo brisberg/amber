@@ -42,9 +42,9 @@ export function analyzeEnergyNetwork(network: RoomEnergyNetwork) {
       startV,
     });
   }
-  edgeQueue.sort((a, b) => b.dist - a.dist);
+  edgeQueue.sort((a, b) => a.dist - b.dist);
 
-  while (mst.length < network.nodes.length - 1) {
+  while (edgeQueue.length > 0) {
     const nextEdge = edgeQueue.shift();
 
     if (!nextEdge) {
@@ -68,15 +68,15 @@ export function analyzeEnergyNetwork(network: RoomEnergyNetwork) {
       // Add vertex to the set of visited ones.
       visitedVerts[nextMinVertex] = true;
 
-      for (const vertexB in costMatrix[nextEdge.endV]) {
+      for (const vertexB in costMatrix[nextMinVertex]) {
         if (!visitedVerts[vertexB]) {
           edgeQueue.push({
-            dist: costMatrix[startV][vertexB],
+            dist: costMatrix[nextMinVertex][vertexB],
             endV: vertexB,
-            startV: nextEdge.endV,
+            startV: nextMinVertex,
           });
         }
-        edgeQueue.sort((a, b) => b.dist - a.dist);
+        edgeQueue.sort((a, b) => a.dist - b.dist);
       }
     }
   }
@@ -90,8 +90,10 @@ function calculateCostMatrix(network: RoomEnergyNetwork): AdjacencyMatrix {
   const numNodes = network.nodes.length;
   for (let i = 0; i < numNodes; i++) {
     const vertexA = network.nodes[i];
-    matrix[vertexA.flag.name] = {};
-    for (let j = 0; j < numNodes - i; j++) {
+    if (!matrix[vertexA.flag.name]) {
+      matrix[vertexA.flag.name] = {};
+    }
+    for (let j = 0; j < numNodes; j++) {
       const vertexB = network.nodes[j];
       if (!matrix[vertexB.flag.name]) {
         matrix[vertexB.flag.name] = {};
@@ -108,5 +110,6 @@ function calculateCostMatrix(network: RoomEnergyNetwork): AdjacencyMatrix {
       matrix[vertexB.flag.name][vertexA.flag.name] = cost;
     }
   }
+
   return matrix;
 }

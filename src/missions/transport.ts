@@ -140,10 +140,10 @@ export class TransportMission {
   }
 
   private requestHauler() {
-    // Request another Builder
+    // Request another Hauler
     const name = this.name + Game.time;
     const res = global.spawnQueue.requestCreep({
-      body: this.createHarvesterBody(),
+      body: this.createHaulerBody(),
       bodyType: 'hauler',
       name,
       options: {
@@ -165,7 +165,7 @@ export class TransportMission {
     }
   }
 
-  private createHarvesterBody() {
+  private createHaulerBody() {
     return createWorkerBody(0, 4, 2);
   }
 

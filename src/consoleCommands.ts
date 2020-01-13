@@ -1,4 +1,4 @@
-import {EnergyNode, registerEnergyNode} from 'energy-network/energyNode';
+import {registerEnergyNode, unregisterEnergyNode} from 'energy-network/energyNode';
 
 /**
  * Installs all Console Commands to the global scope. Can be accessed by:
@@ -9,7 +9,7 @@ export function installConsoleCommands() {
 }
 
 const CONSOLE_COMMANDS = {
-  addEnergySourceNode: (containerID: Id<StructureContainer>) => {
+  addENode: (containerID: Id<StructureContainer>) => {
     const room = Game.spawns.Spawn1.room;
     const container = Game.getObjectById(containerID);
 
@@ -17,13 +17,25 @@ const CONSOLE_COMMANDS = {
       return;
     }
 
-    registerEnergyNode(room, [container.pos.x, container.pos.y], {
+    const flag = registerEnergyNode(room, [container.pos.x, container.pos.y], {
       persistant: true,
       polarity: 'source',
       structureID: container.id,
       type: 'structure',
     });
 
-    return;
+    return flag.name;
+  },
+
+  removeENode: (flagName: string) => {
+    const flag = Game.flags[flagName];
+
+    if (!flag) {
+      return;
+    }
+
+    unregisterEnergyNode(flag);
+
+    return 'done';
   },
 };

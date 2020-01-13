@@ -1,4 +1,5 @@
 import {ENERGY_NODE_FLAG_COLOR} from 'flagConstants';
+import {hashCode} from 'utils/hash';
 
 import {EnergyNode} from './energyNode';
 import {analyzeEnergyNetwork, EnergyNetworkAnalysis} from './networkAnalysis';
@@ -8,6 +9,7 @@ import {WalkEdge} from './walkEdge';
 interface RoomEnergyNetworkMemory {
   room: string;
   nodes: string[];  // Array of flag names
+  nodesHash: number;
   edges: NetworkEdgeMemory[];
   _cache?: EnergyNetworkAnalysis;
 }
@@ -32,8 +34,8 @@ function initNetworkEdgeByType(mem: NetworkEdgeMemory): NetworkEdge {
  */
 export class RoomEnergyNetwork {
   private readonly room: Room;
-  private readonly _nodes: EnergyNode[];
-  private readonly edges: NetworkEdge[];
+  private _nodes: EnergyNode[] = [];
+  private edges: NetworkEdge[] = [];
 
   private readonly mem: RoomEnergyNetworkMemory;
 
@@ -44,15 +46,14 @@ export class RoomEnergyNetwork {
       const mem: RoomEnergyNetworkMemory = {
         edges: [],
         nodes: [],
+        nodesHash: 0,
         room: room.name,
       };
       Memory.rooms[room.name].network = mem;
     }
     this.mem = Memory.rooms[room.name].network;
 
-    this._nodes =
-        this.mem.nodes.map((flag) => new EnergyNode(Game.flags[flag]));
-    this.edges = this.mem.edges.map(initNetworkEdgeByType);
+    this.syncNodesFromFlags();
   }
 
   public discardAnalysisCache() {
@@ -64,15 +65,20 @@ export class RoomEnergyNetwork {
   }
 
   public run() {
-    // TODO: Sync node memory with the flags that exist
-    this.syncNodesFromFlags();
+    for (const edge of this.edges) {
+      edge.run();
+    }
+  }
 
+  private generateNetworkAnalysis() {
     if (!this.mem._cache) {
       this.mem._cache = analyzeEnergyNetwork(this);
 
       for (const edge of this.edges) {
         edge.retire();
       }
+      this.edges = [];
+      this.mem.edges = [];
 
       for (const edge of this.mem._cache.mst) {
         const edgeName = edge.startV + '-' + edge.endV;
@@ -84,14 +90,11 @@ export class RoomEnergyNetwork {
           state: {},
           type: 'walk',
         };
+
         this.mem.edges.push(edgeMem);
         const newEdge = new WalkEdge(edgeName, edgeMem);
         this.edges.push(newEdge);
       }
-    }
-
-    for (const edge of this.edges) {
-      edge.run();
     }
   }
 
@@ -123,19 +126,16 @@ export class RoomEnergyNetwork {
   private syncNodesFromFlags() {
     const flags =
         this.room.find(FIND_FLAGS, {filter: {color: ENERGY_NODE_FLAG_COLOR}});
+    const flagNames = flags.map((flag) => flag.name);
+    this._nodes = flags.map((flag) => new EnergyNode(flag));
 
-    for (const flag of flags) {
-      if (this.mem.nodes.indexOf(flag.name) === -1) {
-        // New flag found
-        this.registerEnergyNode(flag);
-      }
+    const newNodeHash = hashCode(flagNames.join(','));
+    if (newNodeHash !== this.mem.nodesHash) {
+      this.discardAnalysisCache();
+      this.mem.nodes = flagNames;
+      this.mem.nodesHash = newNodeHash;
+      this.generateNetworkAnalysis();
     }
-
-    for (const name of this.mem.nodes) {
-      if (flags.findIndex((flag) => flag.name === name) === -1) {
-        // Flag was removed, delete the node
-        this.unregisterEnergyNode(name);
-      }
-    }
+    this.edges = this.mem.edges.map(initNetworkEdgeByType);
   }
 }
