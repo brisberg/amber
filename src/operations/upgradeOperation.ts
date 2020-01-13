@@ -1,7 +1,7 @@
 import {EnergyNode, registerEnergyNode} from 'energy-network/energyNode';
 
-import {BuildMission} from './build';
-import {UpgradeMission} from './upgrade';
+import {BuildMission} from '../missions/build';
+import {UpgradeMission} from '../missions/upgrade';
 import {analyzeControllerForUpgrading, UpgradeControllerAnalysis} from './upgradeAnalysis';
 
 /**

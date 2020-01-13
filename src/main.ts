@@ -1,10 +1,11 @@
 import 'behaviors'; // Required to initialize BehaviorMap
+
+import {IDLER, Idler} from 'behaviors/idler';
 import {RoomEnergyNetwork} from 'energy-network/roomEnergyNetwork';
 import {BuildMission} from 'missions/build';
 import {HarvestingMission} from 'missions/harvesting';
-import {MiningOperation} from 'missions/miningOperation';
-// import {UpgradeMission} from 'missions/upgrade';
-import {UpgradeOperation} from 'missions/upgradeOperation';
+import {MiningOperation} from 'operations/miningOperation';
+import {UpgradeOperation} from 'operations/upgradeOperation';
 import {SpawnQueue} from 'spawn-system/spawnQueue';
 
 import {installConsoleCommands} from './consoleCommands';
@@ -59,6 +60,14 @@ export const loop = () => {
 
     if (creep.spawning) {
       continue;
+    }
+
+    if (!creep.memory.mission || !Memory.missions[creep.memory.mission]) {
+      // Creep is Orphaned, or it's mission was cancelled
+      if (creep.memory.behavior !== IDLER) {
+        creep.memory.behavior = IDLER;
+        creep.memory.mem = Idler.initMemory();
+      }
     }
 
     // Execute all creep behaviors

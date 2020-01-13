@@ -1,7 +1,7 @@
 import {registerEnergyNode} from 'energy-network/energyNode';
 
-import {BuildMission} from './build';
-import {HarvestingMission} from './harvesting';
+import {BuildMission} from '../missions/build';
+import {HarvestingMission} from '../missions/harvesting';
 import {analyzeSourceForHarvesting, SourceAnalysis} from './sourceAnalysis';
 
 /**
