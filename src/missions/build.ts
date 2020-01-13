@@ -1,5 +1,4 @@
 import {ENET_BUILDER, ENetBuilder} from 'behaviors/eNetBuilder';
-import {IDLER, Idler} from 'behaviors/idler';
 import {SOURCE_BUILDER, SourceBuilder} from 'behaviors/sourceBuilder';
 import {EnergyNode, registerEnergyNode} from 'energy-network/energyNode';
 import {declareOrphan} from 'spawn-system/orphans';

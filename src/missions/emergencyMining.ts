@@ -8,6 +8,11 @@ interface EmergencyMiningMemory {
   reservations: SpawnReservation[];
 }
 
+/**
+ * Emergency Mining missions is used to bootstrap a damage or new colony.
+ * Directly harvests energy from sources and feeds spawn to kickstart other
+ * systems.
+ */
 export class EmergencyMining {
   private static maxMiners = 2;
   private static spawnPriority = 0;
@@ -49,7 +54,7 @@ export class EmergencyMining {
         options: {
           memory: {
             behavior: EMERGENCY_MINER,
-            bodyType: 'carryminer',
+            bodyType: 'worker',  // carryminer
             mem: EmergencyMiner.initMemory(spawn, source!),
             mission: this.name,
           },

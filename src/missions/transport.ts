@@ -1,6 +1,5 @@
 import {ENET_DEPOSITER, ENetDepositer} from 'behaviors/eNetDepositer';
 import {ENET_FETCHER, ENetFetcher} from 'behaviors/eNetFetcher';
-import {IDLER, Idler} from 'behaviors/idler';
 import {EnergyNode, EnergyNodeMemory} from 'energy-network/energyNode';
 import {declareOrphan} from 'spawn-system/orphans';
 import {SpawnReservation} from 'spawn-system/spawnQueue';
