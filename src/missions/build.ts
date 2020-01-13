@@ -1,5 +1,7 @@
+import {ENET_BUILDER, ENetBuilder} from 'behaviors/eNetBuilder';
+import {SOURCE_BUILDER, SourceBuilder} from 'behaviors/sourceBuilder';
 import {EnergyNode, registerEnergyNode} from 'energy-network/energyNode';
-import {SpawnReservation} from 'spawnQueue';
+import {SpawnReservation} from 'spawn-system/spawnQueue';
 import {createWorkerBody} from 'utils/workerUtils';
 
 interface BuildMissionMemory {
@@ -73,6 +75,11 @@ export class BuildMission {
     this.mem.rawSourceID = source.id;
   }
 
+  public setEnergyNode(node: EnergyNode) {
+    this.eNode = node;
+    this.mem.eNodeFlag = node.flag.name;
+  }
+
   /** Executes one update tick for this mission */
   public run() {
     if (this.mem.targetSiteID && !Game.getObjectById(this.mem.targetSiteID)) {
@@ -113,31 +120,25 @@ export class BuildMission {
     this.builders.forEach((creep) => {
       if (this.rawSource) {
         // Harvest the energy ourselves right from the source
-        if (creep.memory.role !== 'miner' && creep.store.energy === 0) {
-          // Fetch more energy
+        if (creep.memory.behavior !== SOURCE_BUILDER) {
           creep.memory = {
-            role: 'miner',
-            sourceID: this.rawSource.id,
-          };
-        } else if (
-            creep.memory.role !== 'builder' &&
-            creep.store.getFreeCapacity() === 0) {
-          // Have energy, build the structure
-          creep.memory = {
-            role: 'builder',
-            targetSiteID: this.mem.targetSiteID!,
+            behavior: SOURCE_BUILDER,
+            bodyType: 'worker',
+            mem: SourceBuilder.initMemory(this.target!, this.rawSource),
+            mission: this.name,
           };
         }
       }
 
       if (this.eNode) {
         // Gather the energy from the energy network
-        if (creep.memory.role !== 'builder') {
+        if (creep.memory.behavior !== ENET_BUILDER) {
           // Get settled and start building from the network
           creep.memory = {
-            eNodeFlag: this.mem.eNodeFlag!,
-            role: 'builder',
-            targetSiteID: this.mem.targetSiteID!,
+            behavior: ENET_BUILDER,
+            bodyType: 'worker',
+            mem: ENetBuilder.initMemory(this.target!, this.eNode),
+            mission: this.name,
           };
         }
       }

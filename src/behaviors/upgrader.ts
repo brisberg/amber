@@ -1,75 +1,101 @@
-import {EnergyNode} from 'energy-network/energyNode';
-import {findMidPoint} from '../utils/midpoint';
+import {findMidPoint} from 'utils/midpoint';
 
-interface UpgraderMemory {
-  role: string;
+import {Behavior, BehaviorMemory} from './behavior';
+import {Repairer, REPAIRER} from './repairer';
+
+interface UpgraderMemory extends BehaviorMemory {
   controllerID: Id<StructureController>;
-  eNodeFlag: string;
+  containerID: Id<StructureContainer>;
   destPos?: [number, number];
 }
 
+export const UPGRADER = 'upgrader';
+
 /**
- * Creep behavior class for a single creep to upgrade a single Room Controller.
+ * Creep behavior class for a single creep to upgrade a Room Controller from a
+ * Container.
  *
- * Takes a creep. Handles moving the creep towards the controller,
- * and builds it.
+ * Takes a creep, room controller, and a container. Handles moving the creep
+ * between the container and the controller. Will gather energy from the Energy
+ * Source and upgrade the controller.
  */
-export class Upgrader {
-  private controller: StructureController|null;
-  private creep: Creep;
-  private mem: UpgraderMemory;
-  private sourceNode: EnergyNode|null = null;
+export class Upgrader extends Behavior<UpgraderMemory> {
+  /* @override */
+  protected behaviorActions(creep: Creep, mem: UpgraderMemory) {
+    const maxRepair = creep.getActiveBodyparts(WORK) * REPAIR_POWER;
+    const controller = Game.getObjectById(mem.controllerID);
+    const container = Game.getObjectById(mem.containerID);
 
-  constructor(creep: Creep) {
-    this.mem = creep.memory as unknown as UpgraderMemory;
-    this.creep = creep;
-    this.controller = Game.getObjectById(this.mem.controllerID);
-
-    if (creep.memory.eNodeFlag) {
-      this.sourceNode = new EnergyNode(Game.flags[creep.memory.eNodeFlag]);
+    if (!container) {
+      console.log('Upgrader not assigned a valid Container');
+      return false;
     }
-  }
 
-  public run() {
-    if (this.controller && this.sourceNode) {
-      if (!this.mem.destPos) {
-        const midPoint =
-            findMidPoint(this.sourceNode.flag.pos, 1, this.controller.pos, 3);
+    if (!controller) {
+      console.log('Upgrader not assigned a valid Room Controller');
+      return false;
+    }
 
-        if (midPoint) {
-          this.mem.destPos = [midPoint.x, midPoint.y];
+    // We don't have a destination position or our current one is occupied
+    if (!mem.destPos ||
+        creep.room.lookForAt(LOOK_CREEPS, mem.destPos[0], mem.destPos[1])
+                .length > 0) {
+      // We have a eNode, find a static position between it and the target
+      if (!mem.destPos) {
+        const midPoint = findMidPoint(container.pos, 1, controller.pos, 3, {
+          ignoreCreeps: false,
+        });
+
+        if (!midPoint) {
+          // Throw error? There is no midpoint position between the eNode and
+          // the target site
+          return false;
         }
+
+        mem.destPos = [midPoint.x, midPoint.y];
+      }
+    }
+
+    // Move us to the target destination
+    if (mem.destPos) {
+      const destPos = mem.destPos;
+      if (!creep.pos.inRangeTo(destPos[0], destPos[1], 0)) {
+        creep.moveTo(destPos[0], destPos[1]);
+        return true;
       }
 
-      // Move us to the target destination
-      if (this.creep.memory.destPos) {
-        const destPos = this.creep.memory.destPos;
-        if (!this.creep.pos.inRangeTo(destPos[0], destPos[1], 0)) {
-          if (this.creep.room.lookForAt(LOOK_CREEPS, destPos[0], destPos[1])) {
-            // Someone else is in our desired position, forget it and look for
-            // a new target
-            delete this.mem.destPos;
-            return;
-          }
-          this.creep.moveTo(destPos[0], destPos[1]);
-          return;
-        }
+      // Attempt to refill from energy source
+      if (creep.store.energy < 20) {
+        const amount =
+            Math.min(creep.store.getFreeCapacity(), container.store.energy);
+        creep.withdraw(container, RESOURCE_ENERGY, amount);
+      }
+
+      // Repair container if it is low
+      const hitsMissing = container.hitsMax - container.hits;
+      if (hitsMissing > maxRepair &&
+          creep.store.energy > maxRepair * REPAIR_COST) {
+        mem.subBehavior = REPAIRER;
+        mem.mem = Repairer.initMemory(container);
+        return false;
       }
 
       // Build the target site
-      if (this.creep.store.energy > 0) {
-        if (this.creep.upgradeController(this.controller) ===
-            ERR_NOT_IN_RANGE) {
-          this.creep.moveTo(this.controller);
-        }
-      }
-
-      // If we have a node, attempt to refill from it
-      if (this.sourceNode) {
-        if (this.creep.store.energy < 20) {
-          this.sourceNode.transferTo(this.creep);
-        }
+      if (creep.store.energy > 0) {
+        creep.upgradeController(controller);
+        return false;
       }
     }
+
+    return false;
+  }
+
+  public static initMemory(
+      controller: StructureController,
+      container: StructureContainer): UpgraderMemory {
+    return {
+      containerID: container.id,
+      controllerID: controller.id,
+    };
   }
 }

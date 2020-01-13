@@ -10,5 +10,5 @@ interface OrphanRecord {
  * for reassignment if requested.
  */
 export class OrphanList {
-  private orphansByType: {[bodyType: string]: OrphanRecord};
+  private orphansByType: {[bodyType: string]: OrphanRecord} = {};
 }

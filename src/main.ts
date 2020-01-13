@@ -1,4 +1,4 @@
-import {behaviors} from 'behaviors';
+import 'behaviors'; // Required to initialize BehaviorMap
 import {RoomEnergyNetwork} from 'energy-network/roomEnergyNetwork';
 import {BuildMission} from 'missions/build';
 import {HarvestingMission} from 'missions/harvesting';
@@ -62,6 +62,6 @@ export const loop = () => {
     }
 
     // Execute all creep behaviors
-    behaviors[creep.memory.behavior].run(creep, creep.memory.mem);
+    global.behaviors[creep.memory.behavior].run(creep, creep.memory.mem);
   }
 };

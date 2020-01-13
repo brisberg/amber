@@ -5,13 +5,13 @@ interface FetcherMemory extends BehaviorMemory {
   targetID: Id<UnitWithStore>;
 }
 
-export const FETCHER_KEY = 'fetcher';
+export const FETCHER = 'fetcher';
 
 /**
  * Creep behavior class for a single creep to fetch energy from a target store.
  *
  * Takes a creep and a target (Anything with a .store). Handles moving the creep
- * towards the target and withdrawing it.
+ * towards the target and withdrawing from it.
  *
  * Low level behavior.
  *

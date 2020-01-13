@@ -8,6 +8,7 @@ interface FindMidPointOptions {
  * Utility to find a position between two points which satisfies ranged limits
  * for each point.
  *
+ * By Default ignores creeps, roads, and swamps.
  * Assumes the two positions are in the same room.
  */
 export function findMidPoint(

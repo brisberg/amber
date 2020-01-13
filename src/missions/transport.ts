@@ -1,5 +1,7 @@
+import {ENET_DEPOSITER, ENetDepositer} from 'behaviors/eNetDepositer';
+import {ENET_FETCHER, ENetFetcher} from 'behaviors/eNetFetcher';
 import {EnergyNode, EnergyNodeMemory} from 'energy-network/energyNode';
-import {SpawnReservation} from 'spawnQueue';
+import {SpawnReservation} from 'spawn-system/spawnQueue';
 import {createWorkerBody} from 'utils/workerUtils';
 
 interface TransportMissionMemory {
@@ -18,6 +20,7 @@ interface TransportMissionMemory {
  */
 export class TransportMission {
   private static spawnPriority = 2;
+  private static maxHaulers = 2;
 
   public name: string;
   public source: EnergyNode|null = null;
@@ -94,29 +97,31 @@ export class TransportMission {
 
     // Direct each creep to pick up or dropoff
     this.haulers.forEach((creep) => {
-      if (creep.memory.phase === 'fetch' &&
+      if (creep.memory.behavior === ENET_FETCHER &&
           creep.store.getFreeCapacity() === 0) {
         // Have energy, travel to destination
         creep.memory = {
-          energyNode: this.dest!.flag.name,
+          behavior: ENET_DEPOSITER,
+          bodyType: 'hauler',
+          mem: ENetDepositer.initMemory(this.dest!),
           mission: this.name,
-          phase: 'deliver',
-          role: 'hauler',
         };
-      } else if (creep.memory.phase === 'deliver' && creep.store.energy === 0) {
+      } else if (
+          creep.memory.behavior === ENET_DEPOSITER &&
+          creep.store.energy === 0) {
         // Fetch more energy
         creep.memory = {
-          energyNode: this.source!.flag.name,
+          behavior: ENET_FETCHER,
+          bodyType: 'hauler',
+          mem: ENetFetcher.initMemory(this.source!),
           mission: this.name,
-          phase: 'fetch',
-          role: 'hauler',
         };
       }
     });
   }
 
   private get maxhaulers() {
-    return 1;
+    return TransportMission.maxHaulers;
   }
 
   /**
@@ -141,9 +146,10 @@ export class TransportMission {
       name,
       options: {
         memory: {
-          energyNode: this.source!.flag.name,
-          phase: 'fetch',
-          role: 'hauler',
+          behavior: ENET_FETCHER,
+          bodyType: 'hauler',
+          mem: ENetFetcher.initMemory(this.source!),
+          mission: this.name,
         },
       },
       priority: TransportMission.spawnPriority,

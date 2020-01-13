@@ -32,6 +32,8 @@ interface FlagMemory {
 // `global` extension samples
 declare namespace NodeJS {
   interface Global {
+    // Global creep behavior registry
+    behaviors: import('./behaviors').BehaviorMap;
     // Global Spawn Queue instance
     spawnQueue: import('./spawn-system/spawnQueue').SpawnQueue;
     // Global Energy Network instance

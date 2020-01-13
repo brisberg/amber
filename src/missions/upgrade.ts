@@ -1,37 +1,27 @@
-import {EnergyNode} from 'energy-network/energyNode';
-import {SpawnReservation} from 'spawnQueue';
+import {Upgrader, UPGRADER} from 'behaviors/upgrader';
+import {SpawnReservation} from 'spawn-system/spawnQueue';
 import {createWorkerBody} from 'utils/workerUtils';
-
-/**
- * Energy source for this missions.
- *
- * RawSource - Source which the upgraders mine manually (rarely used, mainly
- * during bootstrap)
- * Structure - Storage, Container or Link structure, by far the most common.
- * Creep - Collect directly from Hauler creeps who will be at the specified
- * location. Often used for remote construction.
- */
-type SourceType = 'rawSource'|'structure'|'creep';
 
 interface UpgradeMissionMemory {
   upgraders: string[];
   reservations: SpawnReservation[];
-  sourceNodeFlag: string|null;
+  containerID: Id<StructureContainer>|null;
   controllerID: Id<StructureController>|null;
 }
 
 /**
- * Mission construct to facilitate upgrading a single room controller.
+ * Mission construct to facilitate upgrading a single Room Controller.
  *
- * This mission will coordinate requesting upgrader creeps, and can specify
- * several sources for the energy.
+ * Requires an appropriate Container to exist near the Controller.
+ *
+ * This mission will coordinate requesting upgrader creeps.
  */
 export class UpgradeMission {
   private static spawnPriority = 4;
 
   public name: string;
   public room: Room|null = null;
-  public sourceNode: EnergyNode|null = null;
+  public container: StructureContainer|null = null;
   public controller: StructureController|null = null;
 
   private upgraders: Creep[] = [];
@@ -43,23 +33,22 @@ export class UpgradeMission {
     // Init memory
     if (!Memory.missions[name]) {
       const mem: UpgradeMissionMemory = {
+        containerID: null,
         controllerID: null,
         reservations: [],
-        sourceNodeFlag: null,
         upgraders: [],
       };
       Memory.missions[name] = mem;
     }
     this.mem = Memory.missions[name] as UpgradeMissionMemory;
 
-    // Energy Source Node
-    if (this.mem.sourceNodeFlag) {
-      this.sourceNode = new EnergyNode(Game.flags[this.mem.sourceNodeFlag]);
+    if (this.mem.containerID) {
+      this.container = Game.getObjectById(this.mem.containerID);
     }
 
     if (this.mem.controllerID) {
       const controller = Game.getObjectById(this.mem.controllerID);
-      // TODO: handle blind constructio
+      // TODO: handle blind construction
       this.room = controller ? controller.room! : null;
       this.controller = controller;
     }
@@ -75,9 +64,9 @@ export class UpgradeMission {
     this.mem.controllerID = controller.id;
   }
 
-  public setSource(node: EnergyNode) {
-    this.sourceNode = node;
-    this.mem.sourceNodeFlag = node.flag.name;
+  public setContainer(container: StructureContainer) {
+    this.container = container;
+    this.mem.containerID = container.id;
   }
 
   /** Executes one update tick for this mission */
@@ -103,15 +92,16 @@ export class UpgradeMission {
       return true;
     });
 
-    if (this.sourceNode) {
+    if (this.container && this.controller) {
       // Direct each creep to upgrade from the sourceNode
       this.upgraders.forEach((creep) => {
-        if (creep.memory.role !== 'upgrader') {
+        if (creep.memory.behavior !== UPGRADER) {
           // Upgrade controller
           creep.memory = {
-            controllerID: this.mem.controllerID!,
-            eNodeFlag: this.mem.sourceNodeFlag!,
-            role: 'upgrader',
+            behavior: UPGRADER,
+            bodyType: 'worker',
+            mem: Upgrader.initMemory(this.controller!, this.container!),
+            mission: this.name,
           };
         }
       });

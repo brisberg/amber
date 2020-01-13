@@ -1,16 +1,14 @@
-import {behaviors} from 'behaviors';
-
 import {Behavior, BehaviorMemory} from './behavior';
-import {Depositer, DEPOSITER_KEY} from './depositer';
-import {Harvester, HARVESTER_KEY} from './harvester';
-import {Repairer, REPAIRER_KEY} from './repairer';
+import {Depositer, DEPOSITER} from './depositer';
+import {Harvester, HARVESTER} from './harvester';
+import {Repairer, REPAIRER} from './repairer';
 
 interface ContainerHarvesterMemory extends BehaviorMemory {
   sourceID: Id<Source>;
   containerID: Id<StructureContainer>;
 }
 
-export const CONTAINER_HARVESTER_KEY = 'cont-harvester';
+export const CONTAINER_HARVESTER = 'cont-harvester';
 
 /**
  * Creep behavior class for a single creep to harvest a single energy source
@@ -41,7 +39,7 @@ export class ContainerHarvester extends Behavior<ContainerHarvesterMemory> {
     const hitsMissing = container.hitsMax - container.hits;
     if (hitsMissing > maxRepair &&
         creep.store.energy > maxRepair * REPAIR_COST) {
-      mem.subBehavior = REPAIRER_KEY;
+      mem.subBehavior = REPAIRER;
       mem.mem = Repairer.initMemory(container);
       return false;
     }
@@ -50,21 +48,27 @@ export class ContainerHarvester extends Behavior<ContainerHarvesterMemory> {
     if (creep.store.energy > 40 &&
         container.store.getFreeCapacity() > creep.store.energy) {
       // Invoke the sub-behavior directly as it may not be blocking
-      if (behaviors[DEPOSITER_KEY].run(
-              creep,
-              Depositer.initMemory(container),
-              )) {
+      const depositer = global.behaviors[DEPOSITER];
+      if (depositer.run(creep, Depositer.initMemory(container))) {
         return true;
       }
       // No return as we can still harvest on the same tick
     }
 
     if (source) {
-      mem.subBehavior = HARVESTER_KEY;
+      mem.subBehavior = HARVESTER;
       mem.mem = Harvester.initMemory(source);
       return false;
     }
 
     return false;
+  }
+
+  public static initMemory(source: Source, container: StructureContainer):
+      ContainerHarvesterMemory {
+    return {
+      containerID: container.id,
+      sourceID: source.id,
+    };
   }
 }

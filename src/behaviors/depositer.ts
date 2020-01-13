@@ -7,7 +7,7 @@ interface DepositerMemory extends BehaviorMemory {
   targetID: Id<UnitWithStore>;
 }
 
-export const DEPOSITER_KEY = 'depositer';
+export const DEPOSITER = 'depositer';
 
 /**
  * Creep behavior class for a single creep to deposit energy in a target store.

@@ -1,4 +1,5 @@
-import {SpawnReservation} from 'spawnQueue';
+import {CONTAINER_HARVESTER, ContainerHarvester} from 'behaviors/containerHarvester';
+import {SpawnReservation} from 'spawn-system/spawnQueue';
 import {BODY_MANIFEST_INDEX} from 'utils/bodypartManifest';
 import {createWorkerBody} from 'utils/workerUtils';
 
@@ -99,11 +100,12 @@ export class HarvestingMission {
 
     this.harvesters.forEach((harvester) => {
       // Reassign the harvesters if they were given to us
-      if (harvester.memory.role !== 'harvester') {
+      if (harvester.memory.behavior !== CONTAINER_HARVESTER) {
         harvester.memory = {
-          containerID: this.container!.id,
-          role: 'harvester',
-          sourceID: this.source!.id,
+          behavior: CONTAINER_HARVESTER,
+          bodyType: 'worker',
+          mem: ContainerHarvester.initMemory(this.source!, this.container!),
+          mission: this.name,
         };
       }
     });
@@ -145,13 +147,6 @@ export class HarvestingMission {
     const res = global.spawnQueue.requestCreep({
       body: this.createHarvesterBody(),
       name,
-      options: {
-        memory: {
-          containerID: this.mem.containerID,
-          role: 'harvester',
-          sourceID: this.mem.sourceID || undefined,
-        },
-      },
       priority: HarvestingMission.spawnPriority,
     });
     this.mem.reservations.push(res);

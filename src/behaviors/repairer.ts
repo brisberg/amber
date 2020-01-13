@@ -4,7 +4,7 @@ interface RepairerMemory extends BehaviorMemory {
   structureID: Id<Structure<StructureConstant>>;
 }
 
-export const REPAIRER_KEY = 'repairer';
+export const REPAIRER = 'repairer';
 
 /**
  * Creep behavior class for a single creep to repair a single structure.
@@ -19,6 +19,7 @@ export class Repairer extends Behavior<RepairerMemory> {
   /* @override */
   protected behaviorActions(creep: Creep, mem: RepairerMemory) {
     const structure = Game.getObjectById(mem.structureID);
+    const repairPower = creep.getActiveBodyparts(WORK) * REPAIR_POWER;
 
     if (structure) {
       if (!creep.pos.inRangeTo(structure, 3)) {
@@ -30,7 +31,7 @@ export class Repairer extends Behavior<RepairerMemory> {
 
       // Repair structure if it is low
       const hitsMissing = structure.hitsMax - structure.hits;
-      if (hitsMissing > 0 && creep.store.energy > hitsMissing * REPAIR_COST) {
+      if (hitsMissing > 0 && creep.store.energy > (repairPower * REPAIR_COST)) {
         creep.repair(structure);
         return false;
       }

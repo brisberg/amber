@@ -1,13 +1,13 @@
 import {Behavior, BehaviorMemory} from './behavior';
-import {Depositer, DEPOSITER_KEY} from './depositer';
-import {Harvester, HARVESTER_KEY} from './harvester';
+import {Depositer, DEPOSITER} from './depositer';
+import {Harvester, HARVESTER} from './harvester';
 
 interface EmergencyMinerMemory extends BehaviorMemory {
   sourceID: Id<Source>;
   spawnID: Id<StructureSpawn>;
 }
 
-export const EMERGENCY_MINER_KEY = 'emg-miner';
+export const EMERGENCY_MINER = 'emg-miner';
 
 /**
  * Creep behavior class for a single creep to harvest from a single Energy
@@ -27,20 +27,28 @@ export class EmergencyMiner extends Behavior<EmergencyMinerMemory> {
 
     if (source && spawn) {
       // Harvest more energy
-      if (mem.subBehavior !== HARVESTER_KEY && creep.store.energy === 0) {
-        mem.subBehavior = HARVESTER_KEY;
+      if (mem.subBehavior !== HARVESTER && creep.store.energy === 0) {
+        mem.subBehavior = HARVESTER;
         mem.mem = Harvester.initMemory(source);
         return false;
       } else if (
-          mem.subBehavior !== DEPOSITER_KEY &&
+          mem.subBehavior !== DEPOSITER &&
           creep.store.getFreeCapacity() === 0) {
         // Deposit energy in spawn
-        mem.subBehavior = DEPOSITER_KEY;
+        mem.subBehavior = DEPOSITER;
         mem.mem = Depositer.initMemory(spawn);
         return false;
       }
     }
 
     return false;
+  }
+
+  public static initMemory(spawn: StructureSpawn, source: Source):
+      EmergencyMinerMemory {
+    return {
+      sourceID: source.id,
+      spawnID: spawn.id,
+    };
   }
 }

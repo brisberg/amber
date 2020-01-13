@@ -1,5 +1,3 @@
-import {behaviors} from 'behaviors';
-
 /**
  * Signature of a Behavior update function. Takes a Creep and a Memory object
  * and executes one update tick modifying the Memory object and optionally
@@ -21,6 +19,11 @@ export interface BehaviorMemory {
   mem?: any;
 }
 
+export function clearSubBehavior(mem: BehaviorMemory) {
+  delete mem.subBehavior;
+  delete mem.mem;
+}
+
 /** Abstract interface for behavior classes */
 interface BehaviorInterface<M extends BehaviorMemory> {
   run: BehaviorUpdateFunction<M>;
@@ -39,7 +42,7 @@ export abstract class Behavior<M extends BehaviorMemory> implements
     let moved = this.behaviorActions(creep, mem);
 
     if (!moved && mem.subBehavior) {
-      moved = behaviors[mem.subBehavior].run(creep, mem.mem);
+      moved = global.behaviors[mem.subBehavior].run(creep, mem.mem);
     }
 
     return moved;

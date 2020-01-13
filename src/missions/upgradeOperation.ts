@@ -64,7 +64,7 @@ export class UpgradeOperation {
   }
 
   public run() {
-    // Run source analysis if we don't have one
+    // Run upgrade analysis if we don't have one
     if (!this.mem.analysis) {
       this.mem.analysis = analyzeControllerForUpgrading(this.controller);
     }
@@ -100,8 +100,7 @@ export class UpgradeOperation {
       // Build Phase
       const buildMsn = new BuildMission(this.name + '_build');
       buildMsn.setTargetSite(this.container);
-      // TODO: Link up the build mission to the energy network
-      // buildMsn.setSource(this.source);
+      // buildMsn.setEnergyNode(this.sourceNode!);
       this.mem.buildMsn = buildMsn.name;
     } else if (this.container instanceof StructureContainer) {
       // Attack ourselves to the enrgy network
@@ -126,14 +125,14 @@ export class UpgradeOperation {
         const upgradeMsn = new UpgradeMission(this.name + '_upgrade');
         this.mem.upgradeMsn = upgradeMsn.name;
         upgradeMsn.setController(this.controller);
-        upgradeMsn.setSource(this.sourceNode);
-        // Transfer the creeps as harvesters to the harvesting missions
-        Memory.missions[upgradeMsn.name].harvesters = creeps;
+        upgradeMsn.setContainer(this.container);
+        // Transfer the creeps as upgraders to the upgrade mission
+        Memory.missions[upgradeMsn.name].upgraders = creeps;
       } else if (!this.mem.upgradeMsn && this.sourceNode) {
         const upgradeMsn = new UpgradeMission(this.name + '_upgrade');
         this.mem.upgradeMsn = upgradeMsn.name;
         upgradeMsn.setController(this.controller);
-        upgradeMsn.setSource(this.sourceNode);
+        upgradeMsn.setContainer(this.container);
       }
     }
   }

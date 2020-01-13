@@ -1,4 +1,5 @@
-import {SpawnReservation} from 'spawnQueue';
+import {EMERGENCY_MINER, EmergencyMiner} from 'behaviors/emergencyMiner';
+import {SpawnReservation} from 'spawn-system/spawnQueue';
 import {createWorkerBody} from 'utils/workerUtils';
 
 interface EmergencyMiningMemory {
@@ -7,7 +8,7 @@ interface EmergencyMiningMemory {
 }
 
 export class EmergencyMining {
-  private static maxMiners = 3;
+  private static maxMiners = 2;
   private static spawnPriority = 0;
 
   public name: string;
@@ -38,13 +39,17 @@ export class EmergencyMining {
         EmergencyMining.maxMiners) {
       // Request another miner
       const name = this.name + Game.time;
+      const spawn = this.room.find(FIND_MY_SPAWNS)[0];
+      const source = spawn.pos.findClosestByPath(FIND_SOURCES);
       const res = global.spawnQueue.requestCreep({
         body: this.createMinerBody(),
         name,
         options: {
           memory: {
-            role: 'miner',
-            sourceID: this.room.find(FIND_SOURCES)[0].id,
+            behavior: EMERGENCY_MINER,
+            bodyType: 'carryminer',
+            mem: EmergencyMiner.initMemory(spawn, source!),
+            mission: this.name,
           },
         },
         priority: EmergencyMining.spawnPriority,

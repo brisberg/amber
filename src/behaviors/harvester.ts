@@ -4,7 +4,7 @@ interface HarvesterMemory extends BehaviorMemory {
   sourceID: Id<Source>;
 }
 
-export const HARVESTER_KEY = 'harvester';
+export const HARVESTER = 'harvester';
 
 /**
  * Creep behavior class for a single creep to harvest a single Energey Source
