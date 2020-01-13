@@ -35,10 +35,10 @@ export class Idler extends Behavior<IdlerMemory> {
       const struct = creep.pos.findClosestByRange(FIND_STRUCTURES);
       if (!struct || struct.pos.getRangeTo(creep) >= 2) {
         mem.destPos = [creep.pos.x, creep.pos.y];
+      } else {
+        // HACK: Just moving randomly for now until we get out of the way
+        creep.move(randomDirection());
       }
-
-      // HACK: Just moving randomly for now until we get out of the way
-      creep.move(randomDirection());
     }
 
     if (mem.destPos) {

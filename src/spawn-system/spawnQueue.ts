@@ -43,7 +43,7 @@ export class SpawnQueue {
     this.mem = Memory.spawns[spawner.name];
 
     if (!this.mem) {
-      Memory.spawns[spawner.name] = {requests: []};
+      this.mem = Memory.spawns[spawner.name] = {requests: []};
     }
 
     if (!Game.flags['enode_' + this.spawner.name]) {

@@ -6,6 +6,7 @@ import {BuildMission} from 'missions/build';
 import {HarvestingMission} from 'missions/harvesting';
 import {MiningOperation} from 'operations/miningOperation';
 import {UpgradeOperation} from 'operations/upgradeOperation';
+import {declareOrphan} from 'spawn-system/orphans';
 import {SpawnQueue} from 'spawn-system/spawnQueue';
 
 import {installConsoleCommands} from './consoleCommands';
@@ -65,8 +66,7 @@ export const loop = () => {
     if (!creep.memory.mission || !Memory.missions[creep.memory.mission]) {
       // Creep is Orphaned, or its mission was cancelled
       if (creep.memory.behavior !== IDLER) {
-        creep.memory.behavior = IDLER;
-        creep.memory.mem = Idler.initMemory();
+        declareOrphan(creep);
       }
     }
 
