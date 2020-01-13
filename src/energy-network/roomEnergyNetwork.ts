@@ -1,6 +1,7 @@
 import {ENERGY_NODE_FLAG_COLOR} from 'flagConstants';
 
 import {EnergyNode} from './energyNode';
+import {analyzeEnergyNetwork, EnergyNetworkAnalysis} from './networkAnalysis';
 import {NetworkEdge, NetworkEdgeMemory} from './networkEdge';
 import {WalkEdge} from './walkEdge';
 
@@ -8,6 +9,7 @@ interface RoomEnergyNetworkMemory {
   room: string;
   nodes: string[];  // Array of flag names
   edges: NetworkEdgeMemory[];
+  _cache?: EnergyNetworkAnalysis;
 }
 
 function initNetworkEdgeByType(mem: NetworkEdgeMemory): NetworkEdge {
@@ -30,7 +32,7 @@ function initNetworkEdgeByType(mem: NetworkEdgeMemory): NetworkEdge {
  */
 export class RoomEnergyNetwork {
   private readonly room: Room;
-  private readonly nodes: EnergyNode[];
+  private readonly _nodes: EnergyNode[];
   private readonly edges: NetworkEdge[];
 
   private readonly mem: RoomEnergyNetworkMemory;
@@ -48,60 +50,43 @@ export class RoomEnergyNetwork {
     }
     this.mem = Memory.rooms[room.name].network;
 
-    this.nodes = this.mem.nodes.map((flag) => new EnergyNode(Game.flags[flag]));
+    this._nodes =
+        this.mem.nodes.map((flag) => new EnergyNode(Game.flags[flag]));
     this.edges = this.mem.edges.map(initNetworkEdgeByType);
+  }
+
+  public discardAnalysisCache() {
+    delete this.mem._cache;
+  }
+
+  public get nodes() {
+    return this._nodes;
   }
 
   public run() {
     // TODO: Sync node memory with the flags that exist
     this.syncNodesFromFlags();
 
-    // TODO: Graph analysis. Should use a Minimum Spanning Tree algorithm to
-    // devise which roads we need.
-    if (this.nodes.length >= 2) {
-      // HACK, add links from the source to each sink
-      const source = this.nodes.find((node) => node.mem.polarity === 'source');
-      const permSinks = this.nodes.filter(
-          (node) => node.mem.polarity === 'sink' && node.mem.persistant);
-      const tempSinks = this.nodes.filter(
-          (node) => node.mem.polarity === 'sink' && !node.mem.persistant);
+    if (!this.mem._cache) {
+      this.mem._cache = analyzeEnergyNetwork(this);
 
-      if (source && permSinks.length > 0) {
-        for (const sink of permSinks) {
-          const edgeName = source.flag.name + '-' + sink.flag.name;
-          const edgeExists = this.edges.some((edge) => edge.name === edgeName);
-          if (!edgeExists) {
-            const edgeMem: NetworkEdgeMemory<any> = {
-              dest: sink.mem,
-              name: edgeName,
-              source: source.mem,
-              state: {},
-              type: 'walk',
-            };
-            this.mem.edges.push(edgeMem);
-            const edge = new WalkEdge(edgeName, edgeMem);
-            this.edges.push(edge);
-          }
-        }
+      for (const edge of this.edges) {
+        edge.retire();
       }
 
-      if (source && tempSinks.length > 0) {
-        for (const sink of tempSinks) {
-          const edgeName = source.flag.name + '-' + sink.flag.name;
-          const edgeExists = this.edges.some((edge) => edge.name === edgeName);
-          if (!edgeExists) {
-            const edgeMem: NetworkEdgeMemory<any> = {
-              dest: sink.mem,
-              name: edgeName,
-              source: source.mem,
-              state: {},
-              type: 'walk',
-            };
-            this.mem.edges.push(edgeMem);
-            const edge = new WalkEdge(edgeName, edgeMem);
-            this.edges.push(edge);
-          }
-        }
+      for (const edge of this.mem._cache.mst) {
+        const edgeName = edge.startV + '-' + edge.endV;
+        const edgeMem: NetworkEdgeMemory<any> = {
+          dest: this.nodes.find((node) => node.flag.name === edge.endV)!.mem,
+          name: edgeName,
+          source:
+              this.nodes.find((node) => node.flag.name === edge.startV)!.mem,
+          state: {},
+          type: 'walk',
+        };
+        this.mem.edges.push(edgeMem);
+        const newEdge = new WalkEdge(edgeName, edgeMem);
+        this.edges.push(newEdge);
       }
     }
 
@@ -117,7 +102,7 @@ export class RoomEnergyNetwork {
   public registerEnergyNode(flag: Flag) {
     this.mem.nodes.push(flag.name);
     this.nodes.push(new EnergyNode(flag));
-    // this.discardAnalysisCache();
+    this.discardAnalysisCache();
     return;
   }
 
@@ -130,7 +115,7 @@ export class RoomEnergyNetwork {
     obsoliteEdges.forEach((edge) => edge.retire());
     this.mem.edges = this.edges.filter((edge) => !obsoliteEdges.includes(edge))
                          .map((edge) => edge.mem);
-    // this.discardAnalysisCache();
+    this.discardAnalysisCache();
     return;
   }
 
