@@ -1,6 +1,9 @@
+import {IDLER} from 'behaviors/idler';
 import {registerEnergyNode} from 'energy-network/energyNode';
+import {request} from 'http';
 import {BodyPartManifest, generateManifestFromBody} from 'utils/bodypartManifest';
 import {totalCost} from 'utils/workerUtils';
+
 import {isOrphan} from './orphans';
 
 /**
@@ -51,13 +54,14 @@ export class SpawnQueue {
       registerEnergyNode(
           this.spawner.room, [this.spawner.pos.x, this.spawner.pos.y], {
             persistant: true,
-            polarity: 'sink',
+            polarity: -10,
             structureID: this.spawner.id,
             type: 'structure',
           });
     }
   }
 
+  // tslint:disable-next-line: no-shadowed-variable
   public requestCreep(request: SpawnRequest): Creep|SpawnReservation {
     // Look for Orphaned creeps
     for (const name in Game.creeps) {
@@ -77,6 +81,13 @@ export class SpawnQueue {
     };
   }
 
+  /** Removes a creep name from the spawn queue */
+  public cancelReservation(name: string) {
+    this.mem.requests = this.mem.requests.filter((res: SpawnRequest) => {
+      return res.name !== name;
+    });
+  }
+
   /** Executes one update tick of the spawner */
   public run() {
     if (this.mem.requests.length === 0) {
@@ -88,8 +99,28 @@ export class SpawnQueue {
     }
 
     if (this.spawner.store.energy >= totalCost(this.mem.requests[0].body)) {
-      const request = this.mem.requests.shift();
-      this.spawner.spawnCreep(request.body, request.name, request.options);
+      const req = this.mem.requests.shift();
+
+      const defaultOptions: SpawnOptions = {
+        memory: {
+          behavior: IDLER,
+          bodyType: req.bodyType,
+          mem: null,
+          mission: null,
+        },
+      };
+
+      let combinedOptions = defaultOptions;
+      if (req.options && req.options.memory) {
+        combinedOptions = {
+          ...req.options,
+          memory: {
+            ...req.options.memory,
+            bodyType: req.bodyType,
+          },
+        };
+      }
+      this.spawner.spawnCreep(req.body, req.name, combinedOptions);
     }
   }
 

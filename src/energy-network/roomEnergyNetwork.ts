@@ -1,4 +1,5 @@
 import {ENERGY_NODE_FLAG_COLOR} from 'flagConstants';
+import {TransportMission} from 'missions/transport';
 import {hashCode} from 'utils/hash';
 
 import {EnergyNode} from './energyNode';
@@ -74,8 +75,9 @@ export class RoomEnergyNetwork {
     if (!this.mem._cache) {
       this.mem._cache = analyzeEnergyNetwork(this);
 
-      for (const edge of this.edges) {
-        edge.retire();
+      for (const edge of this.mem.edges) {
+        // Hack
+        TransportMission.cleanup(edge.state.transportMsn);
       }
       this.edges = [];
       this.mem.edges = [];
@@ -83,10 +85,10 @@ export class RoomEnergyNetwork {
       for (const edge of this.mem._cache.mst) {
         const edgeName = edge.startV + '-' + edge.endV;
         const edgeMem: NetworkEdgeMemory<any> = {
-          dest: this.nodes.find((node) => node.flag.name === edge.endV)!.mem,
+          flow: 0,
           name: edgeName,
-          source:
-              this.nodes.find((node) => node.flag.name === edge.startV)!.mem,
+          nodeA: this.nodes.find((node) => node.flag.name === edge.startV)!.mem,
+          nodeB: this.nodes.find((node) => node.flag.name === edge.endV)!.mem,
           state: {},
           type: 'walk',
         };
@@ -96,10 +98,40 @@ export class RoomEnergyNetwork {
         this.edges.push(newEdge);
       }
     }
+
+    this.generateFlowAnalysis();
+  }
+
+  /**
+   * Iterates through the network and balances the flow, sets desired polarity
+   * numbers on each node
+   */
+  private generateFlowAnalysis() {
+    // Clear the cache by resetting the polarities
+    for (const node of this.nodes) {
+      node.mem._cache.netBalance = node.mem.polarity;
+    }
+
+    // Run the loop once for each edge we have.
+    // tslint:disable-next-line: prefer-for-of
+    for (let i = 0; i < this.edges.length; i++) {
+      for (const edge of this.edges) {
+        // For each edge, attempt to push the polarity towards the lower end
+        const nodeAPol = edge.nodeA._cache.netBalance;
+        const nodeBPol = edge.nodeB._cache.netBalance;
+        if (nodeAPol > 0 && nodeAPol > nodeBPol) {
+          edge.mem.flow = Math.min(nodeAPol, nodeAPol - nodeBPol);
+          edge.nodeB._cache.netBalance += edge.mem.flow;
+        } else if (nodeBPol > 0 && nodeBPol > nodeAPol) {
+          edge.mem.flow = -Math.min(nodeBPol, nodeBPol - nodeAPol);
+          edge.nodeB._cache.netBalance += edge.mem.flow;
+        }
+      }
+    }
   }
 
   public hasSource(): boolean {
-    return this.nodes.some((node) => node.mem.polarity === 'source');
+    return this.nodes.some((node) => node.mem.polarity >= 0);
   }
 
   public registerEnergyNode(flag: Flag) {
@@ -113,7 +145,7 @@ export class RoomEnergyNetwork {
     // Prune the name from our list of nodes
     this.mem.nodes = this.mem.nodes.filter((node) => node !== name);
     const obsoliteEdges = this.edges.filter((edge) => {
-      return edge.source.flag === name || edge.dest.flag === name;
+      return edge.nodeA.flag === name || edge.nodeB.flag === name;
     });
     obsoliteEdges.forEach((edge) => edge.retire());
     this.mem.edges = this.edges.filter((edge) => !obsoliteEdges.includes(edge))

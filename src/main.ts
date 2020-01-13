@@ -27,10 +27,11 @@ export const loop = () => {
   if (!Memory.rooms[roomName]) {
     Memory.rooms[roomName] = {network: null};
   }
+
+  const queue = global.spawnQueue = new SpawnQueue(Game.spawns.Spawn1);
   const eNetwork = global.eNetwork =
       new RoomEnergyNetwork(Game.spawns.Spawn1.room);
 
-  const queue = global.spawnQueue = new SpawnQueue(Game.spawns.Spawn1);
   const mOp = new MiningOperation(
       'mining_op', Game.spawns.Spawn1.room.find(FIND_SOURCES)[0]);
   if (eNetwork.hasSource()) {

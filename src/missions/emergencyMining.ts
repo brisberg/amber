@@ -92,6 +92,9 @@ export class EmergencyMining {
   public static cleanup(name: string): string[] {
     const creeps: string[] = Memory.missions[name].creeps;
     creeps.forEach((cName) => declareOrphan(Game.creeps[cName]));
+    const reservations: SpawnReservation[] = Memory.missions[name].reservations;
+    reservations.forEach(
+        (res) => global.spawnQueue.cancelReservation(res.name));
     delete Memory.missions[name];
     return creeps;
   }

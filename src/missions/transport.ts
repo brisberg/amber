@@ -146,14 +146,6 @@ export class TransportMission {
       body: this.createHaulerBody(),
       bodyType: 'hauler',
       name,
-      options: {
-        memory: {
-          behavior: ENET_FETCHER,
-          bodyType: 'hauler',
-          mem: ENetFetcher.initMemory(this.source!),
-          mission: this.name,
-        },
-      },
       priority: TransportMission.spawnPriority,
     });
 
@@ -176,6 +168,9 @@ export class TransportMission {
   public static cleanup(name: string): string[] {
     const haulers: string[] = Memory.missions[name].haulers;
     haulers.forEach((cName) => declareOrphan(Game.creeps[cName]));
+    const reservations: SpawnReservation[] = Memory.missions[name].reservations;
+    reservations.forEach(
+        (res) => global.spawnQueue.cancelReservation(res.name));
     delete Memory.missions[name];
     return haulers;
   }

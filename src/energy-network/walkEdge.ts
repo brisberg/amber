@@ -8,8 +8,8 @@ interface WalkEdgeMemory {
 }
 
 /**
- * Walk Edge is a Network Edge where creeps will manually haul Energy from the
- * source to destination without maintaining a road.
+ * Walk Edge is a Network Edge where creeps will manually haul Energy between
+ * the two nodes without maintaining a road.
  */
 export class WalkEdge extends NetworkEdge<WalkEdgeMemory> {
   private transportMission: TransportMission|null = null;
@@ -22,17 +22,27 @@ export class WalkEdge extends NetworkEdge<WalkEdgeMemory> {
   }
 
   public run() {
-    if (this.source && this.dest) {
-      if (!this.transportMission) {
+    if (this.nodeA && this.nodeB) {
+      if (!this.transportMission && this.mem.flow !== 0) {
+        let sourceFlag;
+        let destFlag;
+
+        if (this.mem.flow > 0) {
+          sourceFlag = this.nodeA.flag;
+          destFlag = this.nodeB.flag;
+        } else {
+          sourceFlag = this.nodeB.flag;
+          destFlag = this.nodeA.flag;
+        }
         // Start a new transport mission
         this.transportMission = new TransportMission(this.name + '_transport');
-        if (Game.flags[this.source.flag]) {
+        if (Game.flags[sourceFlag]) {
           this.transportMission.setSource(
-              new EnergyNode(Game.flags[this.source.flag]));
+              new EnergyNode(Game.flags[sourceFlag]));
         }
-        if (Game.flags[this.source.flag]) {
+        if (Game.flags[destFlag]) {
           this.transportMission.setDestination(
-              new EnergyNode(Game.flags[this.dest.flag]));
+              new EnergyNode(Game.flags[destFlag]));
         }
         this.mem.state.transportMsn = this.transportMission.name;
       }

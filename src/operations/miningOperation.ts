@@ -102,7 +102,7 @@ export class MiningOperation {
         const flag = registerEnergyNode(
             this.room, [this.container.pos.x, this.container.pos.y], {
               persistant: true,
-              polarity: 'source',
+              polarity: 10,
               structureID: this.container.id,
               type: 'structure',
             });

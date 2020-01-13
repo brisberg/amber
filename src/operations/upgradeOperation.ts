@@ -108,7 +108,7 @@ export class UpgradeOperation {
         const flag = registerEnergyNode(
             this.room, [this.container.pos.x, this.container.pos.y], {
               persistant: true,
-              polarity: 'source',
+              polarity: -30,
               structureID: this.container.id,
               type: 'structure',
             });

@@ -94,7 +94,7 @@ export class BuildMission {
       const flag = registerEnergyNode(
           this.room!, [this.target!.pos.x, this.target!.pos.y + 2], {
             persistant: false,
-            polarity: 'sink',
+            polarity: -6,
             type: 'creep',
           });
       this.mem.eNodeFlag = flag.name;
@@ -193,6 +193,9 @@ export class BuildMission {
   public static cleanup(name: string): string[] {
     const builders: string[] = Memory.missions[name].builders;
     builders.forEach((cName) => declareOrphan(Game.creeps[cName]));
+    const reservations: SpawnReservation[] = Memory.missions[name].reservations;
+    reservations.forEach(
+        (res) => global.spawnQueue.cancelReservation(res.name));
     delete Memory.missions[name];
     return builders;
   }

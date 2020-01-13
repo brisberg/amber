@@ -3,21 +3,22 @@ import {EnergyNodeMemory} from './energyNode';
 export interface NetworkEdgeMemory<T = any> {
   name: string;
   type: string;
-  source: EnergyNodeMemory;
-  dest: EnergyNodeMemory;
+  nodeA: EnergyNodeMemory;
+  nodeB: EnergyNodeMemory;
+  flow: number;  // positive number is A -> B
   state: T;
 }
 
 export abstract class NetworkEdge<T = any> {
   public readonly name: string;
-  public readonly source: EnergyNodeMemory;
-  public readonly dest: EnergyNodeMemory;
+  public readonly nodeA: EnergyNodeMemory;
+  public readonly nodeB: EnergyNodeMemory;
   protected readonly _mem: NetworkEdgeMemory<T>;
 
   constructor(name: string, mem: NetworkEdgeMemory<T>) {
     this.name = name;
-    this.source = mem.source;
-    this.dest = mem.dest;
+    this.nodeA = mem.nodeA;
+    this.nodeB = mem.nodeB;
     this._mem = mem;
   }
 

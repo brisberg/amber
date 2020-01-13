@@ -19,13 +19,13 @@ FILO stack of delivery creeps.
 
 export interface EnergyNodeMemory {
   flag: string;
-  polarity: 'source'|'sink';
+  polarity: number;  // amount of energy per second this node produces/removes
   type: 'link'|'structure'|'creep';
   persistant: boolean;  // Unused for now
   _cache: {
     structureID?: Id<StructureStore>;
     creep?: string;
-    linkID?: Id<StructureLink>;
+    linkID?: Id<StructureLink>; netBalance: number;
   };
 }
 
@@ -47,10 +47,12 @@ export class EnergyNode {
 
     if (!Memory.flags[flag.name].state) {
       const mem: EnergyNodeMemory = {
-        _cache: {},
+        _cache: {
+          netBalance: 0,
+        },
         flag: flag.name,
         persistant: false,
-        polarity: 'source',
+        polarity: 0,
         type: 'structure',
       };
       Memory.flags[flag.name].state = mem;
@@ -160,7 +162,7 @@ export class EnergyNode {
 }
 
 interface RegisterEnergyNodeOptions {
-  polarity: 'source'|'sink';
+  polarity: number;
   type: 'link'|'structure'|'creep';
   persistant: boolean;
   structureID?: Id<StructureStore>;
@@ -171,7 +173,9 @@ export function registerEnergyNode(
   const flagName = ['enode', room.name, pos[0], pos[1]].join('_');
 
   const mem: EnergyNodeMemory = {
-    _cache: {},
+    _cache: {
+      netBalance: opts.polarity,
+    },
     flag: flagName,
     persistant: opts.persistant,
     polarity: opts.polarity,
