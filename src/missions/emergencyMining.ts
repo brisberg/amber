@@ -1,4 +1,5 @@
 import {EMERGENCY_MINER, EmergencyMiner} from 'behaviors/emergencyMiner';
+import {declareOrphan} from 'spawn-system/orphans';
 import {SpawnReservation} from 'spawn-system/spawnQueue';
 import {createWorkerBody} from 'utils/workerUtils';
 
@@ -77,5 +78,16 @@ export class EmergencyMining {
 
   private createMinerBody() {
     return createWorkerBody(1, 2, 2);
+  }
+
+  /**
+   * Cleans up the memory associated with this missions, returns the list names
+   * of orphaned creeps.
+   */
+  public static cleanup(name: string): string[] {
+    const creeps: string[] = Memory.missions[name].creeps;
+    creeps.forEach((cName) => declareOrphan(Game.creeps[cName]));
+    delete Memory.missions[name];
+    return creeps;
   }
 }

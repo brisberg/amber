@@ -2,6 +2,7 @@ import {ENET_BUILDER, ENetBuilder} from 'behaviors/eNetBuilder';
 import {IDLER, Idler} from 'behaviors/idler';
 import {SOURCE_BUILDER, SourceBuilder} from 'behaviors/sourceBuilder';
 import {EnergyNode, registerEnergyNode} from 'energy-network/energyNode';
+import {declareOrphan} from 'spawn-system/orphans';
 import {SpawnReservation} from 'spawn-system/spawnQueue';
 import {createWorkerBody} from 'utils/workerUtils';
 
@@ -192,12 +193,7 @@ export class BuildMission {
    */
   public static cleanup(name: string): string[] {
     const builders: string[] = Memory.missions[name].builders;
-    builders.forEach((cName) => {
-      const mem = Memory.creeps[cName];
-      delete mem.mission;
-      mem.behavior = IDLER;
-      mem.mem = Idler.initMemory();
-    });
+    builders.forEach((cName) => declareOrphan(Game.creeps[cName]));
     delete Memory.missions[name];
     return builders;
   }

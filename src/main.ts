@@ -63,7 +63,7 @@ export const loop = () => {
     }
 
     if (!creep.memory.mission || !Memory.missions[creep.memory.mission]) {
-      // Creep is Orphaned, or it's mission was cancelled
+      // Creep is Orphaned, or its mission was cancelled
       if (creep.memory.behavior !== IDLER) {
         creep.memory.behavior = IDLER;
         creep.memory.mem = Idler.initMemory();

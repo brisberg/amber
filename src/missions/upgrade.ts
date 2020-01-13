@@ -1,4 +1,5 @@
 import {Upgrader, UPGRADER} from 'behaviors/upgrader';
+import {declareOrphan} from 'spawn-system/orphans';
 import {SpawnReservation} from 'spawn-system/spawnQueue';
 import {createWorkerBody} from 'utils/workerUtils';
 
@@ -154,7 +155,7 @@ export class UpgradeMission {
    */
   public static cleanup(name: string): string[] {
     const upgraders: string[] = Memory.missions[name].upgraders;
-    upgraders.forEach((cName) => delete Memory.creeps[cName]);
+    upgraders.forEach((cName) => declareOrphan(Game.creeps[cName]));
     delete Memory.missions[name];
     return upgraders;
   }

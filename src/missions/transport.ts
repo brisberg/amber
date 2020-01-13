@@ -2,6 +2,7 @@ import {ENET_DEPOSITER, ENetDepositer} from 'behaviors/eNetDepositer';
 import {ENET_FETCHER, ENetFetcher} from 'behaviors/eNetFetcher';
 import {IDLER, Idler} from 'behaviors/idler';
 import {EnergyNode, EnergyNodeMemory} from 'energy-network/energyNode';
+import {declareOrphan} from 'spawn-system/orphans';
 import {SpawnReservation} from 'spawn-system/spawnQueue';
 import {createWorkerBody} from 'utils/workerUtils';
 
@@ -175,12 +176,7 @@ export class TransportMission {
    */
   public static cleanup(name: string): string[] {
     const haulers: string[] = Memory.missions[name].haulers;
-    haulers.forEach((cName) => {
-      const mem = Memory.creeps[cName];
-      delete mem.mission;
-      mem.behavior = IDLER;
-      mem.mem = Idler.initMemory();
-    });
+    haulers.forEach((cName) => declareOrphan(Game.creeps[cName]));
     delete Memory.missions[name];
     return haulers;
   }
