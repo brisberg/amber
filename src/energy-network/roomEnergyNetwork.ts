@@ -53,12 +53,6 @@ export class RoomEnergyNetwork {
       Memory.rooms[room.name].network = mem;
     }
     this.mem = Memory.rooms[room.name].network;
-
-    this.syncNodesFromFlags();
-  }
-
-  public discardAnalysisCache() {
-    delete this.mem._cache;
   }
 
   public get nodes() {
@@ -66,40 +60,93 @@ export class RoomEnergyNetwork {
   }
 
   public run() {
+    if (Game.time % 100 === 0) {
+      // Every 100 ticks or so re-evaulate flow analysis. This may cause some
+      // edges to reverse polarity
+      this.generateFlowAnalysis();
+    }
+
     for (const edge of this.edges) {
       edge.run();
     }
   }
 
+  /** Initialize the network from exiting Energy Node Flags */
+  public initNetwork() {
+    // Look up all Energy Node Flags
+    let flags = this.room.find(FIND_FLAGS, {
+      filter: {color: ENERGY_NODE_FLAG_COLOR},
+    });
+    // Validate flags, pruning derelict nodes
+    flags = flags.filter((flag) => {
+      if (EnergyNode.validateNode(flag)) {
+        return true;
+      } else {
+        flag.remove();
+        return false;
+      }
+    });
+    this._nodes = flags.map((flag) => new EnergyNode(flag));
+    const flagNames = flags.map((flag) => flag.name);
+
+    const newNodeHash = hashCode(flagNames.join(','));
+    if (newNodeHash !== this.mem._cache?.hashKey) {
+      // Nodes have changed since the last time we ran Network Analysis
+      this.discardAnalysisCache();
+      this.mem.nodes = flagNames;
+      this.generateNetworkAnalysis();
+      this.mem.edges = this.regenerateEdgesFromAnalysis(this.mem._cache!.mst);
+      this.generateFlowAnalysis();
+    }
+    // Initilize edges from the latest Network Analysis
+    this.edges = this.mem.edges.map(initNetworkEdgeByType);
+  }
+
+  /** Discards the NetworkAnlysis cache for this EnergyNetwork */
+  private discardAnalysisCache() {
+    delete this.mem._cache;
+  }
+
+  /**
+   * Runs NetworkAnalysis on this EnergyNetwork if there is not a cached
+   * version
+   */
   private generateNetworkAnalysis() {
     if (!this.mem._cache) {
       this.mem._cache = analyzeEnergyNetwork(this);
+    }
+  }
 
-      for (const edge of this.mem.edges) {
-        // Hack
-        TransportMission.cleanup(edge.state.transportMsn);
-      }
-      this.edges = [];
-      this.mem.edges = [];
+  /**
+   * Given a MST from a NetworkAnalysis, generate a list of NetworkEdgeMemory
+   * objects for use in the Network.
+   *
+   * Assumes that NetworkAnlysis is up to date, and that all edges in the given
+   * MST consitute real edges between real nodes.
+   */
+  private regenerateEdgesFromAnalysis(mst: EnergyNetworkAnalysis['mst']):
+      NetworkEdgeMemory[] {
+    for (const edge of this.mem.edges) {
+      // Hack
+      TransportMission.cleanup(edge.state.transportMsn);
+    }
+    const edges: NetworkEdgeMemory[] = [];
 
-      for (const edge of this.mem._cache.mst) {
-        const edgeName = edge.startV + '-' + edge.endV;
-        const edgeMem: NetworkEdgeMemory<any> = {
-          flow: 0,
-          name: edgeName,
-          nodeA: this.nodes.find((node) => node.flag.name === edge.startV)!.mem,
-          nodeB: this.nodes.find((node) => node.flag.name === edge.endV)!.mem,
-          state: {},
-          type: 'walk',
-        };
-
-        this.mem.edges.push(edgeMem);
-        const newEdge = new WalkEdge(edgeName, edgeMem);
-        this.edges.push(newEdge);
-      }
+    for (const edge of mst) {
+      const edgeName = edge.startV + '-' + edge.endV;
+      const edgeMem: NetworkEdgeMemory<any> = {
+        dist: edge.dist,
+        flow: 0,
+        name: edgeName,
+        nodeA: edge.startV,
+        nodeB: edge.endV,
+        state: {},
+        type: 'walk',
+      };
+      edges.push(edgeMem);
     }
 
-    this.generateFlowAnalysis();
+    return edges;
   }
 
   /**
@@ -117,14 +164,14 @@ export class RoomEnergyNetwork {
     for (let i = 0; i < this.edges.length; i++) {
       for (const edge of this.edges) {
         // For each edge, attempt to push the polarity towards the lower end
-        const nodeAPol = edge.nodeA._cache.netBalance;
-        const nodeBPol = edge.nodeB._cache.netBalance;
+        const nodeAPol = edge.nodeA.mem._cache.netBalance;
+        const nodeBPol = edge.nodeB.mem._cache.netBalance;
         if (nodeAPol > 0 && nodeAPol > nodeBPol) {
           edge.mem.flow = Math.min(nodeAPol, nodeAPol - nodeBPol);
-          edge.nodeB._cache.netBalance += edge.mem.flow;
+          edge.nodeB.mem._cache.netBalance += edge.mem.flow;
         } else if (nodeBPol > 0 && nodeBPol > nodeAPol) {
           edge.mem.flow = -Math.min(nodeBPol, nodeBPol - nodeAPol);
-          edge.nodeB._cache.netBalance += edge.mem.flow;
+          edge.nodeB.mem._cache.netBalance += edge.mem.flow;
         }
       }
     }
@@ -145,29 +192,12 @@ export class RoomEnergyNetwork {
     // Prune the name from our list of nodes
     this.mem.nodes = this.mem.nodes.filter((node) => node !== name);
     const obsoliteEdges = this.edges.filter((edge) => {
-      return edge.nodeA.flag === name || edge.nodeB.flag === name;
+      return edge.nodeA.flag.name === name || edge.nodeB.flag.name === name;
     });
     obsoliteEdges.forEach((edge) => edge.retire());
     this.mem.edges = this.edges.filter((edge) => !obsoliteEdges.includes(edge))
                          .map((edge) => edge.mem);
     this.discardAnalysisCache();
     return;
-  }
-
-  /** Looks at all flags in the room and use them to update our node list  */
-  private syncNodesFromFlags() {
-    const flags =
-        this.room.find(FIND_FLAGS, {filter: {color: ENERGY_NODE_FLAG_COLOR}});
-    const flagNames = flags.map((flag) => flag.name);
-    this._nodes = flags.map((flag) => new EnergyNode(flag));
-
-    const newNodeHash = hashCode(flagNames.join(','));
-    if (newNodeHash !== this.mem.nodesHash) {
-      this.discardAnalysisCache();
-      this.mem.nodes = flagNames;
-      this.mem.nodesHash = newNodeHash;
-      this.generateNetworkAnalysis();
-    }
-    this.edges = this.mem.edges.map(initNetworkEdgeByType);
   }
 }

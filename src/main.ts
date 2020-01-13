@@ -31,6 +31,7 @@ export const loop = () => {
   const queue = global.spawnQueue = new SpawnQueue(Game.spawns.Spawn1);
   const eNetwork = global.eNetwork =
       new RoomEnergyNetwork(Game.spawns.Spawn1.room);
+  eNetwork.initNetwork();
 
   const mOp = new MiningOperation(
       'mining_op', Game.spawns.Spawn1.room.find(FIND_SOURCES)[0]);

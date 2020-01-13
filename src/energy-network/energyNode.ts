@@ -19,7 +19,7 @@ FILO stack of delivery creeps.
 
 export interface EnergyNodeMemory {
   flag: string;
-  polarity: number;  // amount of energy per second this node produces/removes
+  polarity: number;  // amount of energy per second this node produces/remove
   type: 'link'|'structure'|'creep';
   persistant: boolean;  // Unused for now
   _cache: {
@@ -30,7 +30,7 @@ export interface EnergyNodeMemory {
 }
 
 // TODO: Maybe we need to add towers to this?
-/* All structures which be an Energy Node */
+/* All structures which can be an Energy Node */
 type StructureStore = StructureContainer|StructureLink|StructureStorage|
     StructureSpawn|StructureExtension;
 
@@ -158,6 +158,55 @@ export class EnergyNode {
           Math.min(creep.store.getFreeCapacity(), this.creep.store.energy);
       this.creep.transfer(creep, RESOURCE_ENERGY, amt);
     }
+  }
+
+  /**
+   * Examines an Energy Node flag to validate if the flag is in a valid state.
+   *
+   * i.e. Has a valid structure at the location, has a constructed link, etc
+   *
+   * Used to prune compromised nodes from the network.
+   */
+  public static validateNode(flag: Flag): boolean {
+    if (!Memory.flags[flag.name]) {
+      // No memory associated with this flag
+      return false;
+    }
+
+    const mem: EnergyNodeMemory = Memory.flags[flag.name].state;
+
+    if (!mem) {
+      // Flag memory not initialized
+      return false;
+    }
+
+    if (!flag.room) {
+      // We have lost vision of this room, might revisit this for remote mining
+      return false;
+    }
+
+    if (mem.type === 'structure') {
+      const cache = mem._cache;
+
+      if (!cache.structureID || !Game.getObjectById(cache.structureID)) {
+        const structs = flag.room.lookForAt(
+            LOOK_STRUCTURES,
+            flag.pos.x,
+            flag.pos.y,
+        );
+        for (const struct of structs) {
+          // This may not be a safe assumption
+          if ((struct as any).store !== undefined) {
+            cache.structureID = struct.id as Id<StructureStore>;
+            return true;
+          }
+        }
+        // No suitable storage structure was found, it may have been destroyed
+        return false;
+      }
+    }
+
+    return true;
   }
 }
 

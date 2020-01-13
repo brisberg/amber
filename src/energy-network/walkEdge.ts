@@ -24,26 +24,20 @@ export class WalkEdge extends NetworkEdge<WalkEdgeMemory> {
   public run() {
     if (this.nodeA && this.nodeB) {
       if (!this.transportMission && this.mem.flow !== 0) {
-        let sourceFlag;
-        let destFlag;
+        let source: EnergyNode;
+        let dest: EnergyNode;
 
         if (this.mem.flow > 0) {
-          sourceFlag = this.nodeA.flag;
-          destFlag = this.nodeB.flag;
+          source = this.nodeA;
+          dest = this.nodeB;
         } else {
-          sourceFlag = this.nodeB.flag;
-          destFlag = this.nodeA.flag;
+          source = this.nodeB;
+          dest = this.nodeA;
         }
         // Start a new transport mission
         this.transportMission = new TransportMission(this.name + '_transport');
-        if (Game.flags[sourceFlag]) {
-          this.transportMission.setSource(
-              new EnergyNode(Game.flags[sourceFlag]));
-        }
-        if (Game.flags[destFlag]) {
-          this.transportMission.setDestination(
-              new EnergyNode(Game.flags[destFlag]));
-        }
+        this.transportMission.setSource(source);
+        this.transportMission.setDestination(dest);
         this.mem.state.transportMsn = this.transportMission.name;
       }
 

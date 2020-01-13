@@ -1,7 +1,15 @@
+import {hashCode} from 'utils/hash';
+
 import {RoomEnergyNetwork} from './roomEnergyNetwork';
 
+/**
+ * Analysis result of Analyzing the optimal network topology of a set of Energy
+ * Nodes
+ */
 export interface EnergyNetworkAnalysis {
   mst: Edge[];
+  // Hash of the names of the nodes used to compute this analysis
+  hashKey: number;
 }
 
 interface Edge {
@@ -22,10 +30,11 @@ interface AdjacencyMatrix {
  * Used Prim's Minimum Spanning Tree algorithm. Currently an ineificcient
  * implementation as it could use a Heap based priority queue.
  */
-export function analyzeEnergyNetwork(network: RoomEnergyNetwork) {
+export function analyzeEnergyNetwork(network: RoomEnergyNetwork):
+    EnergyNetworkAnalysis {
   // Need atleast 2 nodes to make a MST
   if (network.nodes.length < 2) {
-    return {mst: []};
+    return {hashKey: 0, mst: []};
   }
 
   const costMatrix: AdjacencyMatrix = calculateCostMatrix(network);
@@ -81,7 +90,13 @@ export function analyzeEnergyNetwork(network: RoomEnergyNetwork) {
     }
   }
 
-  return {mst};
+  const hashKey =
+      hashCode(network.nodes.map((node) => node.flag.name).join(','));
+
+  return {
+    hashKey,
+    mst,
+  };
 }
 
 function calculateCostMatrix(network: RoomEnergyNetwork): AdjacencyMatrix {
