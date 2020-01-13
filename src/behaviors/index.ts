@@ -8,6 +8,7 @@ import {ENET_DEPOSITER, ENetDepositer} from './eNetDepositer';
 import {ENET_FETCHER, ENetFetcher} from './eNetFetcher';
 import {Fetcher, FETCHER} from './fetcher';
 import {Harvester, HARVESTER} from './harvester';
+import {Idler, IDLER} from './idler';
 import {Repairer, REPAIRER} from './repairer';
 import {SOURCE_BUILDER, SourceBuilder} from './sourceBuilder';
 import {Upgrader, UPGRADER} from './upgrader';
@@ -30,4 +31,5 @@ global.behaviors = {
   [ENET_FETCHER]: new ENetFetcher(),
   [ENET_DEPOSITER]: new ENetDepositer(),
   [UPGRADER]: new Upgrader(),
+  [IDLER]: new Idler(),
 };

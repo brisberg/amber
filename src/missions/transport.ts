@@ -1,5 +1,6 @@
 import {ENET_DEPOSITER, ENetDepositer} from 'behaviors/eNetDepositer';
 import {ENET_FETCHER, ENetFetcher} from 'behaviors/eNetFetcher';
+import {IDLER, Idler} from 'behaviors/idler';
 import {EnergyNode, EnergyNodeMemory} from 'energy-network/energyNode';
 import {SpawnReservation} from 'spawn-system/spawnQueue';
 import {createWorkerBody} from 'utils/workerUtils';
@@ -143,6 +144,7 @@ export class TransportMission {
     const name = this.name + Game.time;
     const res = global.spawnQueue.requestCreep({
       body: this.createHarvesterBody(),
+      bodyType: 'hauler',
       name,
       options: {
         memory: {
@@ -154,7 +156,13 @@ export class TransportMission {
       },
       priority: TransportMission.spawnPriority,
     });
-    this.mem.reservations.push(res);
+
+    if (res instanceof Creep) {
+      res.memory.mission = this.name;
+      this.haulers.push(res);
+    } else {
+      this.mem.reservations.push(res);
+    }
   }
 
   private createHarvesterBody() {
@@ -167,7 +175,12 @@ export class TransportMission {
    */
   public static cleanup(name: string): string[] {
     const haulers: string[] = Memory.missions[name].haulers;
-    haulers.forEach((cName) => delete Memory.creeps[cName]);
+    haulers.forEach((cName) => {
+      const mem = Memory.creeps[cName];
+      delete mem.mission;
+      mem.behavior = IDLER;
+      mem.mem = Idler.initMemory();
+    });
     delete Memory.missions[name];
     return haulers;
   }

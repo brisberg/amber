@@ -18,6 +18,7 @@ export interface SpawnRequest {
   priority: number;
   name: string;
   body: BodyPartConstant[];
+  bodyType: string;
   options?: SpawnOptions;
 }
 
@@ -56,7 +57,16 @@ export class SpawnQueue {
     }
   }
 
-  public requestCreep(request: SpawnRequest): SpawnReservation {
+  public requestCreep(request: SpawnRequest): Creep|SpawnReservation {
+    // Look for Orphaned creeps
+    for (const name in Game.creeps) {
+      const creep = Game.creeps[name];
+
+      if (!creep.memory.mission && creep.memory.bodyType === request.bodyType) {
+        return creep;
+      }
+    }
+
     // TODO: Validate that creep cost is less than total spawn storage
     this.mem.requests.push(request);
     this.sortQueueByPriority();

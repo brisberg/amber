@@ -43,6 +43,7 @@ export class EmergencyMining {
       const source = spawn.pos.findClosestByPath(FIND_SOURCES);
       const res = global.spawnQueue.requestCreep({
         body: this.createMinerBody(),
+        bodyType: 'miner',
         name,
         options: {
           memory: {
@@ -54,7 +55,12 @@ export class EmergencyMining {
         },
         priority: EmergencyMining.spawnPriority,
       });
-      this.mem.reservations.push(res);
+      if (res instanceof Creep) {
+        res.memory.mission = this.name;
+        this.miners.push(res);
+      } else {
+        this.mem.reservations.push(res);
+      }
     }
 
     // Claim reserved creeps

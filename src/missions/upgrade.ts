@@ -132,10 +132,16 @@ export class UpgradeMission {
     const name = this.name + Game.time;
     const res = global.spawnQueue.requestCreep({
       body: this.createHarvesterBody(),
+      bodyType: 'worker',
       name,
       priority: UpgradeMission.spawnPriority,
     });
-    this.mem.reservations.push(res);
+    if (res instanceof Creep) {
+      res.memory.mission = this.name;
+      this.upgraders.push(res);
+    } else {
+      this.mem.reservations.push(res);
+    }
   }
 
   private createHarvesterBody() {

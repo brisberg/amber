@@ -1,4 +1,5 @@
 import {ENET_BUILDER, ENetBuilder} from 'behaviors/eNetBuilder';
+import {IDLER, Idler} from 'behaviors/idler';
 import {SOURCE_BUILDER, SourceBuilder} from 'behaviors/sourceBuilder';
 import {EnergyNode, registerEnergyNode} from 'energy-network/energyNode';
 import {SpawnReservation} from 'spawn-system/spawnQueue';
@@ -169,10 +170,16 @@ export class BuildMission {
     const name = this.name + Game.time;
     const res = global.spawnQueue.requestCreep({
       body: this.createBuilderBody(),
+      bodyType: 'worker',
       name,
       priority: BuildMission.spawnPriority,
     });
-    this.mem.reservations.push(res);
+    if (res instanceof Creep) {
+      res.memory.mission = this.name;
+      this.builders.push(res);
+    } else {
+      this.mem.reservations.push(res);
+    }
   }
 
   private createBuilderBody() {
@@ -185,7 +192,12 @@ export class BuildMission {
    */
   public static cleanup(name: string): string[] {
     const builders: string[] = Memory.missions[name].builders;
-    builders.forEach((cName) => delete Memory.creeps[cName]);
+    builders.forEach((cName) => {
+      const mem = Memory.creeps[cName];
+      delete mem.mission;
+      mem.behavior = IDLER;
+      mem.mem = Idler.initMemory();
+    });
     delete Memory.missions[name];
     return builders;
   }
