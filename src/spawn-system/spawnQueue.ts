@@ -1,6 +1,7 @@
 import {registerEnergyNode} from 'energy-network/energyNode';
 import {BodyPartManifest, generateManifestFromBody} from 'utils/bodypartManifest';
 import {totalCost} from 'utils/workerUtils';
+import {isOrphan} from './orphans';
 
 /**
  * Represents the queue of creeps to be build by a given spawner.
@@ -62,7 +63,7 @@ export class SpawnQueue {
     for (const name in Game.creeps) {
       const creep = Game.creeps[name];
 
-      if (!creep.memory.mission && creep.memory.bodyType === request.bodyType) {
+      if (isOrphan(creep) && creep.memory.bodyType === request.bodyType) {
         return creep;
       }
     }

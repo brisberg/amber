@@ -22,3 +22,8 @@ export function declareOrphan(creep: Creep) {
   mem.behavior = IDLER;
   mem.mem = Idler.initMemory();
 }
+
+/** Returns true if the creep is an Orphan */
+export function isOrphan(creep: Creep) {
+  return creep.memory.mission === null || creep.memory.mission === undefined;
+}
