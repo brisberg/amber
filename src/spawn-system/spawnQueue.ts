@@ -1,4 +1,4 @@
-import {IDLER} from 'behaviors/idler';
+import {IDLER, Idler} from 'behaviors/idler';
 import {registerEnergyNode} from 'energy-network/energyNode';
 import {request} from 'http';
 import {BodyPartManifest, generateManifestFromBody} from 'utils/bodypartManifest';
@@ -54,8 +54,8 @@ export class SpawnQueue {
       registerEnergyNode(
           this.spawner.room, [this.spawner.pos.x, this.spawner.pos.y], {
             persistant: true,
-            polarity: -10,
             structureID: this.spawner.id,
+            threshold: 300,  // Spawn max
             type: 'structure',
           });
     }
@@ -105,7 +105,7 @@ export class SpawnQueue {
         memory: {
           behavior: IDLER,
           bodyType: req.bodyType,
-          mem: null,
+          mem: Idler.initMemory(),
           mission: null,
         },
       };

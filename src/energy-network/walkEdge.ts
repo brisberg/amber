@@ -23,33 +23,40 @@ export class WalkEdge extends NetworkEdge<WalkEdgeMemory> {
 
   public run() {
     if (this.nodeA && this.nodeB) {
-      if (!this.transportMission && this.mem.flow !== 0) {
-        let source: EnergyNode;
-        let dest: EnergyNode;
+      if (this.mem.flow !== 0) {
+        if (!this.transportMission) {
+          let source: EnergyNode;
+          let dest: EnergyNode;
 
-        if (this.mem.flow > 0) {
-          source = this.nodeA;
-          dest = this.nodeB;
-        } else {
-          source = this.nodeB;
-          dest = this.nodeA;
+          if (this.mem.flow > 0) {
+            source = this.nodeA;
+            dest = this.nodeB;
+          } else {
+            source = this.nodeB;
+            dest = this.nodeA;
+          }
+          // Start a new transport mission
+          this.transportMission =
+              new TransportMission(this.name + '_transport');
+          this.transportMission.setSource(source);
+          this.transportMission.setDestination(dest);
+          this.mem.state.transportMsn = this.transportMission.name;
         }
-        // Start a new transport mission
-        this.transportMission = new TransportMission(this.name + '_transport');
-        this.transportMission.setSource(source);
-        this.transportMission.setDestination(dest);
-        this.mem.state.transportMsn = this.transportMission.name;
-      }
 
-      if (this.transportMission) {
+        this.transportMission.setThroughput(this.mem.flow);
         this.transportMission.run();
+      } else {
+        // No flow on this lane, we can remove the mission
+        if (this.transportMission) {
+          TransportMission.cleanup(this.transportMission.name);
+          delete this.mem.state.transportMsn;
+        }
       }
     }
     return;
   }
 
   public retire() {
-    // Unimplemented
     if (this.transportMission) {
       console.log('retiring edge ' + this.name);
       // TODO: Do something with the orphaned creeps

@@ -56,4 +56,12 @@ export class ENetDepositer extends Behavior<ENetDepositerMemory> {
       eNodeFlag: node.flag.name,
     };
   }
+
+  public static getTarget(mem: ENetDepositerMemory): string|null {
+    if (!mem) {
+      return null;
+    }
+
+    return mem.eNodeFlag;
+  }
 }

@@ -94,7 +94,7 @@ export class BuildMission {
       const flag = registerEnergyNode(
           this.room!, [this.target!.pos.x, this.target!.pos.y + 2], {
             persistant: false,
-            polarity: -6,
+            threshold: 200,
             type: 'creep',
           });
       this.mem.eNodeFlag = flag.name;

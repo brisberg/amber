@@ -9,7 +9,7 @@ export function installConsoleCommands() {
 }
 
 const CONSOLE_COMMANDS = {
-  addENode: (containerID: Id<StructureContainer>, polarity = 0) => {
+  addENode: (containerID: Id<StructureContainer>, threshold = 0) => {
     const room = Game.spawns.Spawn1.room;
     const container = Game.getObjectById(containerID);
 
@@ -19,8 +19,8 @@ const CONSOLE_COMMANDS = {
 
     const flag = registerEnergyNode(room, [container.pos.x, container.pos.y], {
       persistant: true,
-      polarity,
       structureID: container.id,
+      threshold,
       type: 'structure',
     });
 

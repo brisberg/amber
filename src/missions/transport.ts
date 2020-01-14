@@ -1,5 +1,6 @@
 import {ENET_DEPOSITER, ENetDepositer} from 'behaviors/eNetDepositer';
 import {ENET_FETCHER, ENetFetcher} from 'behaviors/eNetFetcher';
+import {IDLER} from 'behaviors/idler';
 import {EnergyNode, EnergyNodeMemory} from 'energy-network/energyNode';
 import {declareOrphan} from 'spawn-system/orphans';
 import {SpawnReservation} from 'spawn-system/spawnQueue';
@@ -10,7 +11,8 @@ interface TransportMissionMemory {
   reservations: SpawnReservation[];
   source: EnergyNodeMemory|null;
   dest: EnergyNodeMemory|null;
-  _path?: string;  // TODO: still unused
+  throughput: number;  // Desired throughput
+  _path?: string;      // TODO: still unused
 }
 
 /**
@@ -21,7 +23,6 @@ interface TransportMissionMemory {
  */
 export class TransportMission {
   private static spawnPriority = 2;
-  private static maxHaulers = 2;
 
   public name: string;
   public source: EnergyNode|null = null;
@@ -40,6 +41,7 @@ export class TransportMission {
         haulers: [],
         reservations: [],
         source: null,
+        throughput: 0,
       };
       Memory.missions[name] = mem;
     }
@@ -74,6 +76,10 @@ export class TransportMission {
     this.dest = dest;
   }
 
+  public setThroughput(throughput: number) {
+    this.mem.throughput = throughput;
+  }
+
   /** Executes one update tick for this mission */
   public run() {
     if (!this.source || !this.dest) {
@@ -96,33 +102,72 @@ export class TransportMission {
       return true;
     });
 
+    /**
+     * If they are fetching
+     *    and source is not correct, fixit
+     *    and they are full, swap
+     * If they are depositing
+     *    and dest is wrong, fix it
+     *    and they are empty, swap
+     */
+
     // Direct each creep to pick up or dropoff
     this.haulers.forEach((creep) => {
-      if (creep.memory.behavior === ENET_FETCHER &&
-          creep.store.getFreeCapacity() === 0) {
-        // Have energy, travel to destination
-        creep.memory = {
-          behavior: ENET_DEPOSITER,
-          bodyType: 'hauler',
-          mem: ENetDepositer.initMemory(this.dest!),
-          mission: this.name,
-        };
-      } else if (
-          creep.memory.behavior === ENET_DEPOSITER &&
-          creep.store.energy === 0) {
-        // Fetch more energy
-        creep.memory = {
-          behavior: ENET_FETCHER,
-          bodyType: 'hauler',
-          mem: ENetFetcher.initMemory(this.source!),
-          mission: this.name,
-        };
+      if (creep.memory.behavior === IDLER) {
+        // Pickup newly spawned idle creeps
+        creep.memory.behavior = ENET_FETCHER;
+      }
+
+      if (creep.memory.behavior === ENET_FETCHER) {
+        if (ENetFetcher.getTarget(creep.memory.mem) !==
+            this.source!.flag.name) {
+          // Update fetch target
+          creep.memory.mem = ENetFetcher.initMemory(this.source!);
+        }
+
+        if (creep.store.getFreeCapacity() === 0) {
+          // Have energy, travel to destination
+          creep.memory = {
+            behavior: ENET_DEPOSITER,
+            bodyType: 'hauler',
+            mem: ENetDepositer.initMemory(this.dest!),
+            mission: this.name,
+          };
+        }
+      } else if (creep.memory.behavior === ENET_DEPOSITER) {
+        if (ENetDepositer.getTarget(creep.memory.mem) !==
+            this.dest!.flag.name) {
+          // Update fetch target
+          creep.memory.mem = ENetDepositer.initMemory(this.dest!);
+        }
+
+        if (creep.store.energy === 0) {
+          if (this.tooManyHaulers()) {
+            // Decommission this hauler after it has delivered its payload
+            console.log('transport missions decommissioning a hauler');
+            declareOrphan(creep);
+            this.mem.haulers =
+                this.mem.haulers.filter((name) => name !== creep.name);
+          } else {
+            // Fetch more energy
+            creep.memory = {
+              behavior: ENET_FETCHER,
+              bodyType: 'hauler',
+              mem: ENetFetcher.initMemory(this.source!),
+              mission: this.name,
+            };
+          }
+        }
       }
     });
   }
 
+  /** Calculates the number of haulers required to maintain this transit line */
   private get maxhaulers() {
-    return TransportMission.maxHaulers;
+    const distance = this.mem._path ?.length || 10;
+    // TODO: Harcoding 7 for now, this should be dependant on the size of the
+    // Hauler creeps available.
+    return Math.abs(this.mem.throughput) * distance / 7;
   }
 
   /**
@@ -137,6 +182,11 @@ export class TransportMission {
     }
 
     return true;
+  }
+
+  /** Returns true if we have more than enough Haulers working this line. */
+  private tooManyHaulers(): boolean {
+    return this.haulers.length > this.maxhaulers;
   }
 
   private requestHauler() {

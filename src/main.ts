@@ -35,7 +35,7 @@ export const loop = () => {
 
   const mOp = new MiningOperation(
       'mining_op', Game.spawns.Spawn1.room.find(FIND_SOURCES)[0]);
-  if (eNetwork.hasSource()) {
+  if (eNetwork.nodes.length > 3) {  // Hack for setting up upgrade missions
     const uOp =
         new UpgradeOperation('upgrade_op', Game.spawns.Spawn1.room.controller!);
     uOp.run();

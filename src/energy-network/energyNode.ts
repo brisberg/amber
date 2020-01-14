@@ -19,13 +19,15 @@ FILO stack of delivery creeps.
 
 export interface EnergyNodeMemory {
   flag: string;
-  polarity: number;  // amount of energy per second this node produces/remove
+  // Energy Network will do its best to keep this node at this level
+  threshold?: number;
   type: 'link'|'structure'|'creep';
   persistant: boolean;  // Unused for now
   _cache: {
     structureID?: Id<StructureStore>;
     creep?: string;
-    linkID?: Id<StructureLink>; netBalance: number;
+    linkID?: Id<StructureLink>;
+    projLevel?: number;
   };
 }
 
@@ -47,12 +49,9 @@ export class EnergyNode {
 
     if (!Memory.flags[flag.name].state) {
       const mem: EnergyNodeMemory = {
-        _cache: {
-          netBalance: 0,
-        },
+        _cache: {},
         flag: flag.name,
         persistant: false,
-        polarity: 0,
         type: 'structure',
       };
       Memory.flags[flag.name].state = mem;
@@ -120,6 +119,47 @@ export class EnergyNode {
         return true;
       }
     }
+  }
+
+  public getStoredEnergy(): number {
+    if (this.mem.type !== 'structure') {
+      // Non structure energy nodes unimplemented
+      return -1;
+    }
+
+    const cache = this.mem._cache;
+    if (!cache.structureID || !Game.getObjectById(cache.structureID)) {
+      // Node is likely derelict and will be pruned soon
+      return -1;
+    }
+
+    const store: StructureStore = Game.getObjectById(cache.structureID)!;
+    return store.store.energy;
+  }
+
+  /**
+   * Calculates the expected surplus or deficit of this node.
+   *
+   * Say we have 1500 energy expected.
+   *
+   * Threshold of 1000 => 1500-1000 => 500 Surplus
+   * Threshold of 1700 => 1500-1700 => 200 Deficit
+   */
+  public getExpectedSurplusOrDeficit(): number {
+    console.log('getExpectedSurplusOrDeficit for ' + this.flag.name);
+    if (!this.mem._cache.projLevel || this.mem._cache.projLevel === -1) {
+      console.log('derelict node');
+      // Derelict nodes do not generate surpluses or deficits
+      return 0;
+    }
+
+    if (this.mem.threshold === undefined) {
+      console.log('no threshold');
+      // I guess if we didn't set a threshold report a zero?
+      return 0;
+    }
+
+    return this.mem._cache.projLevel - this.mem.threshold;
   }
 
   /**
@@ -211,7 +251,7 @@ export class EnergyNode {
 }
 
 interface RegisterEnergyNodeOptions {
-  polarity: number;
+  threshold?: number;
   type: 'link'|'structure'|'creep';
   persistant: boolean;
   structureID?: Id<StructureStore>;
@@ -222,14 +262,15 @@ export function registerEnergyNode(
   const flagName = ['enode', room.name, pos[0], pos[1]].join('_');
 
   const mem: EnergyNodeMemory = {
-    _cache: {
-      netBalance: opts.polarity,
-    },
+    _cache: {},
     flag: flagName,
     persistant: opts.persistant,
-    polarity: opts.polarity,
     type: opts.type,
   };
+
+  if (opts.threshold !== undefined) {
+    mem.threshold = opts.threshold;
+  }
 
   room.createFlag(
       pos[0], pos[1], flagName,

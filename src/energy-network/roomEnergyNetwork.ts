@@ -150,35 +150,46 @@ export class RoomEnergyNetwork {
   }
 
   /**
-   * Iterates through the network and balances the flow, sets desired polarity
-   * numbers on each node
+   * Iterates through the network and balances the flow.
+   *
+   * Examines the actual energy stored in the network and sets polarity and
+   * throughput on each edge to attempt to balance the network for the next
+   * number of ticks.
    */
   private generateFlowAnalysis() {
-    // Clear the cache by resetting the polarities
+    console.log('Running Network Flow Analysis...');
+    // Clear the cache by resetting the projected level to the current amount
+    console.log('currently have ' + this.nodes.length + ' nodes.');
     for (const node of this.nodes) {
-      node.mem._cache.netBalance = node.mem.polarity;
+      console.log(
+          'setting ' + node.mem.flag + ' prodLevel to ' +
+          node.getStoredEnergy());
+      node.mem._cache.projLevel = node.getStoredEnergy();
     }
 
-    // Run the loop once for each edge we have.
+    // Run the loop once for each edge in the graph.
     // tslint:disable-next-line: prefer-for-of
     for (let i = 0; i < this.edges.length; i++) {
       for (const edge of this.edges) {
         // For each edge, attempt to push the polarity towards the lower end
-        const nodeAPol = edge.nodeA.mem._cache.netBalance;
-        const nodeBPol = edge.nodeB.mem._cache.netBalance;
-        if (nodeAPol > 0 && nodeAPol > nodeBPol) {
-          edge.mem.flow = Math.min(nodeAPol, nodeAPol - nodeBPol);
-          edge.nodeB.mem._cache.netBalance += edge.mem.flow;
-        } else if (nodeBPol > 0 && nodeBPol > nodeAPol) {
-          edge.mem.flow = -Math.min(nodeBPol, nodeBPol - nodeAPol);
-          edge.nodeB.mem._cache.netBalance += edge.mem.flow;
+        const nodeADiff = edge.nodeA.getExpectedSurplusOrDeficit();
+        const nodeBDiff = edge.nodeB.getExpectedSurplusOrDeficit();
+        console.log(
+            edge.nodeA.flag.name + ': ' + nodeADiff + '. ' +
+            edge.nodeB.flag.name + ': ' + nodeBDiff);
+        if (nodeADiff > 0 && nodeADiff > nodeBDiff) {
+          console.log('Node A has a larger surplus');
+          edge.mem.flow = Math.min(nodeADiff, nodeADiff - nodeBDiff);
+          edge.nodeA.mem._cache.projLevel! += edge.mem.flow;
+          edge.nodeB.mem._cache.projLevel! -= edge.mem.flow;
+        } else if (nodeBDiff > 0 && nodeBDiff > nodeADiff) {
+          console.log('Node B has a larger surplus');
+          edge.mem.flow = -Math.min(nodeBDiff, nodeBDiff - nodeADiff);
+          edge.nodeB.mem._cache.projLevel! += edge.mem.flow;
+          edge.nodeA.mem._cache.projLevel! -= edge.mem.flow;
         }
       }
     }
-  }
-
-  public hasSource(): boolean {
-    return this.nodes.some((node) => node.mem.polarity >= 0);
   }
 
   public registerEnergyNode(flag: Flag) {

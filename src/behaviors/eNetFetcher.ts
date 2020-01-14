@@ -40,4 +40,12 @@ export class ENetFetcher extends Behavior<ENetFetcherMemory> {
       eNodeFlag: node.flag.name,
     };
   }
+
+  public static getTarget(mem: ENetFetcherMemory): string|null {
+    if (!mem) {
+      return null;
+    }
+
+    return mem.eNodeFlag;
+  }
 }

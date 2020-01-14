@@ -108,8 +108,8 @@ export class UpgradeOperation {
         const flag = registerEnergyNode(
             this.room, [this.container.pos.x, this.container.pos.y], {
               persistant: false,
-              polarity: -30,
               structureID: this.container.id,
+              threshold: 1500,  // Keep us supplied
               type: 'structure',
             });
         this.mem.eNodeFlag = flag.name;
