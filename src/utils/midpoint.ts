@@ -4,6 +4,9 @@ interface FindMidPointOptions {
   swampCost?: number;
 }
 
+// TODO: May need to rework this as it doesn't check around the source, and
+// doesn't ceck for cells occupied by creeps.
+
 /**
  * Utility to find a position between two points which satisfies ranged limits
  * for each point.

@@ -132,7 +132,7 @@ export class UpgradeOperation {
         this.mem.buildMsn = buildMsn.name;
       }
     } else if (this.container instanceof StructureContainer) {
-      // Attach ourselves to the enrgy network
+      // Attach ourselves to the energy network
       if (!this.mem.eNodeFlag) {
         const flag = registerEnergyNode(
             this.room, [this.container.pos.x, this.container.pos.y], {
