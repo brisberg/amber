@@ -114,6 +114,7 @@ export class TransportMission {
       if (creep.memory.behavior === IDLER) {
         // Pickup newly spawned idle creeps
         creep.memory.behavior = ENET_FETCHER;
+        creep.memory.mission = this.name;
       }
 
       if (creep.memory.behavior === ENET_FETCHER) {

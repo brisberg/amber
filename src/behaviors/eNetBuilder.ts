@@ -35,22 +35,32 @@ export class ENetBuilder extends Behavior<ENetBuilderMemory> {
     }
 
     // We don't have a destination position or our current one is occupied
-    if (!mem.destPos ||
-        creep.room.lookForAt(LOOK_CREEPS, mem.destPos[0], mem.destPos[1])
-                .length > 0) {
-      // We have a eNode, find a static position between it and the target
-      if (!mem.destPos) {
-        const midPoint = findMidPoint(eNode.flag.pos, 1, target.pos, 3, {
-          ignoreCreeps: false,
-        });
-
-        if (!midPoint) {
-          // Throw error? There is no midpoint position between the eNode and
-          // the target site
-          return false;
+    if (!mem.destPos) {
+      // We have a EnergyNode, find a static position around it near the target
+      // console.log(
+      //     creep.name + ' is looking for a new SourceBuild dest location');
+      for (let i: number = eNode.flag.pos.x - 1; i <= eNode.flag.pos.x + 1;
+           i++) {
+        for (let j: number = eNode.flag.pos.y - 1; j <= eNode.flag.pos.y + 1;
+             j++) {
+          const pos = creep.room.getPositionAt(i, j)!;
+          if (pos.lookFor(LOOK_TERRAIN)[0] !== 'wall') {
+            const occupied =
+                creep.room.lookForAt(LOOK_CREEPS, pos.x, pos.y).length > 0;
+            if (!occupied) {
+              mem.destPos = [pos.x, pos.y];
+            }
+          }
         }
+      }
+    }
 
-        mem.destPos = [midPoint.x, midPoint.y];
+    if (mem.destPos) {
+      const creeps =
+          creep.room.lookForAt(LOOK_CREEPS, mem.destPos[0], mem.destPos[1]);
+      if (creeps.length > 0 && creeps[0].id !== creep.id) {
+        // Someone else took our spot, forget it
+        delete mem.destPos;
       }
     }
 
