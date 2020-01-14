@@ -129,6 +129,7 @@ export class UpgradeOperation {
         const buildMsn = new BuildMission(this.name + '_build');
         buildMsn.setTargetSite(this.container);
         buildMsn.setEnergyNode(new EnergyNode(handoff));
+        buildMsn.setMaxBuilders(3);
         this.mem.buildMsn = buildMsn.name;
       }
     } else if (this.container instanceof StructureContainer) {
