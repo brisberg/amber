@@ -10,7 +10,6 @@ import {WalkEdge} from './walkEdge';
 interface RoomEnergyNetworkMemory {
   room: string;
   nodes: string[];  // Array of flag names
-  nodesHash: number;
   edges: NetworkEdgeMemory[];
   _cache?: EnergyNetworkAnalysis;
 }
@@ -47,7 +46,6 @@ export class RoomEnergyNetwork {
       const mem: RoomEnergyNetworkMemory = {
         edges: [],
         nodes: [],
-        nodesHash: 0,
         room: room.name,
       };
       Memory.rooms[room.name].network = mem;
@@ -128,7 +126,9 @@ export class RoomEnergyNetwork {
       NetworkEdgeMemory[] {
     for (const edge of this.mem.edges) {
       // Hack
-      TransportMission.cleanup(edge.state.transportMsn);
+      if (edge.state.transportMsn) {
+        TransportMission.cleanup(edge.state.transportMsn);
+      }
     }
     const edges: NetworkEdgeMemory[] = [];
 
