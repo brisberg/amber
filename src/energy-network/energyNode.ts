@@ -279,7 +279,7 @@ export function registerEnergyNode(
 }
 
 export function unregisterEnergyNode(flag: Flag|string) {
-  const name = typeof flag === 'string' ? flag : flag.name;
+  const name = (typeof flag === 'string' ? flag : flag.name);
 
   findFlag(name) ?.remove();
   delete Memory.flags[name];

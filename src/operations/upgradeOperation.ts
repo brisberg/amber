@@ -31,6 +31,7 @@ export interface UpgradeOperationMemory {
   containerID: Id<StructureContainer|ConstructionSite<STRUCTURE_CONTAINER>>|
       null;
   eNodeFlag: string|null;
+  buildENodeFlag: string|null;
 }
 
 export class UpgradeOperation {
@@ -52,6 +53,7 @@ export class UpgradeOperation {
     if (!Memory.operations[name]) {
       const mem: UpgradeOperationMemory = {
         analysis: null,
+        buildENodeFlag: null,
         buildMsn: null,
         containerID: null,
         controllerID: controller.id,
@@ -127,6 +129,7 @@ export class UpgradeOperation {
         transportMsn.setDestination(new EnergyNode(handoff));
         transportMsn.setThroughput(30);
         this.mem.transportMsn = transportMsn.name;
+        this.mem.buildENodeFlag = handoff.name;
         // Set up the build mission to construct the storage container
         const buildMsn = new BuildMission(this.name + '_build');
         buildMsn.setTargetSite(this.container);
@@ -156,8 +159,7 @@ export class UpgradeOperation {
 
       // Cleanup the Transport missions
       if (this.mem.transportMsn) {
-        const handoffENode =
-            Memory.missions[this.mem.transportMsn].dest.flag.name;
+        const handoffENode = Game.flags[this.mem.buildENodeFlag!];
         TransportMission.cleanup(this.mem.transportMsn);
         this.mem.transportMsn = null;
         unregisterEnergyNode(handoffENode);
