@@ -5,6 +5,7 @@ import {RoomEnergyNetwork} from 'energy-network/roomEnergyNetwork';
 import {BuildMission} from 'missions/build';
 import {HarvestingMission} from 'missions/harvesting';
 import {TransportMission} from 'missions/transport';
+import {UpgradeMission} from 'missions/upgrade';
 import {MiningOperation} from 'operations/miningOperation';
 import {UpgradeOperation} from 'operations/upgradeOperation';
 import {declareOrphan} from 'spawn-system/orphans';
@@ -51,8 +52,13 @@ export const loop = () => {
   eNetwork.run();
 
   for (const name in Memory.missions) {
+    // TODO: Need to fix this to better handle dispatching missions
     if (name === 'upgrade_op_supply') {
       const mission = new TransportMission(name);
+      mission.run();
+    }
+    if (name === 'upgrade_op_upgrade') {
+      const mission = new UpgradeMission(name);
       mission.run();
     }
     if (name.includes('harvest')) {
