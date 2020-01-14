@@ -1,9 +1,7 @@
-import {IDLER, Idler} from 'behaviors/idler';
-import {registerEnergyNode} from 'energy-network/energyNode';
-import {request} from 'http';
-import {BodyPartManifest, generateManifestFromBody} from 'utils/bodypartManifest';
-import {totalCost} from 'utils/workerUtils';
-
+import {IDLER, Idler} from '../behaviors/idler';
+import {registerEnergyNode} from '../energy-network/energyNode';
+import {totalCost} from '../utils/workerUtils';
+import {creepBodies} from './bodyTypes';
 import {isOrphan} from './orphans';
 
 /**
@@ -19,35 +17,19 @@ import {isOrphan} from './orphans';
  * usually requested by missions.
  */
 export interface SpawnRequest {
+  name?: string;  // Determined by SpawnQueue, not requester
   priority: number;
-  name: string;
-  body: BodyPartConstant[];
   bodyType: string;
+  mission: string;
   options?: SpawnOptions;
 }
 
-/**
- * Interface representing a "promise" to spawn a specified creep in the future.
- * Returned to missions from the spawn system when a new creep is requested.
- * These creeps will be spawned eventaully and assigned to the requesting
- * mission.
- */
-export interface SpawnReservation {
-  name: string;
-  loadout: BodyPartManifest;
-}
-
 export class SpawnQueue {
-  private spawner: StructureSpawn;
-  private mem: SpawnMemory;
+  private readonly spawner: StructureSpawn;
+  private readonly requests: SpawnRequest[] = [];
 
   constructor(spawner: StructureSpawn) {
     this.spawner = spawner;
-    this.mem = Memory.spawns[spawner.name];
-
-    if (!this.mem) {
-      this.mem = Memory.spawns[spawner.name] = {requests: []};
-    }
 
     if (!Game.flags['enode_' + this.spawner.name]) {
       // Register us as an Energy Sink
@@ -61,46 +43,67 @@ export class SpawnQueue {
     }
   }
 
-  // tslint:disable-next-line: no-shadowed-variable
-  public requestCreep(request: SpawnRequest): Creep|SpawnReservation {
-    // Look for Orphaned creeps
-    for (const name in Game.creeps) {
-      const creep = Game.creeps[name];
-
-      if (isOrphan(creep) && creep.memory.bodyType === request.bodyType) {
-        return creep;
-      }
+  /**
+   * Queue a request for a Creep with the SpawnQueue. Returns the name of the
+   * future Creep if it is ever spawned.
+   */
+  public requestCreep(request: SpawnRequest): string {
+    // TODO: Maybe find a better system for avoid collisions?
+    let name;
+    while (!name || Game.creeps[name]) {
+      name = request.bodyType + Math.floor(Math.random() * 9999);
     }
+    request.name = name;
+    this.requests.push(request);
 
-    // TODO: Validate that creep cost is less than total spawn storage
-    this.mem.requests.push(request);
-    this.sortQueueByPriority();
-    return {
-      loadout: generateManifestFromBody(request.body),
-      name: request.name,
-    };
-  }
-
-  /** Removes a creep name from the spawn queue */
-  public cancelReservation(name: string) {
-    this.mem.requests = this.mem.requests.filter((res: SpawnRequest) => {
-      return res.name !== name;
-    });
+    return name;
   }
 
   /** Executes one update tick of the spawner */
   public run() {
-    if (this.mem.requests.length === 0) {
+    if (this.requests.length === 0) {
       return;
     }
+
+    this.sortQueueByPriority();
+    // // Look for Orphaned creeps
+    const orphans: Creep[] = [];
+    for (const name in Game.creeps) {
+      const creep = Game.creeps[name];
+
+      if (isOrphan(creep)) {
+        orphans.push(creep);
+      }
+    }
+
+    // Attempt to fulfill requests with orphans in priority order and filter out
+    // those requests in the process
+    this.requests.filter((request) => {
+      const index = orphans.findIndex((orphan) => {
+        return orphan.memory.bodyType === request.bodyType;
+      });
+
+      if (index !== -1) {
+        const match = orphans.splice(index, 1)[0];
+        this.assignToMission(match, request.mission);
+        return false;  // Request was fultilled
+      }
+      return true;
+    });
 
     if (this.spawner.spawning) {
       return;
     }
 
-    if (this.spawner.store.energy >= totalCost(this.mem.requests[0].body)) {
-      const req = this.mem.requests.shift();
+    if (this.requests.length === 0) {
+      return;
+    }
 
+    // Attempt to spawn the highest priority remaining request
+    const req = this.requests.shift()!;
+
+    if (this.spawner.room.energyAvailable >=
+        totalCost(creepBodies[req.bodyType])) {
       const defaultOptions: SpawnOptions = {
         memory: {
           behavior: IDLER,
@@ -117,11 +120,18 @@ export class SpawnQueue {
           memory: {
             ...req.options.memory,
             bodyType: req.bodyType,
+            mission: req.mission,
           },
         };
       }
-      this.spawner.spawnCreep(req.body, req.name, combinedOptions);
+      this.spawner.spawnCreep(
+          creepBodies[req.bodyType], req.name!, combinedOptions);
     }
+  }
+
+  private assignToMission(creep: Creep, mission: string) {
+    creep.memory.mission = mission;
+    return;
   }
 
   /**
@@ -130,6 +140,6 @@ export class SpawnQueue {
    * (Priority 1 is the highest priority)
    */
   private sortQueueByPriority() {
-    this.mem.requests.sort((a, b) => a.priority - b.priority);
+    this.requests.sort((a, b) => a.priority - b.priority);
   }
 }

@@ -1,6 +1,6 @@
 import 'behaviors'; // Required to initialize BehaviorMap
 
-import {IDLER, Idler} from 'behaviors/idler';
+import {IDLER} from 'behaviors/idler';
 import {RoomEnergyNetwork} from 'energy-network/roomEnergyNetwork';
 import {BuildMission} from 'missions/build';
 import {HarvestingMission} from 'missions/harvesting';
@@ -19,7 +19,6 @@ import {garbageCollection} from './garbageCollect';
 export const loop = () => {
   // Initialize global constructs
   Memory.missions = Memory.missions || {};
-  Memory.spawns = Memory.spawns || {};
   Memory.operations = Memory.operations || {};
   Memory.rooms = Memory.rooms || {};
 
@@ -33,6 +32,10 @@ export const loop = () => {
       new RoomEnergyNetwork(Game.spawns.Spawn1.room);
   eNetwork.initNetwork();
 
+  const sources = Game.spawns.Spawn1.room.find(FIND_SOURCES);
+  for (const source of sources) {
+    const mOp = MiningOperation('mining-' + source.id, source);
+  }
   const mOp = new MiningOperation(
       'mining_op', Game.spawns.Spawn1.room.find(FIND_SOURCES)[0]);
   if (eNetwork.nodes.length > 3) {  // Hack for setting up upgrade missions
@@ -46,7 +49,6 @@ export const loop = () => {
 
   mOp.run();
   eNetwork.run();
-  queue.run();
 
   for (const name in Memory.missions) {
     if (name.includes('harvest')) {
@@ -57,6 +59,9 @@ export const loop = () => {
       mission.run();
     }
   }
+
+  // SpawnQueue must execute after missions have a chance request creeps
+  queue.run();
 
   for (const name in Game.creeps) {
     const creep = Game.creeps[name];

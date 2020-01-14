@@ -2,13 +2,12 @@ import {ENET_DEPOSITER, ENetDepositer} from 'behaviors/eNetDepositer';
 import {ENET_FETCHER, ENetFetcher} from 'behaviors/eNetFetcher';
 import {IDLER} from 'behaviors/idler';
 import {EnergyNode, EnergyNodeMemory} from 'energy-network/energyNode';
+import {HAULER_1} from 'spawn-system/bodyTypes';
 import {declareOrphan} from 'spawn-system/orphans';
-import {SpawnReservation} from 'spawn-system/spawnQueue';
-import {createWorkerBody} from 'utils/workerUtils';
 
 interface TransportMissionMemory {
   haulers: string[];
-  reservations: SpawnReservation[];
+  nextHauler?: string;
   source: EnergyNodeMemory|null;
   dest: EnergyNodeMemory|null;
   throughput: number;  // Desired throughput
@@ -39,7 +38,6 @@ export class TransportMission {
       const mem: TransportMissionMemory = {
         dest: null,
         haulers: [],
-        reservations: [],
         source: null,
         throughput: 0,
       };
@@ -86,21 +84,21 @@ export class TransportMission {
       return;
     }
 
+    // Claim reserved creep if it exists
+    if (this.mem.nextHauler && Game.creeps[this.mem.nextHauler]) {
+      const hauler = Game.creeps[this.mem.nextHauler];
+      this.mem.haulers.push(hauler.name);
+      this.haulers.push(hauler);
+      delete this.mem.nextHauler;
+    } else {
+      // Oh well, it wasn't spawned afterall
+      delete this.mem.nextHauler;
+    }
+
     // Check for creep allocation
     if (this.needMoreHaulers()) {
       this.requestHauler();
     }
-
-    // Claim reserved creeps
-    this.mem.reservations = this.mem.reservations.filter((reserve) => {
-      const creep = Game.creeps[reserve.name];
-      if (creep) {
-        this.mem.haulers.push(reserve.name);
-        this.haulers.push(creep);
-        return false;
-      }
-      return true;
-    });
 
     /**
      * If they are fetching
@@ -129,7 +127,7 @@ export class TransportMission {
           // Have energy, travel to destination
           creep.memory = {
             behavior: ENET_DEPOSITER,
-            bodyType: 'hauler',
+            bodyType: HAULER_1,
             mem: ENetDepositer.initMemory(this.dest!),
             mission: this.name,
           };
@@ -152,7 +150,7 @@ export class TransportMission {
             // Fetch more energy
             creep.memory = {
               behavior: ENET_FETCHER,
-              bodyType: 'hauler',
+              bodyType: HAULER_1,
               mem: ENetFetcher.initMemory(this.source!),
               mission: this.name,
             };
@@ -167,7 +165,9 @@ export class TransportMission {
     const distance = this.mem._path ?.length || 10;
     // TODO: Harcoding 7 for now, this should be dependant on the size of the
     // Hauler creeps available.
-    return Math.abs(this.mem.throughput) * distance / 7;
+    const byThroughput = Math.abs(this.mem.throughput) * distance / 7;
+    const maxCongestion = distance / 7;
+    return Math.min(maxCongestion, byThroughput);
   }
 
   /**
@@ -177,11 +177,11 @@ export class TransportMission {
    * harvesters from Source Analysis.
    */
   private needMoreHaulers(): boolean {
-    if (this.haulers.length + this.mem.reservations.length >= this.maxhaulers) {
-      return false;
+    if (this.haulers.length < this.maxhaulers) {
+      return true;
     }
 
-    return true;
+    return false;
   }
 
   /** Returns true if we have more than enough Haulers working this line. */
@@ -191,24 +191,11 @@ export class TransportMission {
 
   private requestHauler() {
     // Request another Hauler
-    const name = this.name + Game.time;
-    const res = global.spawnQueue.requestCreep({
-      body: this.createHaulerBody(),
-      bodyType: 'hauler',
-      name,
+    this.mem.nextHauler = global.spawnQueue.requestCreep({
+      bodyType: HAULER_1,
+      mission: this.name,
       priority: TransportMission.spawnPriority,
     });
-
-    if (res instanceof Creep) {
-      res.memory.mission = this.name;
-      this.haulers.push(res);
-    } else {
-      this.mem.reservations.push(res);
-    }
-  }
-
-  private createHaulerBody() {
-    return createWorkerBody(0, 4, 2);
   }
 
   /**
@@ -218,9 +205,6 @@ export class TransportMission {
   public static cleanup(name: string): string[] {
     const haulers: string[] = Memory.missions[name].haulers;
     haulers.forEach((cName) => declareOrphan(Game.creeps[cName]));
-    const reservations: SpawnReservation[] = Memory.missions[name].reservations;
-    reservations.forEach(
-        (res) => global.spawnQueue.cancelReservation(res.name));
     delete Memory.missions[name];
     return haulers;
   }

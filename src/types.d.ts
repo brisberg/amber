@@ -11,7 +11,6 @@ interface CreepMemory {
 interface Memory {
   nextID: number;
   missions: {[name: string]: any};
-  spawns: {[name: string]: any};
   operations: {[name: string]: any};
   uuid: number;
   log: any;
@@ -19,10 +18,6 @@ interface Memory {
 
 interface RoomMemory {
   network: any;
-}
-
-interface SpawnMemory {
-  requests: any[];
 }
 
 interface FlagMemory {

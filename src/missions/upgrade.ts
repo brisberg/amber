@@ -1,11 +1,10 @@
 import {Upgrader, UPGRADER} from 'behaviors/upgrader';
+import {WORKER_1} from 'spawn-system/bodyTypes';
 import {declareOrphan} from 'spawn-system/orphans';
-import {SpawnReservation} from 'spawn-system/spawnQueue';
-import {createWorkerBody} from 'utils/workerUtils';
 
 interface UpgradeMissionMemory {
   upgraders: string[];
-  reservations: SpawnReservation[];
+  nextUpgrader?: string;
   containerID: Id<StructureContainer>|null;
   controllerID: Id<StructureController>|null;
 }
@@ -36,7 +35,6 @@ export class UpgradeMission {
       const mem: UpgradeMissionMemory = {
         containerID: null,
         controllerID: null,
-        reservations: [],
         upgraders: [],
       };
       Memory.missions[name] = mem;
@@ -77,21 +75,21 @@ export class UpgradeMission {
       // Remove this mission and deallocate all of the creeps
     }
 
+    // Claim reserved creep if it exists
+    if (this.mem.nextUpgrader && Game.creeps[this.mem.nextUpgrader]) {
+      const upgrader = Game.creeps[this.mem.nextUpgrader];
+      this.mem.upgraders.push(upgrader.name);
+      this.upgraders.push(upgrader);
+      delete this.mem.nextUpgrader;
+    } else {
+      // Oh well, it wasn't spawned afterall
+      delete this.mem.nextUpgrader;
+    }
+
     // Check for creep allocation
     if (this.needMoreUpgraderss()) {
       this.requestUpgrader();
     }
-
-    // Claim reserved creeps
-    this.mem.reservations = this.mem.reservations.filter((reserve) => {
-      const creep = Game.creeps[reserve.name];
-      if (creep) {
-        this.mem.upgraders.push(reserve.name);
-        this.upgraders.push(creep);
-        return false;
-      }
-      return true;
-    });
 
     if (this.container && this.controller) {
       // Direct each creep to upgrade from the sourceNode
@@ -100,7 +98,7 @@ export class UpgradeMission {
           // Upgrade controller
           creep.memory = {
             behavior: UPGRADER,
-            bodyType: 'worker',
+            bodyType: WORKER_1,
             mem: Upgrader.initMemory(this.controller!, this.container!),
             mission: this.name,
           };
@@ -120,8 +118,7 @@ export class UpgradeMission {
    * harvesters from Source Analysis.
    */
   private needMoreUpgraderss(): boolean {
-    if (this.upgraders.length + this.mem.reservations.length >=
-        this.maxUpgraders) {
+    if (this.upgraders.length >= this.maxUpgraders) {
       return false;
     }
 
@@ -130,23 +127,11 @@ export class UpgradeMission {
 
   private requestUpgrader() {
     // Request another Builder
-    const name = this.name + Game.time;
-    const res = global.spawnQueue.requestCreep({
-      body: this.createHarvesterBody(),
-      bodyType: 'worker',
-      name,
+    this.mem.nextUpgrader = global.spawnQueue.requestCreep({
+      bodyType: WORKER_1,
+      mission: this.name,
       priority: UpgradeMission.spawnPriority,
     });
-    if (res instanceof Creep) {
-      res.memory.mission = this.name;
-      this.upgraders.push(res);
-    } else {
-      this.mem.reservations.push(res);
-    }
-  }
-
-  private createHarvesterBody() {
-    return createWorkerBody(2, 1, 1);
   }
 
   /**
@@ -156,9 +141,6 @@ export class UpgradeMission {
   public static cleanup(name: string): string[] {
     const upgraders: string[] = Memory.missions[name].upgraders;
     upgraders.forEach((cName) => declareOrphan(Game.creeps[cName]));
-    const reservations: SpawnReservation[] = Memory.missions[name].reservations;
-    reservations.forEach(
-        (res) => global.spawnQueue.cancelReservation(res.name));
     delete Memory.missions[name];
     return upgraders;
   }

@@ -1,14 +1,12 @@
 import {CONTAINER_HARVESTER, ContainerHarvester} from 'behaviors/containerHarvester';
-import {SpawnReservation} from 'spawn-system/spawnQueue';
-import {BODY_MANIFEST_INDEX} from 'utils/bodypartManifest';
-import {createWorkerBody} from 'utils/workerUtils';
+import {WORKER_1} from 'spawn-system/bodyTypes';
 
 import {MAX_WORK_PER_SOURCE} from '../constants';
 
 interface HarvestingMemory {
   harvesters: string[];
+  nextHarvester?: string;
   maxHarvesters: number;
-  reservations: SpawnReservation[];
   sourceID: Id<Source>|null;
   containerID: Id<StructureContainer>|null;
 }
@@ -40,7 +38,6 @@ export class HarvestingMission {
         containerID: null,
         harvesters: [],
         maxHarvesters: 0,
-        reservations: [],
         sourceID: null,
       };
       Memory.missions[name] = mem;
@@ -82,21 +79,21 @@ export class HarvestingMission {
       return;
     }
 
+    // Claim reserved creep if it exists
+    if (this.mem.nextHarvester && Game.creeps[this.mem.nextHarvester]) {
+      const harvester = Game.creeps[this.mem.nextHarvester];
+      this.mem.harvesters.push(harvester.name);
+      this.harvesters.push(harvester);
+      delete this.mem.nextHarvester;
+    } else {
+      // Oh well, it wasn't spawned afterall
+      delete this.mem.nextHarvester;
+    }
+
     // Check for creep allocation
     if (this.needMoreHarvesters()) {
       this.requestHarvester();
     }
-
-    // Claim reserved creeps
-    this.mem.reservations = this.mem.reservations.filter((reserve) => {
-      const creep = Game.creeps[reserve.name];
-      if (creep) {
-        this.mem.harvesters.push(reserve.name);
-        this.harvesters.push(creep);
-        return false;
-      }
-      return true;
-    });
 
     this.harvesters.forEach((harvester) => {
       // Reassign the harvesters if they were given to us
@@ -122,17 +119,13 @@ export class HarvestingMission {
    * harvesters from Source Analysis.
    */
   private needMoreHarvesters(): boolean {
-    if (this.harvesters.length + this.mem.reservations.length >=
-        this.maxHarvesters) {
+    if (this.harvesters.length >= this.maxHarvesters) {
       return false;
     }
 
     let totalWorkParts = 0;
     for (const harvester of this.harvesters) {
       totalWorkParts += harvester.getActiveBodyparts(WORK);
-    }
-    for (const res of this.mem.reservations) {
-      totalWorkParts += res.loadout[BODY_MANIFEST_INDEX[WORK]];
     }
     if (totalWorkParts >= MAX_WORK_PER_SOURCE + 1) {
       return false;
@@ -143,22 +136,10 @@ export class HarvestingMission {
 
   private requestHarvester() {
     // Request another harvester
-    const name = this.name + Game.time;
-    const res = global.spawnQueue.requestCreep({
-      body: this.createHarvesterBody(),
-      bodyType: 'worker',
-      name,
+    this.mem.nextHarvester = global.spawnQueue.requestCreep({
+      bodyType: WORKER_1,
+      mission: this.name,
       priority: HarvestingMission.spawnPriority,
     });
-    if (res instanceof Creep) {
-      res.memory.mission = this.name;
-      this.harvesters.push(res);
-    } else {
-      this.mem.reservations.push(res);
-    }
-  }
-
-  private createHarvesterBody() {
-    return createWorkerBody(2, 1, 1);
   }
 }

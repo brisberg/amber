@@ -88,7 +88,8 @@ export class RoomEnergyNetwork {
     const flagNames = flags.map((flag) => flag.name);
 
     const newNodeHash = hashCode(flagNames.join(','));
-    if (newNodeHash !== this.mem._cache?.hashKey) {
+    const cache = this.mem._cache;
+    if ((cache ? cache.hashKey : 0) !== newNodeHash) {
       // Nodes have changed since the last time we ran Network Analysis
       this.discardAnalysisCache();
       this.mem.nodes = flagNames;

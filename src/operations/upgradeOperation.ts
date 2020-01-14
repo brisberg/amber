@@ -1,7 +1,9 @@
 import {EnergyNode, registerEnergyNode} from 'energy-network/energyNode';
+import {ENERGY_NODE_FLAG_COLOR} from 'flagConstants';
 
 import {BuildMission} from '../missions/build';
 import {UpgradeMission} from '../missions/upgrade';
+
 import {analyzeControllerForUpgrading, UpgradeControllerAnalysis} from './upgradeAnalysis';
 
 /**
@@ -100,7 +102,10 @@ export class UpgradeOperation {
       // Build Phase
       const buildMsn = new BuildMission(this.name + '_build');
       buildMsn.setTargetSite(this.container);
-      // buildMsn.setEnergyNode(this.sourceNode!);
+      // const eNodeFlag = this.container.pos.findClosestByPath(
+      //     FIND_FLAGS,
+      //     {filter: {color: ENERGY_NODE_FLAG_COLOR}},
+      // );
       this.mem.buildMsn = buildMsn.name;
     } else if (this.container instanceof StructureContainer) {
       // Attack ourselves to the enrgy network

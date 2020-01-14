@@ -1,11 +1,10 @@
 import {EMERGENCY_MINER, EmergencyMiner} from 'behaviors/emergencyMiner';
+import {CARRY_WORKER_1} from 'spawn-system/bodyTypes';
 import {declareOrphan} from 'spawn-system/orphans';
-import {SpawnReservation} from 'spawn-system/spawnQueue';
-import {createWorkerBody} from 'utils/workerUtils';
 
 interface EmergencyMiningMemory {
   creeps: string[];
-  reservations: SpawnReservation[];
+  nextCreep?: string;
 }
 
 /**
@@ -28,10 +27,10 @@ export class EmergencyMining {
     this.room = room;
 
     if (!Memory.missions[name]) {
-      Memory.missions[name] = {
+      const mem: EmergencyMiningMemory = {
         creeps: [],
-        reservations: [],
       };
+      Memory.missions[name] = mem;
     }
     this.mem = Memory.missions[name] as EmergencyMiningMemory;
 
@@ -40,49 +39,36 @@ export class EmergencyMining {
 
   /** Executes one update tick for this mission */
   public run() {
+    // Claim reserved creep if it exists
+    if (this.mem.nextCreep && Game.creeps[this.mem.nextCreep]) {
+      const creep = Game.creeps[this.mem.nextCreep];
+      this.mem.creeps.push(creep.name);
+      this.miners.push(creep);
+      delete this.mem.nextCreep;
+    } else {
+      // Oh well, it wasn't spawned afterall
+      delete this.mem.nextCreep;
+    }
+
     // Check for creep allocation
-    if ((this.miners.length + this.mem.reservations.length) <
-        EmergencyMining.maxMiners) {
+    if (this.miners.length < EmergencyMining.maxMiners) {
       // Request another miner
-      const name = this.name + Game.time;
       const spawn = this.room.find(FIND_MY_SPAWNS)[0];
       const source = spawn.pos.findClosestByPath(FIND_SOURCES);
-      const res = global.spawnQueue.requestCreep({
-        body: this.createMinerBody(),
-        bodyType: 'miner',
-        name,
+      this.mem.nextCreep = global.spawnQueue.requestCreep({
+        bodyType: CARRY_WORKER_1,
+        mission: this.name,
         options: {
           memory: {
             behavior: EMERGENCY_MINER,
-            bodyType: 'worker',  // carryminer
+            bodyType: CARRY_WORKER_1,  // not needed
             mem: EmergencyMiner.initMemory(spawn, source!),
-            mission: this.name,
+            mission: this.name,  // not needed
           },
         },
         priority: EmergencyMining.spawnPriority,
       });
-      if (res instanceof Creep) {
-        res.memory.mission = this.name;
-        this.miners.push(res);
-      } else {
-        this.mem.reservations.push(res);
-      }
     }
-
-    // Claim reserved creeps
-    this.mem.reservations = this.mem.reservations.filter((reserve) => {
-      const creep = Game.creeps[reserve.name];
-      if (creep) {
-        this.mem.creeps.push(reserve.name);
-        this.miners.push(creep);
-        return false;
-      }
-      return true;
-    });
-  }
-
-  private createMinerBody() {
-    return createWorkerBody(1, 2, 2);
   }
 
   /**
@@ -92,9 +78,6 @@ export class EmergencyMining {
   public static cleanup(name: string): string[] {
     const creeps: string[] = Memory.missions[name].creeps;
     creeps.forEach((cName) => declareOrphan(Game.creeps[cName]));
-    const reservations: SpawnReservation[] = Memory.missions[name].reservations;
-    reservations.forEach(
-        (res) => global.spawnQueue.cancelReservation(res.name));
     delete Memory.missions[name];
     return creeps;
   }

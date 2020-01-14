@@ -1,13 +1,13 @@
 import {ENET_BUILDER, ENetBuilder} from 'behaviors/eNetBuilder';
 import {SOURCE_BUILDER, SourceBuilder} from 'behaviors/sourceBuilder';
 import {EnergyNode, registerEnergyNode} from 'energy-network/energyNode';
+import {WORKER_1} from 'spawn-system/bodyTypes';
 import {declareOrphan} from 'spawn-system/orphans';
-import {SpawnReservation} from 'spawn-system/spawnQueue';
-import {createWorkerBody} from 'utils/workerUtils';
 
 interface BuildMissionMemory {
   builders: string[];
-  reservations: SpawnReservation[];
+  nextBuilder?: string;  // Name of possible next Builder
+  maxBuilders: number;
   eNodeFlag: string|null;
   rawSourceID: Id<Source>|null;  // Only set for harvest/build missions
   targetSiteID: Id<ConstructionSite>|null;
@@ -39,8 +39,8 @@ export class BuildMission {
       const mem: BuildMissionMemory = {
         builders: [],
         eNodeFlag: null,
+        maxBuilders: 1,
         rawSourceID: null,
-        reservations: [],
         targetSiteID: null,
       };
       Memory.missions[name] = mem;
@@ -81,11 +81,31 @@ export class BuildMission {
     this.mem.eNodeFlag = node.flag.name;
   }
 
+  public setMaxBuilders(max: number) {
+    this.mem.maxBuilders = max;
+  }
+
   /** Executes one update tick for this mission */
   public run() {
     if (this.mem.targetSiteID && !Game.getObjectById(this.mem.targetSiteID)) {
       // Construction complete
       // Remove this mission and deallocate all of the creeps
+    }
+
+    // Claim reserved creep if it exists
+    if (this.mem.nextBuilder && Game.creeps[this.mem.nextBuilder]) {
+      const builder = Game.creeps[this.mem.nextBuilder];
+      this.mem.builders.push(builder.name);
+      this.builders.push(builder);
+      delete this.mem.nextBuilder;
+    } else {
+      // Oh well, it wasn't spawned afterall
+      delete this.mem.nextBuilder;
+    }
+
+    // Check for creep allocation
+    if (this.needMoreBuilders()) {
+      this.requestBuilder();
     }
 
     // Connect to Energy Network for source
@@ -100,22 +120,6 @@ export class BuildMission {
       this.mem.eNodeFlag = flag.name;
       this.eNode = new EnergyNode(flag);
     }
-
-    // Check for creep allocation
-    if (this.needMoreBuilders()) {
-      this.requestBuilder();
-    }
-
-    // Claim reserved creeps
-    this.mem.reservations = this.mem.reservations.filter((reserve) => {
-      const creep = Game.creeps[reserve.name];
-      if (creep) {
-        this.mem.builders.push(reserve.name);
-        this.builders.push(creep);
-        return false;
-      }
-      return true;
-    });
 
     // Direct each creep to mine or build
     this.builders.forEach((creep) => {
@@ -147,7 +151,7 @@ export class BuildMission {
   }
 
   private get maxBuilders() {
-    return 1;
+    return this.mem.maxBuilders;
   }
 
   /**
@@ -157,8 +161,7 @@ export class BuildMission {
    * harvesters from Source Analysis.
    */
   private needMoreBuilders(): boolean {
-    if (this.builders.length + this.mem.reservations.length >=
-        this.maxBuilders) {
+    if (this.builders.length >= this.maxBuilders) {
       return false;
     }
 
@@ -167,23 +170,11 @@ export class BuildMission {
 
   private requestBuilder() {
     // Request another Builder
-    const name = this.name + Game.time;
-    const res = global.spawnQueue.requestCreep({
-      body: this.createBuilderBody(),
-      bodyType: 'worker',
-      name,
+    this.mem.nextBuilder = global.spawnQueue.requestCreep({
+      bodyType: WORKER_1,
+      mission: this.name,
       priority: BuildMission.spawnPriority,
     });
-    if (res instanceof Creep) {
-      res.memory.mission = this.name;
-      this.builders.push(res);
-    } else {
-      this.mem.reservations.push(res);
-    }
-  }
-
-  private createBuilderBody() {
-    return createWorkerBody(2, 1, 1);
   }
 
   /**
@@ -193,9 +184,6 @@ export class BuildMission {
   public static cleanup(name: string): string[] {
     const builders: string[] = Memory.missions[name].builders;
     builders.forEach((cName) => declareOrphan(Game.creeps[cName]));
-    const reservations: SpawnReservation[] = Memory.missions[name].reservations;
-    reservations.forEach(
-        (res) => global.spawnQueue.cancelReservation(res.name));
     delete Memory.missions[name];
     return builders;
   }

@@ -33,8 +33,10 @@ interface AdjacencyMatrix {
 export function analyzeEnergyNetwork(network: RoomEnergyNetwork):
     EnergyNetworkAnalysis {
   // Need atleast 2 nodes to make a MST
+  const hashKey =
+      hashCode(network.nodes.map((node) => node.flag.name).join(','));
   if (network.nodes.length < 2) {
-    return {hashKey: 0, mst: []};
+    return {hashKey, mst: []};
   }
 
   const costMatrix: AdjacencyMatrix = calculateCostMatrix(network);
@@ -89,9 +91,6 @@ export function analyzeEnergyNetwork(network: RoomEnergyNetwork):
       }
     }
   }
-
-  const hashKey =
-      hashCode(network.nodes.map((node) => node.flag.name).join(','));
 
   return {
     hashKey,
