@@ -95,6 +95,7 @@ export class MiningOperation {
       const buildMsn = new BuildMission(this.name + '_build');
       buildMsn.setTargetSite(this.container);
       buildMsn.useRawSource(this.source);  // We know we have a source near by
+      buildMsn.setMaxBuilders(2);          // Hardcoding for now
       this.mem.buildMission = buildMsn.name;
     } else if (this.container instanceof StructureContainer) {
       // Attach ourselves to the enrgy network

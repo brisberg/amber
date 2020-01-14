@@ -5,7 +5,7 @@ import {EnergyNode, EnergyNodeMemory} from 'energy-network/energyNode';
 import {HAULER_1} from 'spawn-system/bodyTypes';
 import {declareOrphan} from 'spawn-system/orphans';
 
-interface TransportMissionMemory {
+interface ResupplyMissionMemory {
   haulers: string[];
   nextCreep?: string;
   source: EnergyNodeMemory|null;
@@ -15,27 +15,28 @@ interface TransportMissionMemory {
 }
 
 /**
- * Mission construct to facilitate hauling energy from a source to a
- * destination.
+ * Mission construct to facilitate hauling energy from an Energy Node to a
+ * creep handoff Energy Node.
  *
  * This mission will coordinate requesting hauler creeps.
  */
-export class TransportMission {
+export class ResupplyMission {
   private static spawnPriority = 2;
+  private static maxHaulers = 2;
 
   public name: string;
   public source: EnergyNode|null = null;
   public dest: EnergyNode|null = null;
 
   private haulers: Creep[] = [];
-  private mem: TransportMissionMemory;
+  private mem: ResupplyMissionMemory;
 
   constructor(name: string) {
     this.name = name;
 
     // Init memory
     if (!Memory.missions[name]) {
-      const mem: TransportMissionMemory = {
+      const mem: ResupplyMissionMemory = {
         dest: null,
         haulers: [],
         source: null,
@@ -43,7 +44,7 @@ export class TransportMission {
       };
       Memory.missions[name] = mem;
     }
-    this.mem = Memory.missions[name] as TransportMissionMemory;
+    this.mem = Memory.missions[name] as ResupplyMissionMemory;
 
     if (this.mem.source) {
       this.source = new EnergyNode(Game.flags[this.mem.source.flag]);
@@ -140,36 +141,16 @@ export class TransportMission {
         }
 
         if (creep.store.energy === 0) {
-          if (this.tooManyHaulers()) {
-            // Decommission this hauler after it has delivered its payload
-            console.log(
-                'Transport ' + this.name + ' decommissioning a hauler ' +
-                creep.name);
-            declareOrphan(creep);
-            this.mem.haulers =
-                this.mem.haulers.filter((name) => name !== creep.name);
-          } else {
-            // Fetch more energy
-            creep.memory = {
-              behavior: ENET_FETCHER,
-              bodyType: HAULER_1,
-              mem: ENetFetcher.initMemory(this.source!),
-              mission: this.name,
-            };
-          }
+          // Fetch more energy
+          creep.memory = {
+            behavior: ENET_FETCHER,
+            bodyType: HAULER_1,
+            mem: ENetFetcher.initMemory(this.source!),
+            mission: this.name,
+          };
         }
       }
     });
-  }
-
-  /** Calculates the number of haulers required to maintain this transit line */
-  private get maxhaulers() {
-    const distance = this.mem._path ?.length || 10;
-    // TODO: Harcoding 7 for now, this should be dependant on the size of the
-    // Hauler creeps available.
-    const byThroughput = Math.abs(this.mem.throughput) * distance / 7;
-    const maxCongestion = distance / 7;
-    return Math.floor(Math.min(maxCongestion, byThroughput));
   }
 
   /**
@@ -179,16 +160,11 @@ export class TransportMission {
    * harvesters from Source Analysis.
    */
   private needMoreHaulers(): boolean {
-    if (this.haulers.length < this.maxhaulers) {
+    if (this.haulers.length < ResupplyMission.maxHaulers) {
       return true;
     }
 
     return false;
-  }
-
-  /** Returns true if we have more than enough Haulers working this line. */
-  private tooManyHaulers(): boolean {
-    return this.haulers.length > this.maxhaulers;
   }
 
   private requestHauler() {
@@ -196,7 +172,7 @@ export class TransportMission {
     this.mem.nextCreep = global.spawnQueue.requestCreep({
       bodyType: HAULER_1,
       mission: this.name,
-      priority: TransportMission.spawnPriority,
+      priority: ResupplyMission.spawnPriority,
     });
   }
 

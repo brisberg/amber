@@ -6,7 +6,7 @@ import {declareOrphan} from 'spawn-system/orphans';
 
 interface BuildMissionMemory {
   builders: string[];
-  nextBuilder?: string;  // Name of possible next Builder
+  nextCreep?: string;  // Name of possible next Builder
   maxBuilders: number;
   eNodeFlag: string|null;
   rawSourceID: Id<Source>|null;  // Only set for harvest/build missions
@@ -93,14 +93,14 @@ export class BuildMission {
     }
 
     // Claim reserved creep if it exists
-    if (this.mem.nextBuilder && Game.creeps[this.mem.nextBuilder]) {
-      const builder = Game.creeps[this.mem.nextBuilder];
+    if (this.mem.nextCreep && Game.creeps[this.mem.nextCreep]) {
+      const builder = Game.creeps[this.mem.nextCreep];
       this.mem.builders.push(builder.name);
       this.builders.push(builder);
-      delete this.mem.nextBuilder;
+      delete this.mem.nextCreep;
     } else {
       // Oh well, it wasn't spawned afterall
-      delete this.mem.nextBuilder;
+      delete this.mem.nextCreep;
     }
 
     // Check for creep allocation
@@ -127,8 +127,8 @@ export class BuildMission {
         // Harvest the energy ourselves right from the source
         if (creep.memory.behavior !== SOURCE_BUILDER) {
           creep.memory = {
+            ...creep.memory,
             behavior: SOURCE_BUILDER,
-            bodyType: 'worker',
             mem: SourceBuilder.initMemory(this.target!, this.rawSource),
             mission: this.name,
           };
@@ -140,8 +140,8 @@ export class BuildMission {
         if (creep.memory.behavior !== ENET_BUILDER) {
           // Get settled and start building from the network
           creep.memory = {
+            ...creep.memory,
             behavior: ENET_BUILDER,
-            bodyType: 'worker',
             mem: ENetBuilder.initMemory(this.target!, this.eNode),
             mission: this.name,
           };
@@ -170,7 +170,7 @@ export class BuildMission {
 
   private requestBuilder() {
     // Request another Builder
-    this.mem.nextBuilder = global.spawnQueue.requestCreep({
+    this.mem.nextCreep = global.spawnQueue.requestCreep({
       bodyType: WORKER_1,
       mission: this.name,
       priority: BuildMission.spawnPriority,

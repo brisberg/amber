@@ -4,6 +4,7 @@ import {IDLER} from 'behaviors/idler';
 import {RoomEnergyNetwork} from 'energy-network/roomEnergyNetwork';
 import {BuildMission} from 'missions/build';
 import {HarvestingMission} from 'missions/harvesting';
+import {TransportMission} from 'missions/transport';
 import {MiningOperation} from 'operations/miningOperation';
 import {UpgradeOperation} from 'operations/upgradeOperation';
 import {declareOrphan} from 'spawn-system/orphans';
@@ -34,11 +35,11 @@ export const loop = () => {
 
   const sources = Game.spawns.Spawn1.room.find(FIND_SOURCES);
   for (const source of sources) {
-    const mOp = MiningOperation('mining-' + source.id, source);
+    const mOp = new MiningOperation('mining-' + source.id, source);
+    mOp.run();
   }
-  const mOp = new MiningOperation(
-      'mining_op', Game.spawns.Spawn1.room.find(FIND_SOURCES)[0]);
-  if (eNetwork.nodes.length > 3) {  // Hack for setting up upgrade missions
+
+  if (eNetwork.nodes.length >= 3) {  // Hack for setting up upgrade missions
     const uOp =
         new UpgradeOperation('upgrade_op', Game.spawns.Spawn1.room.controller!);
     uOp.run();
@@ -47,10 +48,13 @@ export const loop = () => {
   installConsoleCommands();
   garbageCollection();
 
-  mOp.run();
   eNetwork.run();
 
   for (const name in Memory.missions) {
+    if (name === 'upgrade_op_supply') {
+      const mission = new TransportMission(name);
+      mission.run();
+    }
     if (name.includes('harvest')) {
       const mission = new HarvestingMission(name);
       mission.run();

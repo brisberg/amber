@@ -130,7 +130,12 @@ export class SpawnQueue {
   }
 
   private assignToMission(creep: Creep, mission: string) {
+    console.log('Assigned orhpan ' + creep.name + ' to ' + mission);
     creep.memory.mission = mission;
+    const missMem = Memory.missions[mission];
+    if (missMem) {
+      missMem.nextCreep = creep.name;
+    }
     return;
   }
 

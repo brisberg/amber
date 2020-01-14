@@ -4,7 +4,7 @@ import {declareOrphan} from 'spawn-system/orphans';
 
 interface UpgradeMissionMemory {
   upgraders: string[];
-  nextUpgrader?: string;
+  nextCreep?: string;
   containerID: Id<StructureContainer>|null;
   controllerID: Id<StructureController>|null;
 }
@@ -76,14 +76,14 @@ export class UpgradeMission {
     }
 
     // Claim reserved creep if it exists
-    if (this.mem.nextUpgrader && Game.creeps[this.mem.nextUpgrader]) {
-      const upgrader = Game.creeps[this.mem.nextUpgrader];
+    if (this.mem.nextCreep && Game.creeps[this.mem.nextCreep]) {
+      const upgrader = Game.creeps[this.mem.nextCreep];
       this.mem.upgraders.push(upgrader.name);
       this.upgraders.push(upgrader);
-      delete this.mem.nextUpgrader;
+      delete this.mem.nextCreep;
     } else {
       // Oh well, it wasn't spawned afterall
-      delete this.mem.nextUpgrader;
+      delete this.mem.nextCreep;
     }
 
     // Check for creep allocation
@@ -127,7 +127,7 @@ export class UpgradeMission {
 
   private requestUpgrader() {
     // Request another Builder
-    this.mem.nextUpgrader = global.spawnQueue.requestCreep({
+    this.mem.nextCreep = global.spawnQueue.requestCreep({
       bodyType: WORKER_1,
       mission: this.name,
       priority: UpgradeMission.spawnPriority,

@@ -5,7 +5,7 @@ import {MAX_WORK_PER_SOURCE} from '../constants';
 
 interface HarvestingMemory {
   harvesters: string[];
-  nextHarvester?: string;
+  nextCreep?: string;
   maxHarvesters: number;
   sourceID: Id<Source>|null;
   containerID: Id<StructureContainer>|null;
@@ -80,14 +80,14 @@ export class HarvestingMission {
     }
 
     // Claim reserved creep if it exists
-    if (this.mem.nextHarvester && Game.creeps[this.mem.nextHarvester]) {
-      const harvester = Game.creeps[this.mem.nextHarvester];
+    if (this.mem.nextCreep && Game.creeps[this.mem.nextCreep]) {
+      const harvester = Game.creeps[this.mem.nextCreep];
       this.mem.harvesters.push(harvester.name);
       this.harvesters.push(harvester);
-      delete this.mem.nextHarvester;
+      delete this.mem.nextCreep;
     } else {
       // Oh well, it wasn't spawned afterall
-      delete this.mem.nextHarvester;
+      delete this.mem.nextCreep;
     }
 
     // Check for creep allocation
@@ -99,8 +99,8 @@ export class HarvestingMission {
       // Reassign the harvesters if they were given to us
       if (harvester.memory.behavior !== CONTAINER_HARVESTER) {
         harvester.memory = {
+          ...harvester.memory,
           behavior: CONTAINER_HARVESTER,
-          bodyType: 'worker',
           mem: ContainerHarvester.initMemory(this.source!, this.container!),
           mission: this.name,
         };
@@ -136,7 +136,7 @@ export class HarvestingMission {
 
   private requestHarvester() {
     // Request another harvester
-    this.mem.nextHarvester = global.spawnQueue.requestCreep({
+    this.mem.nextCreep = global.spawnQueue.requestCreep({
       bodyType: WORKER_1,
       mission: this.name,
       priority: HarvestingMission.spawnPriority,

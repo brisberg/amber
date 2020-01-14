@@ -160,11 +160,7 @@ export class RoomEnergyNetwork {
   private generateFlowAnalysis() {
     console.log('Running Network Flow Analysis...');
     // Clear the cache by resetting the projected level to the current amount
-    console.log('currently have ' + this.nodes.length + ' nodes.');
     for (const node of this.nodes) {
-      console.log(
-          'setting ' + node.mem.flag + ' prodLevel to ' +
-          node.getStoredEnergy());
       node.mem._cache.projLevel = node.getStoredEnergy();
     }
 
@@ -173,18 +169,17 @@ export class RoomEnergyNetwork {
     for (let i = 0; i < this.edges.length; i++) {
       for (const edge of this.edges) {
         // For each edge, attempt to push the polarity towards the lower end
-        const nodeADiff = edge.nodeA.getExpectedSurplusOrDeficit();
-        const nodeBDiff = edge.nodeB.getExpectedSurplusOrDeficit();
-        console.log(
-            edge.nodeA.flag.name + ': ' + nodeADiff + '. ' +
-            edge.nodeB.flag.name + ': ' + nodeBDiff);
+        // const nodeADiff = edge.nodeA.getExpectedSurplusOrDeficit();
+        // const nodeBDiff = edge.nodeB.getExpectedSurplusOrDeficit();
+        const nodeADiff =
+            edge.nodeA.getStoredEnergy() - edge.nodeA.mem.threshold!;
+        const nodeBDiff =
+            edge.nodeB.getStoredEnergy() - edge.nodeB.mem.threshold!;
         if (nodeADiff > 0 && nodeADiff > nodeBDiff) {
-          console.log('Node A has a larger surplus');
           edge.mem.flow = Math.min(nodeADiff, nodeADiff - nodeBDiff);
           edge.nodeA.mem._cache.projLevel! += edge.mem.flow;
           edge.nodeB.mem._cache.projLevel! -= edge.mem.flow;
         } else if (nodeBDiff > 0 && nodeBDiff > nodeADiff) {
-          console.log('Node B has a larger surplus');
           edge.mem.flow = -Math.min(nodeBDiff, nodeBDiff - nodeADiff);
           edge.nodeB.mem._cache.projLevel! += edge.mem.flow;
           edge.nodeA.mem._cache.projLevel! -= edge.mem.flow;

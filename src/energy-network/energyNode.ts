@@ -146,15 +146,12 @@ export class EnergyNode {
    * Threshold of 1700 => 1500-1700 => 200 Deficit
    */
   public getExpectedSurplusOrDeficit(): number {
-    console.log('getExpectedSurplusOrDeficit for ' + this.flag.name);
     if (!this.mem._cache.projLevel || this.mem._cache.projLevel === -1) {
-      console.log('derelict node');
       // Derelict nodes do not generate surpluses or deficits
       return 0;
     }
 
     if (this.mem.threshold === undefined) {
-      console.log('no threshold');
       // I guess if we didn't set a threshold report a zero?
       return 0;
     }

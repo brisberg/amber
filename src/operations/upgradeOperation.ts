@@ -1,5 +1,6 @@
-import {EnergyNode, registerEnergyNode} from 'energy-network/energyNode';
+import {EnergyNode, registerEnergyNode, unregisterEnergyNode} from 'energy-network/energyNode';
 import {ENERGY_NODE_FLAG_COLOR} from 'flagConstants';
+import {TransportMission} from 'missions/transport';
 
 import {BuildMission} from '../missions/build';
 import {UpgradeMission} from '../missions/upgrade';
@@ -24,6 +25,7 @@ import {analyzeControllerForUpgrading, UpgradeControllerAnalysis} from './upgrad
 export interface UpgradeOperationMemory {
   analysis: UpgradeControllerAnalysis|null;
   buildMsn: string|null;
+  transportMsn: string|null;
   upgradeMsn: string|null;
   controllerID: Id<StructureController>;
   containerID: Id<StructureContainer|ConstructionSite<STRUCTURE_CONTAINER>>|
@@ -54,6 +56,7 @@ export class UpgradeOperation {
         containerID: null,
         controllerID: controller.id,
         eNodeFlag: null,
+        transportMsn: null,
         upgradeMsn: null,
       };
       Memory.operations[name] = mem;
@@ -100,19 +103,40 @@ export class UpgradeOperation {
 
     if (this.container instanceof ConstructionSite && !this.mem.buildMsn) {
       // Build Phase
-      const buildMsn = new BuildMission(this.name + '_build');
-      buildMsn.setTargetSite(this.container);
-      // const eNodeFlag = this.container.pos.findClosestByPath(
-      //     FIND_FLAGS,
-      //     {filter: {color: ENERGY_NODE_FLAG_COLOR}},
-      // );
-      this.mem.buildMsn = buildMsn.name;
+      // Search for the nearest permanent Energy Node
+      const eNodeFlag = this.container.pos.findClosestByPath(
+          FIND_FLAGS,
+          {filter: {color: ENERGY_NODE_FLAG_COLOR}},
+      );
+      if (eNodeFlag) {
+        const path = eNodeFlag.pos.findPathTo(this.container);
+        const dropPoint =
+            path[path.length - 3];  // Handoff two steps from target
+        const handoff = registerEnergyNode(
+            this.room,
+            [dropPoint.x, dropPoint.y],
+            {
+              persistant: false,
+              threshold: 200,
+              type: 'creep',
+            },
+        );
+        const transportMsn = new TransportMission(this.name + '_supply');
+        transportMsn.setSource(new EnergyNode(eNodeFlag));
+        transportMsn.setDestination(new EnergyNode(handoff));
+        transportMsn.setThroughput(30);
+        this.mem.transportMsn = transportMsn.name;
+        const buildMsn = new BuildMission(this.name + '_build');
+        buildMsn.setTargetSite(this.container);
+        buildMsn.setEnergyNode(new EnergyNode(handoff));
+        this.mem.buildMsn = buildMsn.name;
+      }
     } else if (this.container instanceof StructureContainer) {
-      // Attack ourselves to the enrgy network
+      // Attach ourselves to the enrgy network
       if (!this.mem.eNodeFlag) {
         const flag = registerEnergyNode(
             this.room, [this.container.pos.x, this.container.pos.y], {
-              persistant: false,
+              persistant: true,
               structureID: this.container.id,
               threshold: 1500,  // Keep us supplied
               type: 'structure',
@@ -127,6 +151,14 @@ export class UpgradeOperation {
         // missions
         const creeps = BuildMission.cleanup(this.mem.buildMsn);
         this.mem.buildMsn = null;
+        if (this.mem.transportMsn) {
+          unregisterEnergyNode(
+              Memory.missions[this.mem.transportMsn].dest.flag.name);
+          TransportMission.cleanup(this.mem.transportMsn);
+          this.mem.transportMsn = null;
+        }
+
+        // Launch a new Upgrade Mission
         const upgradeMsn = new UpgradeMission(this.name + '_upgrade');
         this.mem.upgradeMsn = upgradeMsn.name;
         upgradeMsn.setController(this.controller);
@@ -134,6 +166,7 @@ export class UpgradeOperation {
         // Transfer the creeps as upgraders to the upgrade mission
         Memory.missions[upgradeMsn.name].upgraders = creeps;
       } else if (!this.mem.upgradeMsn && this.sourceNode) {
+        // Launch a new Upgrade Mission
         const upgradeMsn = new UpgradeMission(this.name + '_upgrade');
         this.mem.upgradeMsn = upgradeMsn.name;
         upgradeMsn.setController(this.controller);
