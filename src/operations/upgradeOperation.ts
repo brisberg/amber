@@ -129,6 +129,7 @@ export class UpgradeOperation {
         transportMsn.setDestination(new EnergyNode(handoff));
         transportMsn.setThroughput(30);
         this.mem.transportMsn = transportMsn.name;
+        console.log('build enode setiing: ' + handoff.name);
         this.mem.buildENodeFlag = handoff.name;
         // Set up the build mission to construct the storage container
         const buildMsn = new BuildMission(this.name + '_build');
@@ -153,20 +154,24 @@ export class UpgradeOperation {
 
       // Cleanup the build mission
       if (this.mem.buildMsn) {
+        console.log('Cleaning up build mission ' + this.mem.buildMsn);
         BuildMission.cleanup(this.mem.buildMsn);
         this.mem.buildMsn = null;
       }
 
       // Cleanup the Transport missions
       if (this.mem.transportMsn) {
+        console.log('Cleaning up build mission ' + this.mem.buildMsn);
         const handoffENode = Game.flags[this.mem.buildENodeFlag!];
         TransportMission.cleanup(this.mem.transportMsn);
         this.mem.transportMsn = null;
+        console.log('    Removing Builder ENode ' + this.mem.buildENodeFlag);
         unregisterEnergyNode(handoffENode);
       }
 
       if (!this.mem.upgradeMsn && this.sourceNode) {
         // Launch a new Upgrade Mission
+        console.log('Launching new Upgrade Mission ' + this.name + '_upgrade');
         const upgradeMsn = new UpgradeMission(this.name + '_upgrade');
         this.mem.upgradeMsn = upgradeMsn.name;
         upgradeMsn.setController(this.controller);
