@@ -37,7 +37,7 @@ export class SpawnQueue {
           this.spawner.room, [this.spawner.pos.x, this.spawner.pos.y], {
             persistant: true,
             structureID: this.spawner.id,
-            threshold: 300,  // Spawn max
+            threshold: 500,  // Spawn max
             type: 'structure',
           });
     }

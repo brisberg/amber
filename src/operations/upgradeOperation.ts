@@ -121,11 +121,13 @@ export class UpgradeOperation {
               type: 'creep',
             },
         );
+        // Set up a transport mission to bring energy to us
         const transportMsn = new TransportMission(this.name + '_supply');
         transportMsn.setSource(new EnergyNode(eNodeFlag));
         transportMsn.setDestination(new EnergyNode(handoff));
         transportMsn.setThroughput(30);
         this.mem.transportMsn = transportMsn.name;
+        // Set up the build mission to construct the storage container
         const buildMsn = new BuildMission(this.name + '_build');
         buildMsn.setTargetSite(this.container);
         buildMsn.setEnergyNode(new EnergyNode(handoff));
@@ -146,27 +148,22 @@ export class UpgradeOperation {
         this.sourceNode = new EnergyNode(Game.flags[flag.name]);
       }
 
-      // Transfer Phase
-      if (this.mem.buildMsn && !this.mem.upgradeMsn && this.sourceNode) {
-        // Cleanup the build missions and reassign all creeps to the new Harvest
-        // missions
-        const creeps = BuildMission.cleanup(this.mem.buildMsn);
+      // Cleanup the build mission
+      if (this.mem.buildMsn) {
+        BuildMission.cleanup(this.mem.buildMsn);
         this.mem.buildMsn = null;
-        if (this.mem.transportMsn) {
-          unregisterEnergyNode(
-              Memory.missions[this.mem.transportMsn].dest.flag.name);
-          TransportMission.cleanup(this.mem.transportMsn);
-          this.mem.transportMsn = null;
-        }
+      }
 
-        // Launch a new Upgrade Mission
-        const upgradeMsn = new UpgradeMission(this.name + '_upgrade');
-        this.mem.upgradeMsn = upgradeMsn.name;
-        upgradeMsn.setController(this.controller);
-        upgradeMsn.setContainer(this.container);
-        // Transfer the creeps as upgraders to the upgrade mission
-        Memory.missions[upgradeMsn.name].upgraders = creeps;
-      } else if (!this.mem.upgradeMsn && this.sourceNode) {
+      // Cleanup the Transport missions
+      if (this.mem.transportMsn) {
+        const handoffENode =
+            Memory.missions[this.mem.transportMsn].dest.flag.name;
+        TransportMission.cleanup(this.mem.transportMsn);
+        this.mem.transportMsn = null;
+        unregisterEnergyNode(handoffENode);
+      }
+
+      if (!this.mem.upgradeMsn && this.sourceNode) {
         // Launch a new Upgrade Mission
         const upgradeMsn = new UpgradeMission(this.name + '_upgrade');
         this.mem.upgradeMsn = upgradeMsn.name;
