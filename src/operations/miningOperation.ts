@@ -1,7 +1,8 @@
 import {registerEnergyNode} from 'energy-network/energyNode';
+import {HARVEST_SOURCE_FLAG_COLOR} from 'flagConstants';
 
-import {BuildMission} from '../missions/build';
 import {HarvestingMission} from '../missions/harvesting';
+
 import {analyzeSourceForHarvesting, SourceAnalysis} from './sourceAnalysis';
 
 /**
@@ -11,16 +12,15 @@ import {analyzeSourceForHarvesting, SourceAnalysis} from './sourceAnalysis';
  * harvesting operation.
  *
  * It will perform Source Analysis on a given source node, designate where the
- * Container should be placed. It will run a Build missions to get this
- * container constructed. Once the Build is completed, it will scrap that
- * mission and start a new Harvest mission on the node.
+ * Container should be placed. Once the container is build it will start a new
+ * Harvest mission on the node.
  *
- * This will reassign all the worker from the build to the harvest.
+ * This operation will replace the container ConstructionSite if it is removed
+ * or destroyed, but it depends on an existing BuildOperation to complete it.
  */
 
 export interface MiningOperationMemory {
   analysis: SourceAnalysis|null;
-  buildMission: string|null;
   harvestMission: string|null;
   sourceID: Id<Source>;
   containerID: Id<StructureContainer|ConstructionSite<STRUCTURE_CONTAINER>>|
@@ -46,7 +46,6 @@ export class MiningOperation {
     if (!Memory.operations[name]) {
       const mem: MiningOperationMemory = {
         analysis: null,
-        buildMission: null,
         containerID: null,
         eNodeFlag: null,
         harvestMission: null,
@@ -55,6 +54,10 @@ export class MiningOperation {
       Memory.operations[name] = mem;
     }
     this.mem = Memory.operations[name] as MiningOperationMemory;
+
+    if (this.mem.containerID) {
+      this.container = Game.getObjectById(this.mem.containerID);
+    }
   }
 
   public run() {
@@ -90,15 +93,8 @@ export class MiningOperation {
       }
     }
 
-    if (this.container instanceof ConstructionSite && !this.mem.buildMission) {
-      // Build Phase
-      const buildMsn = new BuildMission(this.name + '_build');
-      buildMsn.setTargetSite(this.container);
-      buildMsn.useRawSource(this.source);  // We know we have a source near by
-      buildMsn.setMaxBuilders(2);          // Hardcoding for now
-      this.mem.buildMission = buildMsn.name;
-    } else if (this.container instanceof StructureContainer) {
-      // Attach ourselves to the enrgy network
+    if (this.container instanceof StructureContainer) {
+      // Attach ourselves to the energy network
       if (!this.mem.eNodeFlag) {
         const flag = registerEnergyNode(
             this.room, [this.container.pos.x, this.container.pos.y], {
@@ -110,25 +106,21 @@ export class MiningOperation {
         this.mem.eNodeFlag = flag.name;
       }
 
-      // Transfer Phase
-      if (this.mem.buildMission && !this.mem.harvestMission) {
-        // Cleanup the build missions and reassign all creeps to the new Harvest
-        // missions
-        const creeps = BuildMission.cleanup(this.mem.buildMission);
-        this.mem.buildMission = null;
-        const harvestMsn = new HarvestingMission(this.name + '_harvest');
-        this.mem.harvestMission = harvestMsn.name;
-        harvestMsn.setSource(this.source);
-        harvestMsn.setContainer(this.container);
-        harvestMsn.setMaxHarvesters(this.mem.analysis.maxHarvesters);
-        // Transfer the creeps as harvesters to the harvesting missions
-        Memory.missions[harvestMsn.name].harvesters = creeps;
-      } else if (!this.mem.harvestMission) {
-        const harvestMsn = new HarvestingMission(this.name + '_harvest');
-        this.mem.harvestMission = harvestMsn.name;
-        harvestMsn.setSource(this.source);
-        harvestMsn.setContainer(this.container);
-        harvestMsn.setMaxHarvesters(this.mem.analysis.maxHarvesters);
+      // Start the misions
+      if (!this.mem.harvestMission) {
+        if (!this.source.pos.lookFor(LOOK_FLAGS)
+                 .filter((flag) => flag.color !== HARVEST_SOURCE_FLAG_COLOR)) {
+          this.room.createFlag(
+              this.source.pos.x, this.source.pos.y, this.name + '_harvest',
+              HARVEST_SOURCE_FLAG_COLOR);
+          const flag = Game.flags[this.name + '_harvest'];
+
+          const harvestMsn = new HarvestingMission(flag);
+          this.mem.harvestMission = harvestMsn.name;
+          harvestMsn.setSource(this.source);
+          harvestMsn.setContainer(this.container);
+          harvestMsn.setMaxHarvesters(this.mem.analysis.maxHarvesters);
+        }
       }
     }
   }

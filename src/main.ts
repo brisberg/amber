@@ -2,10 +2,12 @@ import 'behaviors'; // Required to initialize BehaviorMap
 
 import {IDLER} from 'behaviors/idler';
 import {RoomEnergyNetwork} from 'energy-network/roomEnergyNetwork';
+import {BUILD_TARGET_FLAG_COLOR} from 'flagConstants';
 import {BuildMission} from 'missions/build';
 import {HarvestingMission} from 'missions/harvesting';
 import {TransportMission} from 'missions/transport';
 import {UpgradeMission} from 'missions/upgrade';
+import {BuildOperation} from 'operations/buildOperation';
 import {MiningOperation} from 'operations/miningOperation';
 import {UpgradeOperation} from 'operations/upgradeOperation';
 import {declareOrphan} from 'spawn-system/orphans';
@@ -51,6 +53,20 @@ export const loop = () => {
 
   eNetwork.run();
 
+  // Hack for now
+  for (const name in Game.flags) {
+    const flag = Game.flags[name];
+    if (flag.color === BUILD_TARGET_FLAG_COLOR) {
+      console.log('running Build Operation');
+      const op = new BuildOperation(flag);
+      if (op.init()) {
+        op.run();
+      } else {
+        op.retire();
+      }
+    }
+  }
+
   for (const name in Memory.missions) {
     // TODO: Need to fix this to better handle dispatching missions
     if (name === 'upgrade_op_supply') {
@@ -62,11 +78,24 @@ export const loop = () => {
       mission.run();
     }
     if (name.includes('harvest')) {
-      const mission = new HarvestingMission(name);
+      const flag = Game.flags[name];
+      const mission = new HarvestingMission(flag);
       mission.run();
     } else if (name.includes('build')) {
-      const mission = new BuildMission(name);
+      const flag = Game.flags[name];
+      const mission = new BuildMission(flag);
       mission.run();
+    }
+  }
+
+  // HACK for now
+  const room = Game.spawns.Spawn1.room;
+  const sites = room.find(
+      FIND_CONSTRUCTION_SITES, {filter: {structureType: STRUCTURE_CONTAINER}});
+  if (sites.length !== 0) {
+    const site = sites[0];
+    if (!Game.flags.build_op) {
+      site.pos.createFlag('build_op', BUILD_TARGET_FLAG_COLOR);
     }
   }
 

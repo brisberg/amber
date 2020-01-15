@@ -3,9 +3,9 @@ import {WORKER_1} from 'spawn-system/bodyTypes';
 
 import {MAX_WORK_PER_SOURCE} from '../constants';
 
-interface HarvestingMemory {
-  harvesters: string[];
-  nextCreep?: string;
+import {Mission, MissionMemory} from './mission';
+
+interface HarvestingMemory extends MissionMemory {
   maxHarvesters: number;
   sourceID: Id<Source>|null;
   containerID: Id<StructureContainer>|null;
@@ -18,45 +18,15 @@ interface HarvestingMemory {
  * Container near it. The mission will keep requesting new harvester creeps
  * until there are at least 5 WORK parts at play on the Source.
  */
-export class HarvestingMission {
-  private static spawnPriority = 3;
-
-  public name: string;
-  public room: Room|null = null;
+export class HarvestingMission extends Mission<HarvestingMemory> {
   public source: Source|null = null;
   public container: StructureContainer|null = null;
 
-  private harvesters: Creep[] = [];
-  private mem: HarvestingMemory;
+  protected readonly bodyType: string = WORKER_1;
+  protected readonly spawnPriority = 2;
 
-  constructor(name: string) {
-    this.name = name;
-
-    // Init memory
-    if (!Memory.missions[name]) {
-      const mem: HarvestingMemory = {
-        containerID: null,
-        harvesters: [],
-        maxHarvesters: 0,
-        sourceID: null,
-      };
-      Memory.missions[name] = mem;
-    }
-    this.mem = Memory.missions[name] as HarvestingMemory;
-
-    if (this.mem.sourceID) {
-      const src = Game.getObjectById(this.mem.sourceID);
-      this.source = src;
-      this.room = src ? src.room : null;
-    }
-    if (this.mem.containerID) {
-      this.container = Game.getObjectById(this.mem.containerID);
-    }
-
-    // Purge names of dead/expired creeps
-    this.mem.harvesters =
-        this.mem.harvesters.filter((cName) => Game.creeps[cName]);
-    this.harvesters = this.mem.harvesters.map((cName) => Game.creeps[cName]);
+  constructor(flag: Flag) {
+    super(flag);
   }
 
   public setSource(source: Source) {
@@ -73,29 +43,34 @@ export class HarvestingMission {
     this.mem.maxHarvesters = max;
   }
 
+  /** @override */
+  protected initialMemory(): HarvestingMemory {
+    return {
+      containerID: null,
+      creeps: [],
+      maxHarvesters: 0,
+      sourceID: null,
+    };
+  }
+
+  /** @override */
+  public init(): boolean {
+    if (!this.mem.sourceID || !Game.getObjectById(this.mem.sourceID)) {
+      return false;
+    }
+    if (!this.mem.containerID || !Game.getObjectById(this.mem.containerID)) {
+      return false;
+    }
+
+    this.container = Game.getObjectById(this.mem.containerID);
+    const src = Game.getObjectById(this.mem.sourceID);
+    this.source = src;
+    return true;
+  }
+
   /** Executes one update tick for this mission */
   public run() {
-    if (!this.source || !this.container) {
-      return;
-    }
-
-    // Claim reserved creep if it exists
-    if (this.mem.nextCreep && Game.creeps[this.mem.nextCreep]) {
-      const harvester = Game.creeps[this.mem.nextCreep];
-      this.mem.harvesters.push(harvester.name);
-      this.harvesters.push(harvester);
-      delete this.mem.nextCreep;
-    } else {
-      // Oh well, it wasn't spawned afterall
-      delete this.mem.nextCreep;
-    }
-
-    // Check for creep allocation
-    if (this.needMoreHarvesters()) {
-      this.requestHarvester();
-    }
-
-    this.harvesters.forEach((harvester) => {
+    this.creeps.forEach((harvester) => {
       // Reassign the harvesters if they were given to us
       if (harvester.memory.behavior !== CONTAINER_HARVESTER) {
         harvester.memory = {
@@ -113,18 +88,19 @@ export class HarvestingMission {
   }
 
   /**
+   * @override
    * Returns true if we need another Harvester.
    *
    * Takes into account total WORK parts of existing harvesters and max
    * harvesters from Source Analysis.
    */
-  private needMoreHarvesters(): boolean {
-    if (this.harvesters.length >= this.maxHarvesters) {
+  protected needMoreCreeps(): boolean {
+    if (this.creeps.length >= this.maxHarvesters) {
       return false;
     }
 
     let totalWorkParts = 0;
-    for (const harvester of this.harvesters) {
+    for (const harvester of this.creeps) {
       totalWorkParts += harvester.getActiveBodyparts(WORK);
     }
     if (totalWorkParts >= MAX_WORK_PER_SOURCE + 1) {
@@ -132,14 +108,5 @@ export class HarvestingMission {
     }
 
     return true;
-  }
-
-  private requestHarvester() {
-    // Request another harvester
-    this.mem.nextCreep = global.spawnQueue.requestCreep({
-      bodyType: WORKER_1,
-      mission: this.name,
-      priority: HarvestingMission.spawnPriority,
-    });
   }
 }

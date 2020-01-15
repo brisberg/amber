@@ -1,5 +1,5 @@
 import {EnergyNode, registerEnergyNode, unregisterEnergyNode} from 'energy-network/energyNode';
-import {ENERGY_NODE_FLAG_COLOR} from 'flagConstants';
+import {BUILD_TARGET_FLAG_COLOR, ENERGY_NODE_FLAG_COLOR} from 'flagConstants';
 import {TransportMission} from 'missions/transport';
 
 import {BuildMission} from '../missions/build';
@@ -132,7 +132,9 @@ export class UpgradeOperation {
         console.log('build enode setiing: ' + handoff.name);
         this.mem.buildENodeFlag = handoff.name;
         // Set up the build mission to construct the storage container
-        const buildMsn = new BuildMission(this.name + '_build');
+        const buildMsnName = this.name + '_build';
+        this.container.pos.createFlag(buildMsnName, BUILD_TARGET_FLAG_COLOR);
+        const buildMsn = new BuildMission(Game.flags[buildMsnName]);
         buildMsn.setTargetSite(this.container);
         buildMsn.setEnergyNode(new EnergyNode(handoff));
         buildMsn.setMaxBuilders(3);
@@ -155,7 +157,7 @@ export class UpgradeOperation {
       // Cleanup the build mission
       if (this.mem.buildMsn) {
         console.log('Cleaning up build mission ' + this.mem.buildMsn);
-        BuildMission.cleanup(this.mem.buildMsn);
+        // BuildMission.ret(this.mem.buildMsn);
         this.mem.buildMsn = null;
       }
 
