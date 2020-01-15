@@ -85,6 +85,17 @@ export class UpgradeOperation {
       } else {
         this.controller = controller;
       }
+    } else {
+      // Check at our flag location for the controller
+      const conts =
+          this.flag.pos.lookFor(LOOK_STRUCTURES)
+              .filter(
+                  (struct) => struct.structureType === STRUCTURE_CONTROLLER);
+      if (conts.length > 0) {
+        const controller = conts[0] as StructureController;
+        this.mem.controllerID = controller.id;
+        this.controller = controller;
+      }
     }
 
     if (!this.controller) {
@@ -193,6 +204,7 @@ export class UpgradeOperation {
   }
 
   public retire() {
+    console.log('Retiring upgradeOp: ' + this.name);
     if (this.upgradeMsn) {
       this.upgradeMsn.retire();
     }

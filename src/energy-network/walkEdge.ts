@@ -1,3 +1,4 @@
+import {TRANSPORT_MISSION_FLAG_COLOR} from 'flagConstants';
 import {TransportMission} from 'missions/transport';
 
 import {EnergyNode} from './energyNode';
@@ -16,8 +17,9 @@ export class WalkEdge extends NetworkEdge<WalkEdgeMemory> {
 
   constructor(name: string, mem: NetworkEdgeMemory<WalkEdgeMemory>) {
     super(name, mem);
-    if (mem.state.transportMsn) {
-      this.transportMission = new TransportMission(mem.state.transportMsn);
+    if (mem.state.transportMsn && Game.flags[mem.state.transportMsn]) {
+      this.transportMission =
+          new TransportMission(Game.flags[mem.state.transportMsn]);
     }
   }
 
@@ -37,7 +39,7 @@ export class WalkEdge extends NetworkEdge<WalkEdgeMemory> {
           }
           // Start a new transport mission
           this.transportMission =
-              new TransportMission(this.name + '_transport');
+              this.setUpTransportMission(this.name + '_transport');
           this.transportMission.setSource(source);
           this.transportMission.setDestination(dest);
           this.mem.state.transportMsn = this.transportMission.name;
@@ -48,19 +50,24 @@ export class WalkEdge extends NetworkEdge<WalkEdgeMemory> {
       } else {
         // No flow on this lane, we can remove the mission
         if (this.transportMission) {
-          TransportMission.cleanup(this.transportMission.name);
-          delete this.mem.state.transportMsn;
+          this.transportMission.retire();
         }
       }
     }
     return;
   }
 
+  private setUpTransportMission(name: string) {
+    this.nodeA.flag.pos.createFlag(name, TRANSPORT_MISSION_FLAG_COLOR);
+    const flag = Game.flags[name];
+    return new TransportMission(flag);
+  }
+
   public retire() {
     if (this.transportMission) {
       console.log('retiring edge ' + this.name);
       // TODO: Do something with the orphaned creeps
-      TransportMission.cleanup(this.transportMission.name);
+      this.transportMission.retire();
     }
     return;
   }

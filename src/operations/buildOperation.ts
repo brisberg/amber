@@ -69,6 +69,8 @@ export class BuildOperation {
     if (this.mem.transportMsn) {
       if (!Game.flags[this.mem.transportMsn]) {
         this.mem.transportMsn = null;
+        console.log(
+            'Build Operation: Transport mission flag not found. Clearing it');
       } else {
         this.transportMsn =
             new TransportMission(Game.flags[this.mem.transportMsn]);
@@ -186,9 +188,8 @@ export class BuildOperation {
         transportMsn.setSource(this.node);
         transportMsn.setDestination(handoffNode);
         transportMsn.setThroughput(30);
+        transportMsn.init();
         this.mem.transportMsn = transportMsn.name;
-        console.log('build enode setiing: ' + handoffFlag.name);
-        this.mem.handoffFlag = handoffFlag.name;
       }
 
       if (!this.mem.buildMsn) {
@@ -220,7 +221,7 @@ export class BuildOperation {
   }
 
   public retire() {
-    // Hack for now since missions can't retire
+    console.log('Retiring buildOp: ' + this.name);
     if (this.buildMsn) {
       this.buildMsn.retire();
     }

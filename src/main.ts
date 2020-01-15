@@ -2,7 +2,7 @@ import 'behaviors'; // Required to initialize BehaviorMap
 
 import {IDLER} from 'behaviors/idler';
 import {RoomEnergyNetwork} from 'energy-network/roomEnergyNetwork';
-import {BUILD_TARGET_FLAG_COLOR, UPGRADE_MISSION_FLAG_COLOR, UPGRADE_OPERATION_FLAG_COLOR} from 'flagConstants';
+import {BUILD_TARGET_FLAG_COLOR, UPGRADE_OPERATION_FLAG_COLOR} from 'flagConstants';
 import {BuildMission} from 'missions/build';
 import {HarvestingMission} from 'missions/harvesting';
 import {Mission} from 'missions/mission';
@@ -54,7 +54,6 @@ export const loop = () => {
     if (flag.color === BUILD_TARGET_FLAG_COLOR) {
       const op = new BuildOperation(flag);
       if (op.init()) {
-        console.log('running BuildOp ' + name);
         op.run();
       } else {
         op.retire();
@@ -63,7 +62,6 @@ export const loop = () => {
     if (flag.color === UPGRADE_OPERATION_FLAG_COLOR) {
       const op = new UpgradeOperation(flag);
       if (op.init()) {
-        console.log('running UpgradeOp ' + name);
         op.run();
       } else {
         op.retire();
@@ -82,22 +80,19 @@ export const loop = () => {
 
   for (const name in Memory.missions) {
     // TODO: Need to fix this to better handle dispatching missions
-    if (name === 'upgrade_op_supply') {
-      const flag = Game.flags.upgrade_op_supply;
+    if (name.includes('supply')) {
+      const flag = Game.flags.build_op_supply;
       const mission = new TransportMission(flag);
       executeMission(mission);
-    }
-    if (name === 'upgrade_op_upgrade') {
+    } else if (name === 'upgrade_op_upgrade') {
       const flag = Game.flags.upgrade_op_upgrade;
       const mission = new UpgradeMission(flag);
       executeMission(mission);
-    }
-    if (name.includes('harvest')) {
+    } else if (name.includes('harvest')) {
       const flag = Game.flags[name];
       const mission = new HarvestingMission(flag);
       executeMission(mission);
     } else if (name.includes('build')) {
-      console.log('running BuildMission' + name);
       const flag = Game.flags[name];
       const mission = new BuildMission(flag);
       executeMission(mission);
