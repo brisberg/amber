@@ -57,9 +57,9 @@ export const loop = () => {
   for (const name in Game.flags) {
     const flag = Game.flags[name];
     if (flag.color === BUILD_TARGET_FLAG_COLOR) {
-      console.log('running Build Operation');
       const op = new BuildOperation(flag);
       if (op.init()) {
+        console.log('running BuildOp' + name);
         op.run();
       } else {
         op.retire();
@@ -82,8 +82,11 @@ export const loop = () => {
       const mission = new HarvestingMission(flag);
       mission.run();
     } else if (name.includes('build')) {
+      console.log('running BuildMission' + name);
       const flag = Game.flags[name];
       const mission = new BuildMission(flag);
+      mission.init();
+      mission.roleCall();
       mission.run();
     }
   }

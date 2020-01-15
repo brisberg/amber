@@ -198,7 +198,7 @@ export class BuildOperation {
   }
 
   private setUpBuildMission(name: string) {
-    const buildMsnName = name + '_build';
+    const buildMsnName = name;
     this.target!.pos.createFlag(buildMsnName, SOURCE_BUILD_TARGET_FLAG_COLOR);
     const flag = Game.flags[buildMsnName];
     return new BuildMission(flag);
