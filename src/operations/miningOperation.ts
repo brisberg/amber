@@ -108,8 +108,9 @@ export class MiningOperation {
 
       // Start the misions
       if (!this.mem.harvestMission) {
-        if (!this.source.pos.lookFor(LOOK_FLAGS)
-                 .filter((flag) => flag.color !== HARVEST_SOURCE_FLAG_COLOR)) {
+        if (this.source.pos.lookFor(LOOK_FLAGS)
+                .filter((flag) => flag.color !== HARVEST_SOURCE_FLAG_COLOR)
+                .length === 0) {
           this.room.createFlag(
               this.source.pos.x, this.source.pos.y, this.name + '_harvest',
               HARVEST_SOURCE_FLAG_COLOR);
