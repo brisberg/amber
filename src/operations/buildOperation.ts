@@ -1,5 +1,5 @@
 import {EnergyNode, registerEnergyNode, unregisterEnergyNode} from '../energy-network/energyNode';
-import {ENERGY_NODE_FLAG_COLOR, SOURCE_BUILD_TARGET_FLAG_COLOR} from '../flagConstants';
+import {ENERGY_NODE_FLAG_COLOR, SOURCE_BUILD_TARGET_FLAG_COLOR, TRANSPORT_MISSION_FLAG_COLOR} from '../flagConstants';
 import {BuildMission} from '../missions/build';
 import {TransportMission} from '../missions/transport';
 
@@ -33,7 +33,7 @@ export class BuildOperation {
 
   private target: ConstructionSite|null = null;
   private buildMsn: BuildMission|null = null;
-  private transportMsn: BuildMission|null = null;
+  private transportMsn: TransportMission|null = null;
   private node: EnergyNode|null = null;
   private source: Source|null = null;
 
@@ -66,8 +66,13 @@ export class BuildOperation {
         this.buildMsn = new BuildMission(Game.flags[this.mem.buildMsn]);
       }
     }
-    if (this.mem.transportMsn && !Memory.missions[this.mem.transportMsn]) {
-      this.mem.transportMsn = null;
+    if (this.mem.transportMsn) {
+      if (!Game.flags[this.mem.transportMsn]) {
+        this.mem.transportMsn = null;
+      } else {
+        this.transportMsn =
+            new TransportMission(Game.flags[this.mem.transportMsn]);
+      }
     }
 
     // Validate ENode cache. Non blocking as we can look for a new one
@@ -177,7 +182,7 @@ export class BuildOperation {
 
       if (!this.mem.transportMsn) {
         // Set up a transport mission to bring energy to us
-        const transportMsn = new TransportMission(this.name + '_supply');
+        const transportMsn = this.setUpTransportMission(this.name + '_supply');
         transportMsn.setSource(this.node);
         transportMsn.setDestination(handoffNode);
         transportMsn.setThroughput(30);
@@ -198,10 +203,15 @@ export class BuildOperation {
   }
 
   private setUpBuildMission(name: string) {
-    const buildMsnName = name;
-    this.target!.pos.createFlag(buildMsnName, SOURCE_BUILD_TARGET_FLAG_COLOR);
-    const flag = Game.flags[buildMsnName];
+    this.target!.pos.createFlag(name, SOURCE_BUILD_TARGET_FLAG_COLOR);
+    const flag = Game.flags[name];
     return new BuildMission(flag);
+  }
+
+  private setUpTransportMission(name: string) {
+    this.target!.pos.createFlag(name, TRANSPORT_MISSION_FLAG_COLOR);
+    const flag = Game.flags[name];
+    return new TransportMission(flag);
   }
 
   public setTargetSite(site: ConstructionSite) {
@@ -214,8 +224,8 @@ export class BuildOperation {
     if (this.buildMsn) {
       this.buildMsn.retire();
     }
-    if (this.mem.transportMsn) {
-      delete Memory.missions[this.mem.transportMsn];
+    if (this.transportMsn) {
+      this.transportMsn.retire();
     }
     if (this.mem.handoffFlag) {
       unregisterEnergyNode(this.mem.handoffFlag);

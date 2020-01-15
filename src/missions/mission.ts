@@ -6,7 +6,7 @@ export interface MissionMemory {
 }
 
 /**
- * Abstract Mission class from which all others derive.
+ * Abstract Mission class from which all Misions are derived.
  *
  * Missions in general are meant to organize a group of a single type of creeps
  * (note: behaviors only control one creep) to accomplish a very specific task.
@@ -91,6 +91,8 @@ export abstract class Mission<M extends MissionMemory> {
     if (this.needMoreCreeps()) {
       this.mem.nextCreep = this.requestCreep(this.bodyType);
     }
+
+    // TODO: Add a section to automatically release creeps we don't need
   }
 
   /** Requests another Creep from the SpawnQueue */

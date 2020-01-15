@@ -1,5 +1,5 @@
 import {EnergyNode, registerEnergyNode, unregisterEnergyNode} from 'energy-network/energyNode';
-import {BUILD_TARGET_FLAG_COLOR, ENERGY_NODE_FLAG_COLOR} from 'flagConstants';
+import {BUILD_TARGET_FLAG_COLOR, ENERGY_NODE_FLAG_COLOR, UPGRADE_MISSION_FLAG_COLOR} from 'flagConstants';
 import {TransportMission} from 'missions/transport';
 
 import {BuildMission} from '../missions/build';
@@ -24,61 +24,112 @@ import {analyzeControllerForUpgrading, UpgradeControllerAnalysis} from './upgrad
 
 export interface UpgradeOperationMemory {
   analysis: UpgradeControllerAnalysis|null;
-  buildMsn: string|null;
-  transportMsn: string|null;
   upgradeMsn: string|null;
-  controllerID: Id<StructureController>;
+  controllerID: Id<StructureController>|null;
   containerID: Id<StructureContainer|ConstructionSite<STRUCTURE_CONTAINER>>|
       null;
   eNodeFlag: string|null;
-  buildENodeFlag: string|null;
 }
 
 export class UpgradeOperation {
   private readonly name: string;
-  private readonly room: Room;
-  private readonly controller: StructureController;
+  private readonly room: Room|undefined;
+  private readonly flag: Flag;
   private readonly mem: UpgradeOperationMemory;
 
   private container: StructureContainer|ConstructionSite<STRUCTURE_CONTAINER>|
       null = null;
   private sourceNode: EnergyNode|null = null;
+  private controller: StructureController|null = null;
+  private upgradeMsn: UpgradeMission|null = null;
 
-  constructor(name: string, controller: StructureController) {
-    this.name = name;
-    this.room = controller.room;
-    this.controller = controller;
+  constructor(flag: Flag) {
+    this.name = flag.name;
+    this.flag = flag;
+    this.room = flag.room;
 
     // Init memory
-    if (!Memory.operations[name]) {
+    if (!Memory.operations[this.name]) {
       const mem: UpgradeOperationMemory = {
         analysis: null,
-        buildENodeFlag: null,
-        buildMsn: null,
         containerID: null,
-        controllerID: controller.id,
+        controllerID: null,
         eNodeFlag: null,
-        transportMsn: null,
         upgradeMsn: null,
       };
-      Memory.operations[name] = mem;
+      Memory.operations[this.name] = mem;
     }
-    this.mem = Memory.operations[name] as UpgradeOperationMemory;
+    this.mem = Memory.operations[this.name] as UpgradeOperationMemory;
 
     if (this.mem.eNodeFlag) {
       this.sourceNode = new EnergyNode(Game.flags[this.mem.eNodeFlag]);
     }
   }
 
+  public init(): boolean {
+    // Validate missions cache
+    if (this.mem.upgradeMsn) {
+      if (!Game.flags[this.mem.upgradeMsn]) {
+        this.mem.upgradeMsn = null;
+      } else {
+        this.upgradeMsn = new UpgradeMission(Game.flags[this.mem.upgradeMsn]);
+      }
+    }
+
+    // Validate controller, retire if not found
+    if (this.mem.controllerID) {
+      const controller = Game.getObjectById(this.mem.controllerID);
+      if (!controller) {
+        console.log('Upgrade Operation: Controller not found, retiring');
+        return false;
+      } else {
+        this.controller = controller;
+      }
+    }
+
+    if (!this.controller) {
+      return false;
+    }
+
+    // Validate ENode cache. Non blocking as we can look for a new one
+    if (this.mem.eNodeFlag) {
+      const flag = Game.flags[this.mem.eNodeFlag];
+      if (!flag) {
+        console.log(
+            'Upgrade Operation: ENode no longer exists. Clearing cache.');
+        this.mem.eNodeFlag = null;
+      } else {
+        this.sourceNode = new EnergyNode(flag);
+      }
+    }
+
+    // Validate Container cache
+    if (this.mem.containerID) {
+      const container = Game.getObjectById(this.mem.containerID);
+      if (!container) {
+        console.log('Upgrade Operation: Container no longer exists');
+        this.mem.containerID = null;
+      } else {
+        this.container = container;
+      }
+    }
+
+    return true;
+  }
+
   public run() {
+    if (!this.controller) {
+      return;
+    }
+
     // Run upgrade analysis if we don't have one
     if (!this.mem.analysis) {
-      this.mem.analysis = analyzeControllerForUpgrading(this.controller);
+      this.mem.analysis = analyzeControllerForUpgrading(this.controller!);
     }
 
     if (!this.container) {
       // Look for an existing Container or Construction Site at these locations
-      const results = this.room.lookAt(
+      const results = this.controller.room.lookAt(
           this.mem.analysis.containerPos[0], this.mem.analysis.containerPos[1]);
       results.some((lookup) => {
         if (lookup.constructionSite &&
@@ -97,54 +148,18 @@ export class UpgradeOperation {
 
       if (!this.container) {
         // No container assigned or none exsists, need to build a new one
-        this.room.createConstructionSite(
+        this.controller.room.createConstructionSite(
             this.mem.analysis.containerPos[0],
             this.mem.analysis.containerPos[1], STRUCTURE_CONTAINER);
       }
     }
 
-    if (this.container instanceof ConstructionSite && !this.mem.buildMsn) {
-      // Build Phase
-      // Search for the nearest permanent Energy Node
-      const eNodeFlag = this.container.pos.findClosestByPath(
-          FIND_FLAGS,
-          {filter: {color: ENERGY_NODE_FLAG_COLOR}},
-      );
-      if (eNodeFlag) {
-        const path = eNodeFlag.pos.findPathTo(this.container);
-        const dropPoint =
-            path[path.length - 3];  // Handoff two steps from target
-        const handoff = registerEnergyNode(
-            this.room,
-            [dropPoint.x, dropPoint.y],
-            {
-              persistant: false,
-              threshold: 200,
-              type: 'creep',
-            },
-        );
-        // Set up a transport mission to bring energy to us
-        const transportMsn = new TransportMission(this.name + '_supply');
-        transportMsn.setSource(new EnergyNode(eNodeFlag));
-        transportMsn.setDestination(new EnergyNode(handoff));
-        transportMsn.setThroughput(30);
-        this.mem.transportMsn = transportMsn.name;
-        console.log('build enode setiing: ' + handoff.name);
-        this.mem.buildENodeFlag = handoff.name;
-        // Set up the build mission to construct the storage container
-        const buildMsnName = this.name + '_build';
-        this.container.pos.createFlag(buildMsnName, BUILD_TARGET_FLAG_COLOR);
-        const buildMsn = new BuildMission(Game.flags[buildMsnName]);
-        buildMsn.setTargetSite(this.container);
-        buildMsn.setEnergyNode(new EnergyNode(handoff));
-        buildMsn.setMaxBuilders(3);
-        this.mem.buildMsn = buildMsn.name;
-      }
-    } else if (this.container instanceof StructureContainer) {
+    if (this.container instanceof StructureContainer) {
       // Attach ourselves to the energy network
       if (!this.mem.eNodeFlag) {
         const flag = registerEnergyNode(
-            this.room, [this.container.pos.x, this.container.pos.y], {
+            this.controller.room, [this.container.pos.x, this.container.pos.y],
+            {
               persistant: true,
               structureID: this.container.id,
               threshold: 1500,  // Keep us supplied
@@ -154,27 +169,10 @@ export class UpgradeOperation {
         this.sourceNode = new EnergyNode(Game.flags[flag.name]);
       }
 
-      // Cleanup the build mission
-      if (this.mem.buildMsn) {
-        console.log('Cleaning up build mission ' + this.mem.buildMsn);
-        // BuildMission.ret(this.mem.buildMsn);
-        this.mem.buildMsn = null;
-      }
-
-      // Cleanup the Transport missions
-      if (this.mem.transportMsn) {
-        console.log('Cleaning up build mission ' + this.mem.buildMsn);
-        const handoffENode = Game.flags[this.mem.buildENodeFlag!];
-        TransportMission.cleanup(this.mem.transportMsn);
-        this.mem.transportMsn = null;
-        console.log('    Removing Builder ENode ' + this.mem.buildENodeFlag);
-        unregisterEnergyNode(handoffENode);
-      }
-
       if (!this.mem.upgradeMsn && this.sourceNode) {
         // Launch a new Upgrade Mission
         console.log('Launching new Upgrade Mission ' + this.name + '_upgrade');
-        const upgradeMsn = new UpgradeMission(this.name + '_upgrade');
+        const upgradeMsn = this.setUpUpgradeMission(this.name + '_upgrade');
         this.mem.upgradeMsn = upgradeMsn.name;
         upgradeMsn.setController(this.controller);
         upgradeMsn.setContainer(this.container);
@@ -182,9 +180,26 @@ export class UpgradeOperation {
     }
   }
 
+  private setUpUpgradeMission(name: string) {
+    this.controller!.pos.createFlag(name, UPGRADE_MISSION_FLAG_COLOR);
+    const flag = Game.flags[name];
+    return new UpgradeMission(flag);
+  }
+
   private setContainer(container: StructureContainer|
                        ConstructionSite<STRUCTURE_CONTAINER>) {
     this.container = container;
     this.mem.containerID = container.id;
+  }
+
+  public retire() {
+    if (this.upgradeMsn) {
+      this.upgradeMsn.retire();
+    }
+    if (this.sourceNode) {
+      unregisterEnergyNode(this.sourceNode.flag.name);
+    }
+    this.flag.remove();
+    delete Memory.operations[this.name];
   }
 }
