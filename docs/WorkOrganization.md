@@ -83,3 +83,26 @@ Creep behaviors should be composable, mean that behaviors can have sub behaviors
 The only difference between behaviors and missions is that behaviors control at most one creep, while missions can control several.
 
 This should allow for reusability between behaviors better than I am doing now.
+
+
+## Build Operation Behavior
+
+Currently I have both the Harvester and Upgrader Operations managing their own Build Step with a Build Mission.
+
+This is currently working, as the Operation will place the ConstructionSite and start the Build Mission. Generating a 'creep' energy node in the process and running a Transport Mission between a Node and the Creep node to supply the builders.
+
+However, this might be overly complicated. BonzAI simply has a persistant "BuildOperation" for each room, which periodically scans for unfinished ConstructionSites and requests Builders to build them in Identifier Order. It will also request "Carts" (basically Haulers), which will fetch Energy from anywhere it can find it, and route directly to the Builder to fuel it.
+
+This is much simpler to code and much easier to manage. There are no Energy Node positions. Carts will just attempt to supply the lowest builder where ever it is. Builders will harvest from a Source if one is available (useful for Bootstrapping).
+
+This may not be particularly efficient, as builders and carts will run around haphazrdly to approach arbitrary construction sites and arbitrary energy stores. However, since "Building" is supposed to be ephemeral this might be ok. As it is a chaotic state which will end at some point.
+
+---
+
+For my system, I sortof like the idea of Harvesting / Upgrading operations to simply decide where structures should go, and place ConstructionSites if one doesn't exist. It then waits, assuming that a Build operation will construct the structure for them eventually.
+
+It would certainly simply the other Operations. I would need to build in some sort of clustering algorithm to the Build operation which would find clusters of Construction Sites as Buildable Units.
+
+The operation itself would look at the Energy Node flags in the area and decide how best to supply the builders. Maybe if there is an energy node within a certain range we don't need the Transport at all? (Seems unlikely, as even a 1 cell move between Storage and Construciton would lose two ticks every 40 ticks. Though actually that might be fine)
+
+Operations Simply producing ConstructionSites does seem pretty clean. We can divine an Operation from just a flag placed on a target, and it will produce the necessary Construction Sites. It can be easily rebuilt without Memory.
