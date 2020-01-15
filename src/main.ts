@@ -74,12 +74,17 @@ export const loop = () => {
       mission.run();
     }
     if (name === 'upgrade_op_upgrade') {
-      const mission = new UpgradeMission(name);
+      const flag = Game.flags.upgrade_op_upgrade;
+      const mission = new UpgradeMission(flag);
+      mission.init();
+      mission.roleCall();
       mission.run();
     }
     if (name.includes('harvest')) {
       const flag = Game.flags[name];
       const mission = new HarvestingMission(flag);
+      mission.init();
+      mission.roleCall();
       mission.run();
     } else if (name.includes('build')) {
       console.log('running BuildMission' + name);

@@ -2,7 +2,6 @@ import {ENET_BUILDER, ENetBuilder} from 'behaviors/eNetBuilder';
 import {SOURCE_BUILDER, SourceBuilder} from 'behaviors/sourceBuilder';
 import {EnergyNode, registerEnergyNode} from 'energy-network/energyNode';
 import {WORKER_1} from 'spawn-system/bodyTypes';
-import {declareOrphan} from 'spawn-system/orphans';
 
 import {Mission, MissionMemory} from './mission';
 
