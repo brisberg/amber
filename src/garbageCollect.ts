@@ -13,8 +13,7 @@ export function garbageCollection() {
   // Automatically deallocation missing/disabled missions
   for (const name in Memory.flags) {
     if (!(name in Memory.missions)) {
-      // Uncomment this when all missions are flag driven
-      // delete Memory.missions[name];
+      delete Memory.missions[name];
     }
   }
 }

@@ -1,7 +1,8 @@
 // tslint:disable-next-line: max-line-length
-import {BUILD_TARGET_FLAG, flagIsColor, HARVEST_SOURCE_FLAG, PIONEER_MISSION_FLAG, SOURCE_BUILD_TARGET_FLAG, TRANSPORT_MISSION_FLAG, UPGRADE_MISSION_FLAG} from 'flagConstants';
+import {BUILD_TARGET_FLAG, DISTRIBUTION_MISSION_FLAG, flagIsColor, HARVEST_SOURCE_FLAG, PIONEER_MISSION_FLAG, SOURCE_BUILD_TARGET_FLAG, TRANSPORT_MISSION_FLAG, UPGRADE_MISSION_FLAG} from 'flagConstants';
 
 import {BuildMission} from './build';
+import {DistributionMission} from './distribution';
 import {HarvestingMission} from './harvesting';
 import {Mission} from './mission';
 import {PioneerMission} from './pioneer';
@@ -24,6 +25,8 @@ global.missions = (flag: Flag) => {
     return new TransportMission(flag);
   } else if (flagIsColor(flag, UPGRADE_MISSION_FLAG)) {
     return new UpgradeMission(flag);
+  } else if (flagIsColor(flag, DISTRIBUTION_MISSION_FLAG)) {
+    return new DistributionMission(flag);
   }
 
   return null;
