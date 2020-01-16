@@ -40,8 +40,8 @@ export class SpawnQueue {
           this.spawner.room, [this.spawner.pos.x, this.spawner.pos.y], {
             color: CORE_ENERGY_NODE_FLAG,
             persistant: true,
+            polarity: 0,  // Core Node
             structureID: this.spawner.id,
-            threshold: 500,  // Spawn max
             type: 'structure',
           });
     }

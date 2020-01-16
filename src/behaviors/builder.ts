@@ -22,7 +22,7 @@ export class Builder extends Behavior<BuilderMemory> {
 
     if (target) {
       if (!creep.pos.inRangeTo(target, 3)) {
-        creep.moveTo(target);
+        creep.moveTo(target, {visualizePathStyle: {}});
         return true;
       }
 

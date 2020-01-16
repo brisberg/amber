@@ -102,6 +102,7 @@ export class BuildMission extends Mission<BuildMissionMemory> {
       if (this.rawSource) {
         // Harvest the energy ourselves right from the source
         if (creep.memory.behavior !== SOURCE_BUILDER) {
+          console.log('setting ' + creep.name + ' memory to SourceBuilder');
           creep.memory = {
             ...creep.memory,
             behavior: SOURCE_BUILDER,

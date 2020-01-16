@@ -169,8 +169,8 @@ export class UpgradeOperation {
             {
               color: ENERGY_NODE_FLAG,
               persistant: true,
+              polarity: -10,
               structureID: this.container.id,
-              threshold: 1500,  // Keep us supplied
               type: 'structure',
             });
         this.mem.eNodeFlag = flag.name;

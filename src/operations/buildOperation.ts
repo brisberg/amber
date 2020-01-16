@@ -1,5 +1,5 @@
 import {EnergyNode, registerEnergyNode, unregisterEnergyNode} from '../energy-network/energyNode';
-import {ENERGY_NODE_FLAG, SOURCE_BUILD_TARGET_FLAG, TEMP_ENERGY_NODE_FLAG, TRANSPORT_MISSION_FLAG} from '../flagConstants';
+import {CORE_ENERGY_NODE_FLAG, ENERGY_NODE_FLAG, SOURCE_BUILD_TARGET_FLAG, TEMP_ENERGY_NODE_FLAG, TRANSPORT_MISSION_FLAG} from '../flagConstants';
 import {BuildMission} from '../missions/build';
 import {TransportMission} from '../missions/transport';
 
@@ -108,7 +108,7 @@ export class BuildOperation {
       if (!source || !this.flag.pos.isNearTo(source)) {
         // No Source, look for an Energy nodes instead
         const eNodeFlag = this.flag.pos.findClosestByPath(
-            FIND_FLAGS, {filter: {color: ENERGY_NODE_FLAG}});
+            FIND_FLAGS, {filter: CORE_ENERGY_NODE_FLAG});
 
         if (!eNodeFlag) {
           console.log(
@@ -174,7 +174,7 @@ export class BuildOperation {
             {
               color: TEMP_ENERGY_NODE_FLAG,
               persistant: false,
-              threshold: 300,
+              polarity: -10,
               type: 'creep',
             },
         );
@@ -234,7 +234,8 @@ export class BuildOperation {
       this.transportMsn.retire();
     }
     if (this.mem.handoffFlag) {
-      unregisterEnergyNode(this.mem.handoffFlag);
+      const flag = Game.flags[this.mem.handoffFlag];
+      unregisterEnergyNode(flag);
     }
     this.flag.remove();
     delete Memory.operations[this.name];

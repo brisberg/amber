@@ -2,7 +2,7 @@ import 'behaviors'; // Required to initialize BehaviorMap
 
 import {IDLER} from 'behaviors/idler';
 import {RoomEnergyNetwork} from 'energy-network/roomEnergyNetwork';
-import {BUILD_TARGET_FLAG, flagIsColor, UPGRADE_OPERATION_FLAG} from 'flagConstants';
+import {BUILD_TARGET_FLAG, CORE_ENERGY_NODE_FLAG, ENERGY_NODE_FLAG, flagIsColor, UPGRADE_OPERATION_FLAG} from 'flagConstants';
 import {BuildMission} from 'missions/build';
 import {HarvestingMission} from 'missions/harvesting';
 import {Mission} from 'missions/mission';
@@ -33,9 +33,6 @@ export const loop = () => {
   }
 
   const queue = global.spawnQueue = new SpawnQueue(Game.spawns.Spawn1);
-  const eNetwork = global.eNetwork =
-      new RoomEnergyNetwork(Game.spawns.Spawn1.room);
-  eNetwork.initNetwork();
 
   const sources = Game.spawns.Spawn1.room.find(FIND_SOURCES);
   for (const source of sources) {
@@ -46,11 +43,17 @@ export const loop = () => {
   installConsoleCommands();
   garbageCollection();
 
-  eNetwork.run();
-
   // Hack for now
   for (const name in Game.flags) {
     const flag = Game.flags[name];
+    if (flagIsColor(flag, CORE_ENERGY_NODE_FLAG)) {
+      const eNetwork = new RoomEnergyNetwork(flag);
+      if (eNetwork.init()) {
+        eNetwork.run();
+      } else {
+        eNetwork.retire();
+      }
+    }
     if (flagIsColor(flag, BUILD_TARGET_FLAG)) {
       const op = new BuildOperation(flag);
       if (op.init()) {
@@ -114,7 +117,8 @@ export const loop = () => {
 
   // HACK for now
   const controller = room.controller;
-  if (controller && eNetwork.nodes.length >= 3) {
+  const eNodes = room.find(FIND_FLAGS, {filter: ENERGY_NODE_FLAG});
+  if (controller && eNodes.length >= 2) {
     if (!Game.flags.upgrade_op) {
       controller.pos.createFlag(
           'upgrade_op', UPGRADE_OPERATION_FLAG.color,

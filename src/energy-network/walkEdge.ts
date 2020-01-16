@@ -5,7 +5,7 @@ import {EnergyNode} from './energyNode';
 import {NetworkEdge, NetworkEdgeMemory} from './networkEdge';
 
 interface WalkEdgeMemory {
-  transportMsn: string;
+  transportMsn: string|null;
 }
 
 /**
@@ -15,50 +15,51 @@ interface WalkEdgeMemory {
 export class WalkEdge extends NetworkEdge<WalkEdgeMemory> {
   private transportMission: TransportMission|null = null;
 
-  constructor(name: string, mem: NetworkEdgeMemory<WalkEdgeMemory>) {
-    super(name, mem);
-    if (mem.state.transportMsn && Game.flags[mem.state.transportMsn]) {
-      this.transportMission =
-          new TransportMission(Game.flags[mem.state.transportMsn]);
+  constructor(
+      core: EnergyNode, node: EnergyNode,
+      mem: NetworkEdgeMemory<WalkEdgeMemory>) {
+    super(core, node, mem);
+  }
+
+  public init() {
+    if (this.mem.state.transportMsn) {
+      if (Game.flags[this.mem.state.transportMsn]) {
+        this.transportMission =
+            new TransportMission(Game.flags[this.mem.state.transportMsn]);
+      } else {
+        this.mem.state.transportMsn = null;
+      }
     }
   }
 
   public run() {
-    if (this.nodeA && this.nodeB) {
-      if (this.mem.flow !== 0) {
-        if (!this.transportMission) {
-          let source: EnergyNode;
-          let dest: EnergyNode;
-
-          if (this.mem.flow > 0) {
-            source = this.nodeA;
-            dest = this.nodeB;
-          } else {
-            source = this.nodeB;
-            dest = this.nodeA;
-          }
-          // Start a new transport mission
-          this.transportMission =
-              this.setUpTransportMission(this.name + '_transport');
-          this.transportMission.setSource(source);
-          this.transportMission.setDestination(dest);
-          this.mem.state.transportMsn = this.transportMission.name;
+    if (this.core && this.node) {
+      if (!this.transportMission) {
+        // Start a new transport mission
+        this.transportMission =
+            this.setUpTransportMission(this.node.flag.name + '_transport');
+        if (this.node.getPolarity() > 0) {
+          // Init target -> core
+          this.transportMission.setSource(this.node);
+          this.transportMission.setDestination(this.core);
+        } else {
+          // Init core -> target
+          this.transportMission.setSource(this.core);
+          this.transportMission.setDestination(this.node);
         }
+        this.mem.state.transportMsn = this.transportMission.name;
 
-        this.transportMission.setThroughput(this.mem.flow);
-        this.transportMission.run();
+        this.transportMission.setThroughput(this.node.getPolarity());
       } else {
-        // No flow on this lane, we can remove the mission
-        if (this.transportMission) {
-          this.transportMission.retire();
-        }
+        // Update throughput in case it changed
+        this.transportMission.setThroughput(this.node.getPolarity());
       }
     }
     return;
   }
 
   private setUpTransportMission(name: string) {
-    this.nodeA.flag.pos.createFlag(
+    this.node.flag.pos.createFlag(
         name, TRANSPORT_MISSION_FLAG.color,
         TRANSPORT_MISSION_FLAG.secondaryColor);
     const flag = Game.flags[name];
@@ -67,8 +68,6 @@ export class WalkEdge extends NetworkEdge<WalkEdgeMemory> {
 
   public retire() {
     if (this.transportMission) {
-      console.log('retiring edge ' + this.name);
-      // TODO: Do something with the orphaned creeps
       this.transportMission.retire();
     }
     return;

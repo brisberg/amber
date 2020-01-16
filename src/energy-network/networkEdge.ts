@@ -1,25 +1,18 @@
-import {EnergyNode, EnergyNodeMemory} from './energyNode';
+import {EnergyNode} from './energyNode';
 
 export interface NetworkEdgeMemory<T = any> {
-  name: string;
   type: string;
-  flow: number;  // TODO remove
-  nodeA: string;
-  nodeB: string;
-  dist: number;
   state: T;
 }
 
 export abstract class NetworkEdge<T = any> {
-  public readonly name: string;
-  public readonly nodeA: EnergyNode;
-  public readonly nodeB: EnergyNode;
+  public readonly core: EnergyNode;
+  public readonly node: EnergyNode;
   protected readonly _mem: NetworkEdgeMemory<T>;
 
-  constructor(name: string, mem: NetworkEdgeMemory<T>) {
-    this.name = name;
-    this.nodeA = new EnergyNode(Game.flags[mem.nodeA]);
-    this.nodeB = new EnergyNode(Game.flags[mem.nodeB]);
+  constructor(core: EnergyNode, node: EnergyNode, mem: NetworkEdgeMemory<T>) {
+    this.core = core;
+    this.node = node;
     this._mem = mem;
   }
 

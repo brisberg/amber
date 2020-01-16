@@ -100,8 +100,8 @@ export class MiningOperation {
             this.room, [this.container.pos.x, this.container.pos.y], {
               color: ENERGY_NODE_FLAG,
               persistant: true,
+              polarity: 10,  // Keep us empty
               structureID: this.container.id,
-              threshold: 0,  // Keep us empty
               type: 'structure',
             });
         this.mem.eNodeFlag = flag.name;

@@ -124,9 +124,6 @@ export abstract class Mission<M extends MissionMemory> {
    */
   public retire(): Creep[] {
     console.log('Retiringing mission ' + this.name);
-    if (this.name === 'build_op_supply') {
-      throw new Error('Supply missions');
-    }
     this.creeps.forEach((creep) => declareOrphan(creep));
     delete Memory.missions[this.name];
     this.flag.remove();

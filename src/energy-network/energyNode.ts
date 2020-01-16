@@ -19,8 +19,7 @@ FILO stack of delivery creeps.
 
 export interface EnergyNodeMemory {
   flag: string;
-  // Energy Network will do its best to keep this node at this level
-  threshold?: number;
+  polarity: number;  // Expected generated/consumed per tick
   type: 'link'|'structure'|'creep';
   persistant: boolean;  // Unused for now
   _cache: {
@@ -52,6 +51,7 @@ export class EnergyNode {
         _cache: {},
         flag: flag.name,
         persistant: false,
+        polarity: 0,
         type: 'structure',
       };
       Memory.flags[flag.name].state = mem;
@@ -138,28 +138,6 @@ export class EnergyNode {
   }
 
   /**
-   * Calculates the expected surplus or deficit of this node.
-   *
-   * Say we have 1500 energy expected.
-   *
-   * Threshold of 1000 => 1500-1000 => 500 Surplus
-   * Threshold of 1700 => 1500-1700 => 200 Deficit
-   */
-  public getExpectedSurplusOrDeficit(): number {
-    if (!this.mem._cache.projLevel || this.mem._cache.projLevel === -1) {
-      // Derelict nodes do not generate surpluses or deficits
-      return 0;
-    }
-
-    if (this.mem.threshold === undefined) {
-      // I guess if we didn't set a threshold report a zero?
-      return 0;
-    }
-
-    return this.mem._cache.projLevel - this.mem.threshold;
-  }
-
-  /**
    * Indicates to approaching creeps that this node is occupied. Only relevant
    * to 'creep' type nodes indicating there is a creep standing in the node
    * already.
@@ -170,6 +148,11 @@ export class EnergyNode {
     }
 
     return false;
+  }
+
+  /** Returns the polarity (energy/tick) this node produces/consumes */
+  public getPolarity(): number {
+    return this.mem.polarity;
   }
 
   public transferFrom(creep: Creep, amount?: number) {
@@ -226,11 +209,7 @@ export class EnergyNode {
       const cache = mem._cache;
 
       if (!cache.structureID || !Game.getObjectById(cache.structureID)) {
-        const structs = flag.room.lookForAt(
-            LOOK_STRUCTURES,
-            flag.pos.x,
-            flag.pos.y,
-        );
+        const structs = flag.pos.lookFor(LOOK_STRUCTURES);
         for (const struct of structs) {
           // This may not be a safe assumption
           if ((struct as any).store !== undefined) {
@@ -238,6 +217,7 @@ export class EnergyNode {
             return true;
           }
         }
+
         // No suitable storage structure was found, it may have been destroyed
         return false;
       }
@@ -248,8 +228,8 @@ export class EnergyNode {
 }
 
 interface RegisterEnergyNodeOptions {
-  threshold?: number;
   type: 'link'|'structure'|'creep';
+  polarity: number;
   persistant: boolean;
   structureID?: Id<StructureStore>;
   color: FlagColor;
@@ -263,12 +243,9 @@ export function registerEnergyNode(
     _cache: {},
     flag: flagName,
     persistant: opts.persistant,
+    polarity: opts.polarity,
     type: opts.type,
   };
-
-  if (opts.threshold !== undefined) {
-    mem.threshold = opts.threshold;
-  }
 
   room.createFlag(
       pos[0], pos[1], flagName, opts.color.color, opts.color.secondaryColor);
@@ -280,6 +257,7 @@ export function registerEnergyNode(
 
 export function unregisterEnergyNode(flag: Flag|string) {
   const name = (typeof flag === 'string' ? flag : flag.name);
+  console.log('Unregistering enode ' + name);
 
   findFlag(name) ?.remove();
   delete Memory.flags[name];
