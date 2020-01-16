@@ -14,6 +14,12 @@ export function flagIsColor(flag: Flag, color: FlagColor): boolean {
       flag.secondaryColor === color.secondaryColor;
 }
 
+/** Reserving the Green/Green flag color for Pioneer Missions */
+export const PIONEER_MISSION_FLAG: FlagColor = {
+  color: COLOR_GREEN,
+  secondaryColor: COLOR_GREEN,
+};
+
 /** Reserving the Yellow/Yellow flag color for energy nodes */
 export const ENERGY_NODE_FLAG: FlagColor = {
   color: COLOR_YELLOW,

@@ -19,8 +19,8 @@ export class UpgradeMission extends Mission<UpgradeMissionMemory> {
   protected readonly spawnPriority = 4;
   protected readonly bodyType = WORKER_1;
 
-  public container: StructureContainer|null = null;
-  public controller: StructureController|null = null;
+  private container: StructureContainer|null = null;
+  private controller: StructureController|null = null;
 
   constructor(flag: Flag) {
     super(flag);

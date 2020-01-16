@@ -4,8 +4,10 @@ import 'operations'; // Required to initialize OperationsMap
 
 import {IDLER} from 'behaviors/idler';
 import {RoomEnergyNetwork} from 'energy-network/roomEnergyNetwork';
-import {BUILD_OPERATION_FLAG, CORE_ENERGY_NODE_FLAG, ENERGY_NODE_FLAG, flagIsColor, UPGRADE_OPERATION_FLAG} from 'flagConstants';
+// tslint:disable-next-line: max-line-length
+import {BUILD_OPERATION_FLAG, CORE_ENERGY_NODE_FLAG, ENERGY_NODE_FLAG, flagIsColor, PIONEER_MISSION_FLAG, UPGRADE_OPERATION_FLAG} from 'flagConstants';
 import {Mission} from 'missions/mission';
+import {PioneerMission} from 'missions/pioneer';
 import {BuildOperation} from 'operations/buildOperation';
 import {MiningOperation} from 'operations/miningOperation';
 import {UpgradeOperation} from 'operations/upgradeOperation';
@@ -79,33 +81,55 @@ export const loop = () => {
   }
 
   // HACK for now
-  const room = Game.spawns.Spawn1.room;
+  const spawn = Game.spawns.Spawn1;
+  const room = spawn.room;
+  const controller = room.controller;
   const sources = room.find(FIND_SOURCES);
-  for (const source of sources) {
-    const mOp = new MiningOperation('mining-' + source.id, source);
-    mOp.run();
-  }
-
-  // HACK for now
-  const sites = room.find(
-      FIND_CONSTRUCTION_SITES, {filter: {structureType: STRUCTURE_CONTAINER}});
-  if (sites.length !== 0) {
-    const site = sites[0];
-    if (!Game.flags.build_op) {
-      site.pos.createFlag(
-          'build_op', BUILD_OPERATION_FLAG.color,
-          BUILD_OPERATION_FLAG.secondaryColor);
+  if (controller && controller.level < 3) {
+    const existingFlag =
+        spawn.pos.lookFor(LOOK_FLAGS)
+            .filter((flag) => flagIsColor(flag, PIONEER_MISSION_FLAG));
+    if (!existingFlag) {
+      // Launch the Pioneer Mission
+      spawn.pos.createFlag(
+          spawn.name + '_pioneer', PIONEER_MISSION_FLAG.color,
+          PIONEER_MISSION_FLAG.secondaryColor);
+      const flag = spawn.pos.lookFor(LOOK_FLAGS)
+                       .filter((f) => flagIsColor(f, PIONEER_MISSION_FLAG));
+      const msn = new PioneerMission(flag[0]);
+      msn.setController(controller);
+      msn.setSources(sources);
     }
   }
 
-  // HACK for now
-  const controller = room.controller;
-  const eNodes = room.find(FIND_FLAGS, {filter: ENERGY_NODE_FLAG});
-  if (controller && eNodes.length >= 2) {
-    if (!Game.flags.upgrade_op) {
-      controller.pos.createFlag(
-          'upgrade_op', UPGRADE_OPERATION_FLAG.color,
-          UPGRADE_OPERATION_FLAG.secondaryColor);
+  if (controller && controller.level >= 2) {
+    // HACK for now
+    for (const source of sources) {
+      const mOp = new MiningOperation('mining-' + source.id, source);
+      mOp.run();
+    }
+
+    // HACK for now
+    const sites = room.find(
+        FIND_CONSTRUCTION_SITES,
+        {filter: {structureType: STRUCTURE_CONTAINER}});
+    if (sites.length !== 0) {
+      const site = sites[0];
+      if (!Game.flags.build_op) {
+        site.pos.createFlag(
+            'build_op', BUILD_OPERATION_FLAG.color,
+            BUILD_OPERATION_FLAG.secondaryColor);
+      }
+    }
+
+    // HACK for now
+    const eNodes = room.find(FIND_FLAGS, {filter: ENERGY_NODE_FLAG});
+    if (controller && eNodes.length >= 2) {
+      if (!Game.flags.upgrade_op) {
+        controller.pos.createFlag(
+            'upgrade_op', UPGRADE_OPERATION_FLAG.color,
+            UPGRADE_OPERATION_FLAG.secondaryColor);
+      }
     }
   }
 

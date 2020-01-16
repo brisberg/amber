@@ -95,7 +95,6 @@ export class Pioneer extends Behavior<PioneerMemory> {
       }
 
       // Upgrade the Controller with what is left
-
       mem.subBehavior = UPGRADER;
       mem.mem = Upgrader.initMemory(controller);
       return false;
