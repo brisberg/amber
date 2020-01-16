@@ -94,7 +94,7 @@ export class BaseOperation {
       return Game.flags[flag] !== undefined;
     });
     this.extensionGroups = groupNames.map((flag) => {
-      return new ExtensionGroup();
+      return new ExtensionGroup(Game.flags[flag]);
     });
 
     return true;

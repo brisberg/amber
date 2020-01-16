@@ -1,4 +1,5 @@
 import {CONTAINER_HARVESTER, ContainerHarvester} from 'behaviors/containerHarvester';
+import {DISTRIBUTOR, Distributor} from 'behaviors/distributor';
 import {EnergyNode} from 'energy-network/energyNode';
 import {ExtensionGroup} from 'layout/extensionGroup';
 import {WORKER_1} from 'spawn-system/bodyTypes';
@@ -69,7 +70,7 @@ export class DistributionMission extends Mission<DistributionMemory> {
     this.spawn = Game.getObjectById(this.mem.spawnID);
     this.eNode = new EnergyNode(Game.flags[this.mem.eNodeFlag]);
     this.extensinGroups = this.mem.extensionGroups.map((name) => {
-      return new ExtensionGroup();
+      return new ExtensionGroup(Game.flags[name]);
     });
     return true;
   }
@@ -77,14 +78,14 @@ export class DistributionMission extends Mission<DistributionMemory> {
   /** Executes one update tick for this mission */
   public run() {
     // Need to do the thinking here, to fill highest priority extensions and
-    // repair controller
+    // repair container
     this.creeps.forEach((distributor) => {
       // Reassign the distributors if they were given to us
-      if (distributor.memory.behavior !== CONTAINER_HARVESTER) {
+      if (distributor.memory.behavior !== DISTRIBUTOR) {
         distributor.memory = {
           ...distributor.memory,
-          behavior: CONTAINER_HARVESTER,
-          mem: ContainerHarvester.initMemory(this.source!, this.container!),
+          behavior: DISTRIBUTOR,
+          mem: Distributor.initMemory(this.eNode!, this.spawn, null),
           mission: this.name,
         };
       }
