@@ -1,5 +1,5 @@
 import {EnergyNode, registerEnergyNode, unregisterEnergyNode} from '../energy-network/energyNode';
-import {ENERGY_NODE_FLAG_COLOR, SOURCE_BUILD_TARGET_FLAG_COLOR, TRANSPORT_MISSION_FLAG_COLOR} from '../flagConstants';
+import {ENERGY_NODE_FLAG, SOURCE_BUILD_TARGET_FLAG, TRANSPORT_MISSION_FLAG} from '../flagConstants';
 import {BuildMission} from '../missions/build';
 import {TransportMission} from '../missions/transport';
 
@@ -108,7 +108,7 @@ export class BuildOperation {
       if (!source || !this.flag.pos.isNearTo(source)) {
         // No Source, look for an Energy nodes instead
         const eNodeFlag = this.flag.pos.findClosestByPath(
-            FIND_FLAGS, {filter: {color: ENERGY_NODE_FLAG_COLOR}});
+            FIND_FLAGS, {filter: {color: ENERGY_NODE_FLAG}});
 
         if (!eNodeFlag) {
           console.log(
@@ -204,13 +204,17 @@ export class BuildOperation {
   }
 
   private setUpBuildMission(name: string) {
-    this.target!.pos.createFlag(name, SOURCE_BUILD_TARGET_FLAG_COLOR);
+    this.target!.pos.createFlag(
+        name, SOURCE_BUILD_TARGET_FLAG.color,
+        SOURCE_BUILD_TARGET_FLAG.secondaryColor);
     const flag = Game.flags[name];
     return new BuildMission(flag);
   }
 
   private setUpTransportMission(name: string) {
-    this.target!.pos.createFlag(name, TRANSPORT_MISSION_FLAG_COLOR);
+    this.target!.pos.createFlag(
+        name, TRANSPORT_MISSION_FLAG.color,
+        TRANSPORT_MISSION_FLAG.secondaryColor);
     const flag = Game.flags[name];
     return new TransportMission(flag);
   }

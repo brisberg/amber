@@ -1,4 +1,4 @@
-import {TRANSPORT_MISSION_FLAG_COLOR} from 'flagConstants';
+import {TRANSPORT_MISSION_FLAG} from 'flagConstants';
 import {TransportMission} from 'missions/transport';
 
 import {EnergyNode} from './energyNode';
@@ -58,7 +58,9 @@ export class WalkEdge extends NetworkEdge<WalkEdgeMemory> {
   }
 
   private setUpTransportMission(name: string) {
-    this.nodeA.flag.pos.createFlag(name, TRANSPORT_MISSION_FLAG_COLOR);
+    this.nodeA.flag.pos.createFlag(
+        name, TRANSPORT_MISSION_FLAG.color,
+        TRANSPORT_MISSION_FLAG.secondaryColor);
     const flag = Game.flags[name];
     return new TransportMission(flag);
   }

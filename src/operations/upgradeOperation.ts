@@ -1,8 +1,6 @@
 import {EnergyNode, registerEnergyNode, unregisterEnergyNode} from 'energy-network/energyNode';
-import {BUILD_TARGET_FLAG_COLOR, ENERGY_NODE_FLAG_COLOR, UPGRADE_MISSION_FLAG_COLOR} from 'flagConstants';
-import {TransportMission} from 'missions/transport';
+import {UPGRADE_MISSION_FLAG} from 'flagConstants';
 
-import {BuildMission} from '../missions/build';
 import {UpgradeMission} from '../missions/upgrade';
 
 import {analyzeControllerForUpgrading, UpgradeControllerAnalysis} from './upgradeAnalysis';
@@ -33,7 +31,6 @@ export interface UpgradeOperationMemory {
 
 export class UpgradeOperation {
   private readonly name: string;
-  private readonly room: Room|undefined;
   private readonly flag: Flag;
   private readonly mem: UpgradeOperationMemory;
 
@@ -46,7 +43,6 @@ export class UpgradeOperation {
   constructor(flag: Flag) {
     this.name = flag.name;
     this.flag = flag;
-    this.room = flag.room;
 
     // Init memory
     if (!Memory.operations[this.name]) {
@@ -192,7 +188,8 @@ export class UpgradeOperation {
   }
 
   private setUpUpgradeMission(name: string) {
-    this.controller!.pos.createFlag(name, UPGRADE_MISSION_FLAG_COLOR);
+    this.controller!.pos.createFlag(
+        name, UPGRADE_MISSION_FLAG.color, UPGRADE_MISSION_FLAG.secondaryColor);
     const flag = Game.flags[name];
     return new UpgradeMission(flag);
   }

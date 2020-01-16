@@ -2,23 +2,59 @@
  * Set of constants which control what the colors of flags signify.
  */
 
-/** Reserving the Yellow flag color for energy nodes */
-export const ENERGY_NODE_FLAG_COLOR = COLOR_YELLOW;
-/** Reserving the Grey flag color for temp energy nodes */
-export const TEMP_ENERGY_NODE_FLAG_COLOR = COLOR_GREY;
+/** Primary/Secondary colors to identify a flag type */
+export interface FlagColor {
+  color: ColorConstant;
+  secondaryColor: ColorConstant;
+}
 
-/** Reserve Brown flag color for Harvest Mission Sources */
-export const HARVEST_SOURCE_FLAG_COLOR = COLOR_BROWN;
+/** Tests if a flag has the specified color/secondary combination */
+export function flagIsColor(flag: Flag, color: FlagColor): boolean {
+  return flag.color === color.color &&
+      flag.secondaryColor === color.secondaryColor;
+}
 
-/** Reserve Orange flag color for Build Mission Targets */
-export const BUILD_TARGET_FLAG_COLOR = COLOR_ORANGE;
-/** Reserve Orange flag color for Build Mission Targets */
-export const SOURCE_BUILD_TARGET_FLAG_COLOR = COLOR_WHITE;
+/** Reserving the Yellow/Yellow flag color for energy nodes */
+export const ENERGY_NODE_FLAG: FlagColor = {
+  color: COLOR_YELLOW,
+  secondaryColor: COLOR_YELLOW,
+};
+/** Reserving the Yellow/Grey flag color for temp energy nodes */
+export const TEMP_ENERGY_NODE_FLAG: FlagColor = {
+  color: COLOR_YELLOW,
+  secondaryColor: COLOR_GREY,
+};
 
-/** Reserve Purple flag color for Transport Operation */
-export const UPGRADE_OPERATION_FLAG_COLOR = COLOR_PURPLE;
-/** Reserve Green flag color for Transport Missions */
-export const UPGRADE_MISSION_FLAG_COLOR = COLOR_GREEN;
+/** Reserve Brown/Brown flag color for Harvest Mission Sources */
+export const HARVEST_SOURCE_FLAG: FlagColor = {
+  color: COLOR_BROWN,
+  secondaryColor: COLOR_BROWN,
+};
 
-/** Reserve Blue flag color for Transport Missions */
-export const TRANSPORT_MISSION_FLAG_COLOR = COLOR_BLUE;
+/** Reserve Orange/Orange flag color for Build Mission Targets */
+export const BUILD_TARGET_FLAG: FlagColor = {
+  color: COLOR_ORANGE,
+  secondaryColor: COLOR_ORANGE,
+};
+/** Reserve Orange/Yellow flag color for Source Build Mission Targets */
+export const SOURCE_BUILD_TARGET_FLAG: FlagColor = {
+  color: COLOR_ORANGE,
+  secondaryColor: COLOR_YELLOW,
+};
+
+/** Reserve Purple/Purple flag color for Upgrade Operation */
+export const UPGRADE_OPERATION_FLAG: FlagColor = {
+  color: COLOR_PURPLE,
+  secondaryColor: COLOR_PURPLE,
+};
+/** Reserve Purple/Green flag color for Upgade Missions */
+export const UPGRADE_MISSION_FLAG: FlagColor = {
+  color: COLOR_PURPLE,
+  secondaryColor: COLOR_GREEN,
+};
+
+/** Reserve Blue flag color for Transport Missions Sources */
+export const TRANSPORT_MISSION_FLAG: FlagColor = {
+  color: COLOR_BLUE,
+  secondaryColor: COLOR_BLUE,
+};

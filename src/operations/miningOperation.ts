@@ -1,5 +1,5 @@
 import {registerEnergyNode} from 'energy-network/energyNode';
-import {HARVEST_SOURCE_FLAG_COLOR} from 'flagConstants';
+import {flagIsColor, HARVEST_SOURCE_FLAG} from 'flagConstants';
 
 import {HarvestingMission} from '../missions/harvesting';
 
@@ -109,11 +109,11 @@ export class MiningOperation {
       // Start the misions
       if (!this.mem.harvestMission) {
         if (this.source.pos.lookFor(LOOK_FLAGS)
-                .filter((flag) => flag.color !== HARVEST_SOURCE_FLAG_COLOR)
+                .filter((flag) => !flagIsColor(flag, HARVEST_SOURCE_FLAG))
                 .length === 0) {
           this.room.createFlag(
               this.source.pos.x, this.source.pos.y, this.name + '_harvest',
-              HARVEST_SOURCE_FLAG_COLOR);
+              HARVEST_SOURCE_FLAG.color, HARVEST_SOURCE_FLAG.secondaryColor);
           const flag = Game.flags[this.name + '_harvest'];
 
           const harvestMsn = new HarvestingMission(flag);
