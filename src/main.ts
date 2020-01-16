@@ -102,34 +102,31 @@ export const loop = () => {
     }
   }
 
-  if (controller && controller.level >= 2) {
-    // HACK for now
-    for (const source of sources) {
-      const mOp = new MiningOperation('mining-' + source.id, source);
-      mOp.run();
-    }
+  // HACK for now
+  for (const source of sources) {
+    const mOp = new MiningOperation('mining-' + source.id, source);
+    mOp.run();
+  }
 
-    // HACK for now
-    const sites = room.find(
-        FIND_CONSTRUCTION_SITES,
-        {filter: {structureType: STRUCTURE_CONTAINER}});
-    if (sites.length !== 0) {
-      const site = sites[0];
-      if (!Game.flags.build_op) {
-        site.pos.createFlag(
-            'build_op', BUILD_OPERATION_FLAG.color,
-            BUILD_OPERATION_FLAG.secondaryColor);
-      }
+  // HACK for now
+  const sites = room.find(
+      FIND_CONSTRUCTION_SITES, {filter: {structureType: STRUCTURE_CONTAINER}});
+  if (sites.length !== 0) {
+    const site = sites[0];
+    if (!Game.flags.build_op) {
+      site.pos.createFlag(
+          'build_op', BUILD_OPERATION_FLAG.color,
+          BUILD_OPERATION_FLAG.secondaryColor);
     }
+  }
 
-    // HACK for now
-    const eNodes = room.find(FIND_FLAGS, {filter: ENERGY_NODE_FLAG});
-    if (controller && eNodes.length >= 2) {
-      if (!Game.flags.upgrade_op) {
-        controller.pos.createFlag(
-            'upgrade_op', UPGRADE_OPERATION_FLAG.color,
-            UPGRADE_OPERATION_FLAG.secondaryColor);
-      }
+  // HACK for now
+  const eNodes = room.find(FIND_FLAGS, {filter: ENERGY_NODE_FLAG});
+  if (controller && eNodes.length >= 2) {
+    if (!Game.flags.upgrade_op) {
+      controller.pos.createFlag(
+          'upgrade_op', UPGRADE_OPERATION_FLAG.color,
+          UPGRADE_OPERATION_FLAG.secondaryColor);
     }
   }
 
