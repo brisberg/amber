@@ -9,6 +9,7 @@ import {ENET_FETCHER, ENetFetcher} from './eNetFetcher';
 import {Fetcher, FETCHER} from './fetcher';
 import {Harvester, HARVESTER} from './harvester';
 import {Idler, IDLER} from './idler';
+import {Pioneer, PIONEER} from './pioneer';
 import {Repairer, REPAIRER} from './repairer';
 import {SOURCE_BUILDER, SourceBuilder} from './sourceBuilder';
 import {Upgrader, UPGRADER} from './upgrader';
@@ -19,6 +20,7 @@ export interface BehaviorMap {
 
 /** Convenience mapping of behavior key to behavior update function. */
 global.behaviors = {
+  [PIONEER]: new Pioneer(),
   [HARVESTER]: new Harvester(),
   [REPAIRER]: new Repairer(),
   [FETCHER]: new Fetcher(),

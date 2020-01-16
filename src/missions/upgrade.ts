@@ -1,4 +1,4 @@
-import {Upgrader, UPGRADER} from 'behaviors/upgrader';
+import {CONTAINER_UPGRADER, ContainerUpgrader} from 'behaviors/containerUpgrader';
 import {WORKER_1} from 'spawn-system/bodyTypes';
 
 import {Mission, MissionMemory} from './mission';
@@ -70,12 +70,15 @@ export class UpgradeMission extends Mission<UpgradeMissionMemory> {
     if (this.container && this.controller) {
       // Direct each creep to upgrade from the sourceNode
       this.creeps.forEach((creep) => {
-        if (creep.memory.behavior !== UPGRADER) {
+        if (creep.memory.behavior !== CONTAINER_UPGRADER) {
           // Upgrade controller
           creep.memory = {
-            behavior: UPGRADER,
+            behavior: CONTAINER_UPGRADER,
             bodyType: WORKER_1,
-            mem: Upgrader.initMemory(this.controller!, this.container!),
+            mem: ContainerUpgrader.initMemory(
+                this.controller!,
+                this.container!,
+                ),
             mission: this.name,
           };
         }

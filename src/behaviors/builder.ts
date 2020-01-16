@@ -28,7 +28,7 @@ export class Builder extends Behavior<BuilderMemory> {
 
       // We have arrived
 
-      // Transfer to target
+      // Build the site
       creep.build(target);
       return false;
     }
