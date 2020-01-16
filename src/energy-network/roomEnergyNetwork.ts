@@ -1,4 +1,5 @@
 import {ENERGY_NODE_FLAG} from 'flagConstants';
+import {TransportMission} from 'missions/transport';
 
 import {EnergyNode} from './energyNode';
 import {NetworkEdge, NetworkEdgeMemory} from './networkEdge';
@@ -77,6 +78,12 @@ export class RoomEnergyNetwork {
     const nodeNames = flags.map((flag) => flag.name);
     for (const node in this.mem.edges) {
       if (nodeNames.indexOf(node) === -1) {
+        // Hack, for when an ENode was removed
+        if (this.mem.edges[node] && this.mem.edges[node].state.transportMsn) {
+          const flag = Game.flags[this.mem.edges[node].state.transportMsn];
+          const msn = new TransportMission(flag);
+          msn.retire();
+        }
         delete this.mem.edges[node];
       }
     }

@@ -87,6 +87,10 @@ export const loop = () => {
       const flag = Game.flags.build_op_supply;
       const mission = new TransportMission(flag);
       executeMission(mission);
+    } else if (name.includes('transport')) {
+      const flag = Game.flags[name];
+      const mission = new TransportMission(flag);
+      executeMission(mission);
     } else if (name === 'upgrade_op_upgrade') {
       const flag = Game.flags.upgrade_op_upgrade;
       const mission = new UpgradeMission(flag);
