@@ -105,8 +105,10 @@ export class BaseOperation {
       return;
     }
 
-    const maxExtensionGroups =
-        CONTROLLER_STRUCTURES.extension[this.spawn.room.controller!.level] / 5;
+    // const maxExtensionGroups =
+    //     CONTROLLER_STRUCTURES.extension[this.spawn.room.controller!.level] /
+    //     5;
+    const maxExtensionGroups = 1;  // Debug value for now
     if (this.extensionGroups.length < maxExtensionGroups) {
       // Spawn another group
       const pos = this.spawn.room.getPositionAt(

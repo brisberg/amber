@@ -1,10 +1,9 @@
-import {CONTAINER_HARVESTER, ContainerHarvester} from 'behaviors/containerHarvester';
 import {DISTRIBUTOR, Distributor} from 'behaviors/distributor';
+import {ENET_FETCHER, ENetFetcher} from 'behaviors/eNetFetcher';
+import {Repairer, REPAIRER} from 'behaviors/repairer';
 import {EnergyNode} from 'energy-network/energyNode';
 import {ExtensionGroup} from 'layout/extensionGroup';
 import {WORKER_1} from 'spawn-system/bodyTypes';
-
-import {MAX_WORK_PER_SOURCE} from '../constants';
 
 import {Mission, MissionMemory} from './mission';
 
@@ -15,11 +14,11 @@ interface DistributionMemory extends MissionMemory {
 }
 
 /**
- * Mission construct to facilitate harvesting of a single Source.
+ * Mission construct to facilitate distributing energy from an EnergyNode to a
+ * Spawn or a set of ExtensionGroups.
  *
- * This mission will evaluate the source, decide where to place the storage
- * Container near it. The mission will keep requesting new harvester creeps
- * until there are at least 5 WORK parts at play on the Source.
+ * Mission will also repair the Container used by the source Energy Node. This
+ * should be removed later.
  */
 export class DistributionMission extends Mission<DistributionMemory> {
   protected readonly bodyType: string = WORKER_1;
@@ -77,17 +76,42 @@ export class DistributionMission extends Mission<DistributionMemory> {
 
   /** Executes one update tick for this mission */
   public run() {
+    if (!this.spawn || !this.eNode) {
+      return;
+    }
     // Need to do the thinking here, to fill highest priority extensions and
     // repair container
     this.creeps.forEach((distributor) => {
-      // Reassign the distributors if they were given to us
-      if (distributor.memory.behavior !== DISTRIBUTOR) {
-        distributor.memory = {
-          ...distributor.memory,
-          behavior: DISTRIBUTOR,
-          mem: Distributor.initMemory(this.eNode!, this.spawn, null),
-          mission: this.name,
-        };
+      // First refill the spawn
+      if (this.spawn!.energy < this.spawn!.energyCapacity) {
+        if (distributor.memory.behavior !== DISTRIBUTOR) {
+          distributor.memory.behavior = DISTRIBUTOR,
+          distributor.memory.mem =
+              Distributor.initMemory(this.eNode!, this.spawn, null);
+          return;
+        }
+      }
+
+      // Check for empty Extension Groups
+      // TODO: Loop through the groups
+
+      // Hack: Repair the Energy Node Container
+      const structs = this.eNode!.flag.pos.lookFor(LOOK_STRUCTURES);
+      const container = structs.find((struct) => {
+        return struct.structureType === STRUCTURE_CONTAINER;
+      }) as StructureContainer;
+      if (container && (container.hits - container.hitsMax) > 100) {
+        // TODO: This should probably be abstracted into a ENET_REPAIRER
+        if (distributor.store.getFreeCapacity() > 0) {
+          // Fetch energy from the node
+          distributor.memory.behavior = ENET_FETCHER;
+          distributor.memory.mem = ENetFetcher.initMemory(this.eNode!);
+        } else {
+          // Repair the container
+          distributor.memory.behavior = REPAIRER;
+          distributor.memory.mem = Repairer.initMemory(container);
+        }
+        return;
       }
     });
   }
