@@ -1,6 +1,9 @@
+import {CORE_ENERGY_NODE_FLAG} from 'flagConstants';
+
 import {IDLER, Idler} from '../behaviors/idler';
 import {registerEnergyNode} from '../energy-network/energyNode';
 import {totalCost} from '../utils/workerUtils';
+
 import {creepBodies} from './bodyTypes';
 import {isOrphan} from './orphans';
 
@@ -35,6 +38,7 @@ export class SpawnQueue {
       // Register us as an Energy Sink
       registerEnergyNode(
           this.spawner.room, [this.spawner.pos.x, this.spawner.pos.y], {
+            color: CORE_ENERGY_NODE_FLAG,
             persistant: true,
             structureID: this.spawner.id,
             threshold: 500,  // Spawn max

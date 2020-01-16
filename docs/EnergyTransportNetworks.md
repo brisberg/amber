@@ -96,3 +96,24 @@ Flow Analysis will go edge by edge and compare the nodes against their desired l
 This will cause the transport missions to possibly reverse direction and request new hauler creeps or release existing ones from service.
 
 Flow Analysis will be run every 100 ticks, to save on CPU and to give creeps time to complete trips to begin to balance the network.
+
+
+# Central Network
+
+Inspired by Kansaibot (https://kasami.github.io/kasamibot/features.html).
+
+Looking at the "End Game" system Kasamibot is aiming at, it is a set of isolated "Claimed Room", each upgraded to RC8, that have 1-3 "Reserved Rooms" between them each of which is running remote mining from.
+
+Each energy network is isolated from eachother, and very centralized. All roads lead back to the Storage at the center of the Core room. Energy coordination between isolated rooms is performed with Terminals, not creeps walking.
+
+This simplifies the energy management, because every link will always ever be one direction (Source -> Storage, Storage -> Controller, Storage -> Lab, Storage -> Spawn, etc).
+
+It also suggests using a Container as the central dropzone near the spawn, and switching it out for a Storage once one can be created. This makes sense to me, as after bootstrapping it simplifies how to organize the Spawn Reload missions.
+
+Though this might theoretically cause a bit of extra hauling from a source near the controller to spawn and back, in the long run this makes it easier to manage.
+
+With that in mind, I am willing to attempt a simplification of my Energy Network system. By specifying one node as the "Core" node, all other shipping lanes will be towards or away from this node. Hopefully this means that roads will line up together. This also makes demand planning easier, as sources will have static outputs, and only shipping out to the controller may require a variable amount of haulers.
+
+> The pioneers will ship the energy themselves, but when dedicated miners, containerminers, are used, the bot will spawn dedicated haulers to ship the energy back to the base. First it will have haulers assigned to specific containers, but from RCL 7 it will start using the same pool of haulers for all the sources, allowing it to spawn fewer units.
+
+This will work up until RCL7, where it can switch to a pool system to save CPU. I can handle that when I get there.

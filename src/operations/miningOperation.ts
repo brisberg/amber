@@ -1,5 +1,5 @@
 import {registerEnergyNode} from 'energy-network/energyNode';
-import {flagIsColor, HARVEST_SOURCE_FLAG} from 'flagConstants';
+import {ENERGY_NODE_FLAG, flagIsColor, HARVEST_SOURCE_FLAG} from 'flagConstants';
 
 import {HarvestingMission} from '../missions/harvesting';
 
@@ -98,6 +98,7 @@ export class MiningOperation {
       if (!this.mem.eNodeFlag) {
         const flag = registerEnergyNode(
             this.room, [this.container.pos.x, this.container.pos.y], {
+              color: ENERGY_NODE_FLAG,
               persistant: true,
               structureID: this.container.id,
               threshold: 0,  // Keep us empty

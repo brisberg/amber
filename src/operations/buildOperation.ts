@@ -1,5 +1,5 @@
 import {EnergyNode, registerEnergyNode, unregisterEnergyNode} from '../energy-network/energyNode';
-import {ENERGY_NODE_FLAG, SOURCE_BUILD_TARGET_FLAG, TRANSPORT_MISSION_FLAG} from '../flagConstants';
+import {ENERGY_NODE_FLAG, SOURCE_BUILD_TARGET_FLAG, TEMP_ENERGY_NODE_FLAG, TRANSPORT_MISSION_FLAG} from '../flagConstants';
 import {BuildMission} from '../missions/build';
 import {TransportMission} from '../missions/transport';
 
@@ -172,6 +172,7 @@ export class BuildOperation {
             this.room!,
             [dropPoint.x, dropPoint.y],
             {
+              color: TEMP_ENERGY_NODE_FLAG,
               persistant: false,
               threshold: 300,
               type: 'creep',

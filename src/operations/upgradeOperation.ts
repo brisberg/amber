@@ -1,5 +1,5 @@
 import {EnergyNode, registerEnergyNode, unregisterEnergyNode} from 'energy-network/energyNode';
-import {UPGRADE_MISSION_FLAG} from 'flagConstants';
+import {ENERGY_NODE_FLAG, UPGRADE_MISSION_FLAG} from 'flagConstants';
 
 import {UpgradeMission} from '../missions/upgrade';
 
@@ -167,6 +167,7 @@ export class UpgradeOperation {
         const flag = registerEnergyNode(
             this.controller.room, [this.container.pos.x, this.container.pos.y],
             {
+              color: ENERGY_NODE_FLAG,
               persistant: true,
               structureID: this.container.id,
               threshold: 1500,  // Keep us supplied

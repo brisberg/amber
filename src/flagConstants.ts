@@ -19,6 +19,11 @@ export const ENERGY_NODE_FLAG: FlagColor = {
   color: COLOR_YELLOW,
   secondaryColor: COLOR_YELLOW,
 };
+/** Reserving the Yellow/Purple flag color for energy nodes */
+export const CORE_ENERGY_NODE_FLAG: FlagColor = {
+  color: COLOR_YELLOW,
+  secondaryColor: COLOR_PURPLE,
+};
 /** Reserving the Yellow/Grey flag color for temp energy nodes */
 export const TEMP_ENERGY_NODE_FLAG: FlagColor = {
   color: COLOR_YELLOW,
