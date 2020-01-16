@@ -34,8 +34,17 @@ export class Depositer extends Behavior<DepositerMemory> {
       // We have arrived
 
       // Transfer to target
-      const amount =
-          Math.min(creep.store.energy, target.store.getFreeCapacity());
+      let amount = creep.store.energy;
+
+      // Have to special case spawns and extensions for some reason
+      // spawn.store.getFreeCapacity() always returns 0
+      if (target instanceof StructureSpawn ||
+          target instanceof StructureExtension) {
+        amount = Math.min(amount, target.energyCapacity - target.energy);
+      } else {
+        amount = Math.min(amount, target.store.getFreeCapacity());
+      }
+
       if (amount > 0) {
         creep.transfer(target, RESOURCE_ENERGY, amount);
         return false;

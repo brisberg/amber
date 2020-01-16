@@ -13,9 +13,9 @@ export const creepBodies: {[bodyType: string]: BodyPartConstant[]} = {};
 export const WORKER_1 = 'worker1';
 creepBodies[WORKER_1] = createWorkerBody(2, 1, 1);
 
-/** Carry Focused Worker RCL1 */
+/** Carry Focused Worker RCL1 (Pioneer) */
 export const CARRY_WORKER_1 = 'cworker1';
-creepBodies[CARRY_WORKER_1] = createWorkerBody(1, 2, 1);
+creepBodies[CARRY_WORKER_1] = createWorkerBody(1, 2, 2);
 
 /** Hauler RCL1 */
 export const HAULER_1 = 'hauler1';

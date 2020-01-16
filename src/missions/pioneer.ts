@@ -85,8 +85,15 @@ export class PioneerMission extends Mission<PioneerMissionMemory> {
   /** Executes one update tick for this mission */
   public run() {
     if (this.controller) {
-      // Phase out at RCL3
-      if (this.controller.level >= 3) {
+      // Phase out at RCL2. Pioneers will survive long enough for
+      // mining/transport to be up.
+      // if (this.controller.level >= 2) {
+      //   this.mem.exhaust = true;
+      // }
+
+      // Phase out once we have built 6. These should live long enough to get
+      // initial spawning of harvesters and transporters up and running.
+      if (this.creeps.length === this.maxPioneers) {
         this.mem.exhaust = true;
       }
 
@@ -117,7 +124,7 @@ export class PioneerMission extends Mission<PioneerMissionMemory> {
   }
 
   private get maxPioneers() {
-    return this.sources.length * 4;
+    return this.sources.length * 3;
   }
 
   /**

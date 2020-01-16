@@ -58,7 +58,7 @@ export class Pioneer extends Behavior<PioneerMemory> {
       const spawns = creep.room.find(FIND_MY_SPAWNS);
       if (spawns.length > 0) {
         const spawn = spawns[0];
-        if (spawn.store.getFreeCapacity() > 0) {
+        if (spawn.energy < spawn.energyCapacity) {
           mem.subBehavior = DEPOSITER;
           mem.mem = Depositer.initMemory(spawn);
           return false;
@@ -70,7 +70,7 @@ export class Pioneer extends Behavior<PioneerMemory> {
         filter: {structureType: STRUCTURE_EXTENSION},
       }) as StructureExtension[];
       for (const extend of extensions) {
-        if (extend.store.getFreeCapacity() > 0) {
+        if (extend.energy < extend.energyCapacity) {
           mem.subBehavior = DEPOSITER;
           mem.mem = Depositer.initMemory(extend);
           return false;

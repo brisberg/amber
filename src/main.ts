@@ -89,14 +89,14 @@ export const loop = () => {
     const existingFlag =
         spawn.pos.lookFor(LOOK_FLAGS)
             .filter((flag) => flagIsColor(flag, PIONEER_MISSION_FLAG));
-    if (!existingFlag) {
+    if (existingFlag.length === 0) {
       // Launch the Pioneer Mission
+      const flagName = spawn.name + '_pioneer';
       spawn.pos.createFlag(
-          spawn.name + '_pioneer', PIONEER_MISSION_FLAG.color,
+          flagName, PIONEER_MISSION_FLAG.color,
           PIONEER_MISSION_FLAG.secondaryColor);
-      const flag = spawn.pos.lookFor(LOOK_FLAGS)
-                       .filter((f) => flagIsColor(f, PIONEER_MISSION_FLAG));
-      const msn = new PioneerMission(flag[0]);
+      const flag = Game.flags[flagName];
+      const msn = new PioneerMission(flag);
       msn.setController(controller);
       msn.setSources(sources);
     }
