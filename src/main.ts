@@ -1,13 +1,11 @@
-import 'behaviors'; // Required to initialize BehaviorMap
+import 'behaviors';  // Required to initialize BehaviorMap
+import 'missions';   // Required to initialize MissionsMap
+import 'operations'; // Required to initialize OperationsMap
 
 import {IDLER} from 'behaviors/idler';
 import {RoomEnergyNetwork} from 'energy-network/roomEnergyNetwork';
-import {BUILD_TARGET_FLAG, CORE_ENERGY_NODE_FLAG, ENERGY_NODE_FLAG, flagIsColor, UPGRADE_OPERATION_FLAG} from 'flagConstants';
-import {BuildMission} from 'missions/build';
-import {HarvestingMission} from 'missions/harvesting';
+import {BUILD_OPERATION_FLAG, CORE_ENERGY_NODE_FLAG, ENERGY_NODE_FLAG, flagIsColor, UPGRADE_OPERATION_FLAG} from 'flagConstants';
 import {Mission} from 'missions/mission';
-import {TransportMission} from 'missions/transport';
-import {UpgradeMission} from 'missions/upgrade';
 import {BuildOperation} from 'operations/buildOperation';
 import {MiningOperation} from 'operations/miningOperation';
 import {UpgradeOperation} from 'operations/upgradeOperation';
@@ -34,40 +32,31 @@ export const loop = () => {
 
   const queue = global.spawnQueue = new SpawnQueue(Game.spawns.Spawn1);
 
-  const sources = Game.spawns.Spawn1.room.find(FIND_SOURCES);
-  for (const source of sources) {
-    const mOp = new MiningOperation('mining-' + source.id, source);
-    mOp.run();
-  }
-
   installConsoleCommands();
   garbageCollection();
 
-  // Hack for now
+  // Execute all Missions and Operations based on flags
   for (const name in Game.flags) {
     const flag = Game.flags[name];
+
+    const msn = global.missions(flag);
+    if (msn) {
+      executeMission(msn);
+      continue;
+    }
+
+    const op = global.operations(flag);
+    if (op) {
+      executeOperation(op);
+      continue;
+    }
+
     if (flagIsColor(flag, CORE_ENERGY_NODE_FLAG)) {
       const eNetwork = new RoomEnergyNetwork(flag);
       if (eNetwork.init()) {
         eNetwork.run();
       } else {
         eNetwork.retire();
-      }
-    }
-    if (flagIsColor(flag, BUILD_TARGET_FLAG)) {
-      const op = new BuildOperation(flag);
-      if (op.init()) {
-        op.run();
-      } else {
-        op.retire();
-      }
-    }
-    if (flagIsColor(flag, UPGRADE_OPERATION_FLAG)) {
-      const op = new UpgradeOperation(flag);
-      if (op.init()) {
-        op.run();
-      } else {
-        op.retire();
       }
     }
   }
@@ -81,41 +70,31 @@ export const loop = () => {
     }
   }
 
-  for (const name in Memory.missions) {
-    // TODO: Need to fix this to better handle dispatching missions
-    if (name.includes('supply')) {
-      const flag = Game.flags.build_op_supply;
-      const mission = new TransportMission(flag);
-      executeMission(mission);
-    } else if (name.includes('transport')) {
-      const flag = Game.flags[name];
-      const mission = new TransportMission(flag);
-      executeMission(mission);
-    } else if (name === 'upgrade_op_upgrade') {
-      const flag = Game.flags.upgrade_op_upgrade;
-      const mission = new UpgradeMission(flag);
-      executeMission(mission);
-    } else if (name.includes('harvest')) {
-      const flag = Game.flags[name];
-      const mission = new HarvestingMission(flag);
-      executeMission(mission);
-    } else if (name.includes('build')) {
-      const flag = Game.flags[name];
-      const mission = new BuildMission(flag);
-      executeMission(mission);
+  function executeOperation(operation: BuildOperation|UpgradeOperation) {
+    if (operation.init()) {
+      operation.run();
+    } else {
+      operation.retire();
     }
   }
 
   // HACK for now
   const room = Game.spawns.Spawn1.room;
+  const sources = room.find(FIND_SOURCES);
+  for (const source of sources) {
+    const mOp = new MiningOperation('mining-' + source.id, source);
+    mOp.run();
+  }
+
+  // HACK for now
   const sites = room.find(
       FIND_CONSTRUCTION_SITES, {filter: {structureType: STRUCTURE_CONTAINER}});
   if (sites.length !== 0) {
     const site = sites[0];
     if (!Game.flags.build_op) {
       site.pos.createFlag(
-          'build_op', BUILD_TARGET_FLAG.color,
-          BUILD_TARGET_FLAG.secondaryColor);
+          'build_op', BUILD_OPERATION_FLAG.color,
+          BUILD_OPERATION_FLAG.secondaryColor);
     }
   }
 

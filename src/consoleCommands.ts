@@ -1,4 +1,5 @@
 import {registerEnergyNode, unregisterEnergyNode} from 'energy-network/energyNode';
+import {ENERGY_NODE_FLAG} from 'flagConstants';
 
 /**
  * Installs all Console Commands to the global scope. Can be accessed by:
@@ -18,9 +19,10 @@ const CONSOLE_COMMANDS = {
     }
 
     const flag = registerEnergyNode(room, [container.pos.x, container.pos.y], {
+      color: ENERGY_NODE_FLAG,
       persistant: true,
+      polarity: 0,
       structureID: container.id,
-      threshold,
       type: 'structure',
     });
 

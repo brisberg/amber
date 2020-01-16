@@ -1,5 +1,5 @@
 import {EnergyNode, registerEnergyNode, unregisterEnergyNode} from '../energy-network/energyNode';
-import {CORE_ENERGY_NODE_FLAG, ENERGY_NODE_FLAG, SOURCE_BUILD_TARGET_FLAG, TEMP_ENERGY_NODE_FLAG, TRANSPORT_MISSION_FLAG} from '../flagConstants';
+import {CORE_ENERGY_NODE_FLAG, SOURCE_BUILD_TARGET_FLAG, TEMP_ENERGY_NODE_FLAG, TRANSPORT_MISSION_FLAG} from '../flagConstants';
 import {BuildMission} from '../missions/build';
 import {TransportMission} from '../missions/transport';
 
@@ -26,7 +26,8 @@ export interface BuildOperationMemory {
 }
 
 export class BuildOperation {
-  private readonly name: string;
+  public readonly name: string;
+
   private readonly flag: Flag;
   private readonly room: Room|undefined;
   private readonly mem: BuildOperationMemory;

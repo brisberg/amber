@@ -36,6 +36,11 @@ export const HARVEST_SOURCE_FLAG: FlagColor = {
   secondaryColor: COLOR_BROWN,
 };
 
+/** Reserve Orange/Grey flag color for Build Operation Flag */
+export const BUILD_OPERATION_FLAG: FlagColor = {
+  color: COLOR_ORANGE,
+  secondaryColor: COLOR_GREY,
+};
 /** Reserve Orange/Orange flag color for Build Mission Targets */
 export const BUILD_TARGET_FLAG: FlagColor = {
   color: COLOR_ORANGE,

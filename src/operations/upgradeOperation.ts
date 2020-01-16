@@ -30,7 +30,8 @@ export interface UpgradeOperationMemory {
 }
 
 export class UpgradeOperation {
-  private readonly name: string;
+  public readonly name: string;
+
   private readonly flag: Flag;
   private readonly mem: UpgradeOperationMemory;
 
