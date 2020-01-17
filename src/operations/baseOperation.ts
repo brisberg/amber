@@ -2,7 +2,7 @@ import {ExtensionGroup} from 'layout/extensionGroup';
 import {DistributionMission} from 'missions/distribution';
 
 import {EnergyNode} from '../energy-network/energyNode';
-import {DISTRIBUTION_MISSION_FLAG, EXTENSION_GROUP_FLAG} from '../flagConstants';
+import {CORE_ENERGY_NODE_FLAG, DISTRIBUTION_MISSION_FLAG, EXTENSION_GROUP_FLAG} from '../flagConstants';
 
 /**
  * Base Operation
@@ -75,6 +75,16 @@ export class BaseOperation {
       } else {
         this.spawn = spawn;
       }
+    } else {
+      // Check at our flag location for the spawn
+      const spawns =
+          this.flag.pos.lookFor(LOOK_STRUCTURES)
+              .filter((struct) => struct.structureType === STRUCTURE_SPAWN);
+      if (spawns.length > 0) {
+        const spawn = spawns[0] as StructureSpawn;
+        this.mem.spawnID = spawn.id;
+        this.spawn = spawn;
+      }
     }
 
     // Validate ENode cache. Non blocking as we can look for a new one
@@ -86,6 +96,13 @@ export class BaseOperation {
         return false;
       } else {
         this.eNode = new EnergyNode(flag);
+      }
+    } else {
+      const coreNodes =
+          this.flag.room!.find(FIND_FLAGS, {filter: CORE_ENERGY_NODE_FLAG});
+      if (coreNodes.length > 0) {
+        this.eNode = new EnergyNode(coreNodes[0]);
+        this.mem.eNodeFlag = coreNodes[0].name;
       }
     }
 
@@ -106,13 +123,13 @@ export class BaseOperation {
     }
 
     // const maxExtensionGroups =
-    //     CONTROLLER_STRUCTURES.extension[this.spawn.room.controller!.level] /
-    //     5;
+    //     CONTROLLER_STRUCTURES.extension[this.spawn.room.controller!.level]
+    //     / 5;
     const maxExtensionGroups = 1;  // Debug value for now
     if (this.extensionGroups.length < maxExtensionGroups) {
       // Spawn another group
       const pos = this.spawn.room.getPositionAt(
-          this.spawn.pos.x + 3,
+          this.spawn.pos.x - 3,
           this.spawn.pos.y,
       );
       pos!.createFlag(

@@ -21,7 +21,7 @@ interface TransportMissionMemory extends MissionMemory {
  * This mission will coordinate requesting hauler creeps.
  */
 export class TransportMission extends Mission<TransportMissionMemory> {
-  protected readonly spawnPriority = 2;
+  protected readonly spawnPriority = 3;
   protected readonly bodyType = HAULER_1;
 
   public source: EnergyNode|null = null;

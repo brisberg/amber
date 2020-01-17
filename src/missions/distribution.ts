@@ -22,7 +22,7 @@ interface DistributionMemory extends MissionMemory {
  */
 export class DistributionMission extends Mission<DistributionMemory> {
   protected readonly bodyType: string = WORKER_1;
-  protected readonly spawnPriority = 2;
+  protected readonly spawnPriority = 1;
 
   private eNode: EnergyNode|null = null;
   private spawn: StructureSpawn|null = null;

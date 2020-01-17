@@ -16,7 +16,7 @@ interface UpgradeMissionMemory extends MissionMemory {
  * This mission will coordinate requesting upgrader creeps.
  */
 export class UpgradeMission extends Mission<UpgradeMissionMemory> {
-  protected readonly spawnPriority = 4;
+  protected readonly spawnPriority = 5;
   protected readonly bodyType = WORKER_1;
 
   private container: StructureContainer|null = null;

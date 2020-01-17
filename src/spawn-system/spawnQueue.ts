@@ -34,17 +34,18 @@ export class SpawnQueue {
   constructor(spawner: StructureSpawn) {
     this.spawner = spawner;
 
-    if (!Game.flags['enode_' + this.spawner.name]) {
-      // Register us as an Energy Sink
-      registerEnergyNode(
-          this.spawner.room, [this.spawner.pos.x, this.spawner.pos.y], {
-            color: CORE_ENERGY_NODE_FLAG,
-            persistant: true,
-            polarity: 0,  // Core Node
-            structureID: this.spawner.id,
-            type: 'structure',
-          });
-    }
+    // No longer needed, handled by Base Operation
+    // if (!Game.flags['enode_' + this.spawner.name]) {
+    //   // Register us as an Energy Sink
+    //   registerEnergyNode(
+    //       this.spawner.room, [this.spawner.pos.x, this.spawner.pos.y], {
+    //         color: CORE_ENERGY_NODE_FLAG,
+    //         persistant: true,
+    //         polarity: 0,  // Core Node
+    //         structureID: this.spawner.id,
+    //         type: 'structure',
+    //       });
+    // }
   }
 
   /**

@@ -3,6 +3,7 @@ import 'missions';   // Required to initialize MissionsMap
 import 'operations'; // Required to initialize OperationsMap
 
 import {IDLER} from 'behaviors/idler';
+import {registerEnergyNode} from 'energy-network/energyNode';
 import {RoomEnergyNetwork} from 'energy-network/roomEnergyNetwork';
 // tslint:disable-next-line: max-line-length
 import {BASE_OPERATION_FLAG, BUILD_OPERATION_FLAG, CORE_ENERGY_NODE_FLAG, ENERGY_NODE_FLAG, flagIsColor, PIONEER_MISSION_FLAG, UPGRADE_OPERATION_FLAG} from 'flagConstants';
@@ -132,9 +133,12 @@ export const loop = () => {
       if (existingFlag.length === 0) {
         // Initialize the network
         const flagName = 'network_core_node';
-        spawn.pos.createFlag(
-            flagName, CORE_ENERGY_NODE_FLAG.color,
-            CORE_ENERGY_NODE_FLAG.secondaryColor);
+        registerEnergyNode(spawn.room, [corePos.x, corePos.y], {
+          color: CORE_ENERGY_NODE_FLAG,
+          persistant: true,
+          polarity: 0,
+          type: 'structure',
+        });
       }
     }
   }

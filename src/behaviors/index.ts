@@ -1,6 +1,7 @@
 import {Behavior} from './behavior';
 import {Builder, BUILDER} from './builder';
 import {CONTAINER_HARVESTER, ContainerHarvester} from './containerHarvester';
+import {CONTAINER_UPGRADER, ContainerUpgrader} from './containerUpgrader';
 import {Depositer, DEPOSITER} from './depositer';
 import {Distributor, DISTRIBUTOR} from './distributor';
 import {EMERGENCY_MINER, EmergencyMiner} from './emergencyMiner';
@@ -34,6 +35,7 @@ global.behaviors = {
   [ENET_FETCHER]: new ENetFetcher(),
   [ENET_DEPOSITER]: new ENetDepositer(),
   [UPGRADER]: new Upgrader(),
+  [CONTAINER_UPGRADER]: new ContainerUpgrader(),
   [DISTRIBUTOR]: new Distributor(),
   [IDLER]: new Idler(),
 };

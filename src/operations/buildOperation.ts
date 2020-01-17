@@ -1,5 +1,6 @@
 import {EnergyNode, registerEnergyNode, unregisterEnergyNode} from '../energy-network/energyNode';
-import {CORE_ENERGY_NODE_FLAG, SOURCE_BUILD_TARGET_FLAG, TEMP_ENERGY_NODE_FLAG, TRANSPORT_MISSION_FLAG} from '../flagConstants';
+// tslint:disable-next-line: max-line-length
+import {CORE_ENERGY_NODE_FLAG, ENERGY_NODE_FLAG, SOURCE_BUILD_TARGET_FLAG, TEMP_ENERGY_NODE_FLAG, TRANSPORT_MISSION_FLAG} from '../flagConstants';
 import {BuildMission} from '../missions/build';
 import {TransportMission} from '../missions/transport';
 
@@ -107,19 +108,31 @@ export class BuildOperation {
       // First look for an adjacent source to harvest from directly
       const source = this.flag.pos.findClosestByPath(FIND_SOURCES);
       if (!source || !this.flag.pos.isNearTo(source)) {
-        // No Source, look for an Energy nodes instead
-        const eNodeFlag = this.flag.pos.findClosestByPath(
+        // No Source, look for Core Energy Node first
+        const coreNode = this.flag.pos.findClosestByPath(
             FIND_FLAGS, {filter: CORE_ENERGY_NODE_FLAG});
 
-        if (!eNodeFlag) {
-          console.log(
-              'Build Operation could not find an Energy Node or Source to draw from');
-          return false;
+        if (!coreNode) {
+          // No Core Not Yet, Look for a fringe Energy Node
+          const eNode = this.flag.pos.findClosestByPath(
+              FIND_FLAGS, {filter: ENERGY_NODE_FLAG});
+
+          if (!eNode) {
+            console.log(
+                'Build Operation could not find an Energy Node or Source to draw from');
+            return false;
+          } else {
+            // Drawing from Fringe Node
+            this.node = new EnergyNode(eNode);
+            this.mem.eNodeFlag = eNode.name;
+          }
         } else {
-          this.node = new EnergyNode(eNodeFlag);
-          this.mem.eNodeFlag = eNodeFlag.name;
+          // Drawing from Core Node
+          this.node = new EnergyNode(coreNode);
+          this.mem.eNodeFlag = coreNode.name;
         }
       } else {
+        // Drawing from Source
         this.source = source;
         this.mem.sourceID = source.id;
       }
@@ -164,6 +177,20 @@ export class BuildOperation {
         this.buildMsn.setMaxBuilders(2);
       }
     } else if (this.node) {
+      // Special case for construction sites directly next to spawn
+      if (this.node.flag.pos.inRangeTo(
+              this.target.pos.x, this.target.pos.y, 2)) {
+        if (!this.mem.buildMsn) {
+          // Set up the build mission to construct the structure
+          this.buildMsn = this.setUpBuildMission(this.name + '_build');
+          this.buildMsn.setTargetSite(this.target);
+          this.buildMsn.setEnergyNode(this.node);
+          this.buildMsn.setMaxBuilders(3);
+          this.mem.buildMsn = this.buildMsn.name;
+        }
+      }
+
+      // Energy node is far, use a Handoff point
       if (!this.mem.handoffFlag) {
         // We don't have a midway handoff, lets create one
         const path = this.node.flag.pos.findPathTo(this.target);

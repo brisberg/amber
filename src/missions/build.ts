@@ -19,7 +19,7 @@ interface BuildMissionMemory extends MissionMemory {
  * several sources for the energy.
  */
 export class BuildMission extends Mission<BuildMissionMemory> {
-  protected readonly spawnPriority = 3;
+  protected readonly spawnPriority = 4;
   protected readonly bodyType = WORKER_1;
 
   public target: ConstructionSite|null = null;
