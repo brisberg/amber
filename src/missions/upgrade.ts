@@ -87,7 +87,7 @@ export class UpgradeMission extends Mission<UpgradeMissionMemory> {
   }
 
   private get maxUpgraders() {
-    return 5;
+    return 10;
   }
 
   /**
