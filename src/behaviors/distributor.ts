@@ -76,7 +76,7 @@ export class Distributor extends Behavior<DistributorMemory> {
     return {
       eNodeFlag: node.flag.name,
       extensionGroup: extendGroup ? extendGroup.flag.name : null,
-      phase: 'fetch',
+      phase: 'deliver',
       spawnID: spawn ? spawn.id : null,
     };
   }
