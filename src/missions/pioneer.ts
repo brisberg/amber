@@ -23,6 +23,18 @@ interface PioneerMissionMemory extends MissionMemory {
  * Finally they will Upgrade the Controller.
  *
  * The mission should be phased out once Harvesting is operational at RCL3.
+ *
+ * Idea: Once we have Critical vs Performance spawning, we should be able to
+ * report we should be able to report if the Colony is "Operation" or not
+ * (meaning that basic harvesting / transport / distribution is possible).
+ *
+ * Once the colony is operational, we can have the Pioneer Mission exhaust by
+ * recycling all of its creeps. This will require changes to the distributor to
+ * pick up energy left around the spawn.
+ *
+ * Another posibility is to move the Core Container to be next to the spawn as a
+ * Drop Pan. When the storge is constructed later we can remove and relocate the
+ * Energy Network to the Storage.
  */
 export class PioneerMission extends Mission<PioneerMissionMemory> {
   protected readonly spawnPriority = 0;

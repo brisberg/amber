@@ -77,20 +77,11 @@ export class Pioneer extends Behavior<PioneerMemory> {
         }
       }
 
-      // Build Construction Sites
-      const sites = creep.room.find(FIND_MY_CONSTRUCTION_SITES);
-      // Extensions first
-      const extendSites =
-          sites.filter((site) => site.structureType === STRUCTURE_EXTENSION);
-      if (extendSites.length > 0) {
+      // Build closest Construction Site to us.
+      const site = creep.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES);
+      if (site !== null) {
         mem.subBehavior = BUILDER;
-        mem.mem = Builder.initMemory(extendSites[0]);
-        return false;
-      }
-      // Then the rest
-      if (sites.length > 0) {
-        mem.subBehavior = BUILDER;
-        mem.mem = Builder.initMemory(sites[0]);
+        mem.mem = Builder.initMemory(site);
         return false;
       }
 
