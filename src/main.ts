@@ -28,6 +28,7 @@ export const loop = () => {
   Memory.missions = Memory.missions || {};
   Memory.operations = Memory.operations || {};
   Memory.rooms = Memory.rooms || {};
+  Memory.flags = Memory.flags || {};
 
   const roomName = Game.spawns.Spawn1.room.name;
   if (!Memory.rooms[roomName]) {
