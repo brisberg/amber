@@ -12,11 +12,24 @@ This would be nice because it would automatically cluster them into 'refillable'
 
 -- I often see people laying out their extensions in a checker grid. This makes sense as it ensure that each extension is accessible, but I believe they are laid out by hand. I can't imagine an algorithm which would nicely do this.
 
+-- Update: An improvement on the Extension Block idea above is to layout each group as 6 instead of 5. In either of these configurations: `o`: Extension, `x`: Road
+
+```
+A: o o x      B: x o o
+   o x o         o x o
+   x o o         o o x
+```
+
+These fit 6 Extensions in a 3x3 instead of only 5, and if they are tiled alternating, all roads will be accessible.
+
+They can be filled in a CPU efficient manner as the center Road cell is in range of all 6 Extensions. Meaning we can fill it in 2 Moves and 6 Transfers (which each have flat CPU cost).
+
+With the Space Saving, cumulatively this layout can fit 60 extensions into 90 Cells (33% less than the 120 required for a checker board).
 
 ## Mission Structure
 
 -- DistributionMission
-I am imagining a Distributor Mission, which is attached to a Energy Node.
+I am imagining a Distributor Mission, which is attached to an Energy Node.
 
 This mission will request Hauler Creeps, who will transport Energy from the energy node, to an Extension Group.
 
