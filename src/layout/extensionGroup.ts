@@ -108,7 +108,7 @@ export class ExtensionGroup {
   }
 
   /**
-   * If any Extensions are missing, place a Construction Site and the missing
+   * If any Extensions are missing, place a Construction Site at the missing
    * coordinates.
    */
   public replaceMissingExtension() {

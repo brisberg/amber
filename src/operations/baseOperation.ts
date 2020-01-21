@@ -1,4 +1,5 @@
 import {ExtensionGroup} from 'layout/extensionGroup';
+import {TownSquare} from 'layout/townSquare';
 import {DistributionMission} from 'missions/distribution';
 
 import {EnergyNode} from '../energy-network/energyNode';
@@ -21,6 +22,7 @@ import {CORE_ENERGY_NODE_FLAG, DISTRIBUTION_MISSION_FLAG, EXTENSION_GROUP_A_FLAG
 export interface BaseOperationMemory {
   distMsn: string|null;  // Distribution Mission
   spawnID: Id<StructureSpawn>|null;
+  townSquareFlag: string|null;
   extensionFlags: string[];
   eNodeFlag: string|null;  // Cached Energy Node as Operation source
 }
@@ -33,6 +35,7 @@ export class BaseOperation {
 
   private spawn: StructureSpawn|null = null;
   private distMsn: DistributionMission|null = null;
+  private townSquare: TownSquare|null = null;
   private extensionGroups: ExtensionGroup[] = [];
   private eNode: EnergyNode|null = null;
 
@@ -47,6 +50,7 @@ export class BaseOperation {
         eNodeFlag: null,
         extensionFlags: [],
         spawnID: null,
+        townSquareFlag: null,
       };
       Memory.operations[this.name] = mem;
     }
@@ -89,7 +93,7 @@ export class BaseOperation {
     if (this.mem.eNodeFlag) {
       const flag = Game.flags[this.mem.eNodeFlag];
       if (!flag) {
-        console.log('Build Operation: ENode no longer exists. Retiring');
+        console.log('Base Operation: ENode no longer exists. Retiring');
         this.mem.eNodeFlag = null;
         return false;
       } else {

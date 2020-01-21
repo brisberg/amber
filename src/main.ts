@@ -6,8 +6,10 @@ import {IDLER} from 'behaviors/idler';
 import {registerEnergyNode} from 'energy-network/energyNode';
 import {RoomEnergyNetwork} from 'energy-network/roomEnergyNetwork';
 // tslint:disable-next-line: max-line-length
-import {BASE_OPERATION_FLAG, BUILD_OPERATION_FLAG, CORE_ENERGY_NODE_FLAG, EXTENSION_GROUP_A_FLAG, flagIsColor, MINING_OPERATION_FLAG, PIONEER_MISSION_FLAG, UPGRADE_OPERATION_FLAG} from 'flagConstants';
+import {BASE_OPERATION_FLAG, BUILD_OPERATION_FLAG, CORE_ENERGY_NODE_FLAG, ENERGY_NODE_FLAG, EXTENSION_GROUP_A_FLAG, flagIsColor, MINING_OPERATION_FLAG, PIONEER_MISSION_FLAG, TOWN_SQUARE_FLAG, UPGRADE_OPERATION_FLAG} from 'flagConstants';
+import {BaseLayoutController} from 'layout/baseLayout';
 import {ExtensionGroup} from 'layout/extensionGroup';
+import {TownSquare} from 'layout/townSquare';
 import {Mission} from 'missions/mission';
 import {PioneerMission} from 'missions/pioneer';
 import {AllOperations} from 'operations';
@@ -79,10 +81,26 @@ export const loop = () => {
     }
 
     // Execute Extension Groups
+    if (flagIsColor(flag, TOWN_SQUARE_FLAG)) {
+      const square = new TownSquare(flag);
+      if (square.init()) {
+        if (Game.time % 100 === 0) {
+          square.replaceMissingStructures();
+        }
+        const layout = new BaseLayoutController(flag);
+        layout.layoutFlags();
+      } else {
+        square.retire();
+      }
+    }
+
+    // Execute Extension Groups
     if (flagIsColor(flag, EXTENSION_GROUP_A_FLAG)) {
       const extend = new ExtensionGroup(flag);
       if (extend.init()) {
-        extend.replaceMissingExtension();
+        if (Game.time % 100 === 0) {
+          extend.replaceMissingExtension();
+        }
       } else {
         extend.retire();
       }
@@ -159,7 +177,7 @@ export const loop = () => {
   }
 
   // Hack for now
-  const corePos = spawn.room.getPositionAt(spawn.pos.x, spawn.pos.y - 2);
+  const corePos = spawn.room.getPositionAt(spawn.pos.x + 2, spawn.pos.y);
   if (corePos) {
     // Look for Container/Storage
     const structs = corePos.lookFor(LOOK_STRUCTURES);
@@ -221,8 +239,9 @@ export const loop = () => {
     }
 
     // Initialize the Base Operation once the Energy Network is online
+    const tsPos = spawn.room.getPositionAt(spawn.pos.x, spawn.pos.y - 2);
     if (!Game.flags.base_op) {
-      spawn.pos.createFlag(
+      tsPos!.createFlag(
           'base_op', BASE_OPERATION_FLAG.color,
           BASE_OPERATION_FLAG.secondaryColor);
     }
