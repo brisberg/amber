@@ -90,8 +90,35 @@ export const DISTRIBUTION_MISSION_FLAG: FlagColor = {
   color: COLOR_PURPLE,
   secondaryColor: COLOR_BLUE,
 };
-/** Reserve Purple/Yellow flag color for Extension Groups */
-export const EXTENSION_GROUP_FLAG: FlagColor = {
-  color: COLOR_PURPLE,
+
+/**
+ * -----------------
+ * Layout Flags
+ * -----------------
+ */
+
+/** Reserve White/White flag color for Town Square */
+export const TOWN_SQUARE_FLAG: FlagColor = {
+  color: COLOR_WHITE,
+  secondaryColor: COLOR_WHITE,
+};
+/** Reserve White/Yellow flag color for Extension Group A */
+export const EXTENSION_GROUP_A_FLAG: FlagColor = {
+  color: COLOR_WHITE,
   secondaryColor: COLOR_YELLOW,
+};
+/** Reserve White/Orange flag color for Extension Group B */
+export const EXTENSION_GROUP_B_FLAG: FlagColor = {
+  color: COLOR_WHITE,
+  secondaryColor: COLOR_ORANGE,
+};
+/** Reserve White/Purple flag color for Lab Complex A */
+export const LAB_COMPLEX_A_FLAG: FlagColor = {
+  color: COLOR_WHITE,
+  secondaryColor: COLOR_PURPLE,
+};
+/** Reserve White/Blue flag color for Lab Complex A */
+export const LAB_COMPLEX_B_FLAG: FlagColor = {
+  color: COLOR_WHITE,
+  secondaryColor: COLOR_BLUE,
 };
