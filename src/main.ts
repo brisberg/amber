@@ -98,7 +98,7 @@ export const loop = () => {
     if (flagIsColor(flag, EXTENSION_GROUP_A_FLAG)) {
       const extend = new ExtensionGroup(flag);
       if (extend.init()) {
-        if (Game.time % 100 === 0) {
+        if (Game.time % 10 === 0) {
           extend.replaceMissingExtension();
         }
       } else {
@@ -244,6 +244,14 @@ export const loop = () => {
       tsPos!.createFlag(
           'base_op', BASE_OPERATION_FLAG.color,
           BASE_OPERATION_FLAG.secondaryColor);
+    }
+
+    // Initialize Base Layout once Energy Network is online, at the base
+    // location.
+    if (!Game.flags.town_square) {
+      tsPos!.createFlag(
+          'town_square', TOWN_SQUARE_FLAG.color,
+          TOWN_SQUARE_FLAG.secondaryColor);
     }
   }
 

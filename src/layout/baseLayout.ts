@@ -26,12 +26,12 @@ export class BaseLayoutController {
 
     const maxExtensions =
         CONTROLLER_STRUCTURES.extension[this.room.controller!.level];
-    const maxGroups = maxExtensions / 6;
+    const maxGroups = Math.ceil(maxExtensions / 6);
 
     if ((aFlags.length + bFlags.length) < maxGroups) {
       const debugMax = Math.min(maxGroups, 4);  // Limit to 4 for now
       for (let i = 0; i < debugMax; i++) {
-        // Create a Extension Group flag for each hardcoded flag.
+        // Create an Extension Group flag for each hardcoded flag.
         const pos = BaseLayoutController.extendOffsets[i];
         this.room.createFlag(
             this.flag.pos.x + pos[0], this.flag.pos.y + pos[1],
