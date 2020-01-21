@@ -6,7 +6,8 @@ import {IDLER} from 'behaviors/idler';
 import {registerEnergyNode} from 'energy-network/energyNode';
 import {RoomEnergyNetwork} from 'energy-network/roomEnergyNetwork';
 // tslint:disable-next-line: max-line-length
-import {BASE_OPERATION_FLAG, BUILD_OPERATION_FLAG, CORE_ENERGY_NODE_FLAG, flagIsColor, MINING_OPERATION_FLAG, PIONEER_MISSION_FLAG, UPGRADE_OPERATION_FLAG} from 'flagConstants';
+import {BASE_OPERATION_FLAG, BUILD_OPERATION_FLAG, CORE_ENERGY_NODE_FLAG, EXTENSION_GROUP_A_FLAG, flagIsColor, MINING_OPERATION_FLAG, PIONEER_MISSION_FLAG, UPGRADE_OPERATION_FLAG} from 'flagConstants';
+import {ExtensionGroup} from 'layout/extensionGroup';
 import {Mission} from 'missions/mission';
 import {PioneerMission} from 'missions/pioneer';
 import {AllOperations} from 'operations';
@@ -39,41 +40,51 @@ export const loop = () => {
   installConsoleCommands();
   garbageCollection();
 
+  // Aggregate status of Room Health checks
   let roomHealthy = true;
 
   // Execute all Missions and Operations based on flags
   for (const name in Game.flags) {
     const flag = Game.flags[name];
 
+    // Execute Mission if this is a Mission Flag
     const msn = global.missions(flag);
     if (msn) {
       executeMission(msn);
       continue;
     }
 
+    // Execute Operation if this is a Operation Flag
     const op = global.operations(flag);
     if (op) {
       executeOperation(op);
       // Aggregate health check on the base
       if (op instanceof MiningOperation || op instanceof BaseOperation) {
-        console.log(op.name + ' is Healthy: ' + op.isHealthy());
         roomHealthy = op.isHealthy() && roomHealthy;
-        console.log('room Healthy: ' + roomHealthy);
       }
       continue;
     }
 
+    // Execute Energy Network if this is a Core Energy Node Flag
     if (flagIsColor(flag, CORE_ENERGY_NODE_FLAG)) {
       const eNetwork = new RoomEnergyNetwork(flag);
 
       if (eNetwork.init()) {
         eNetwork.run();
         // Aggregate health check on the base
-        console.log('eNetwork is Healthy: ' + eNetwork.isHealthy());
         roomHealthy = eNetwork.isHealthy() && roomHealthy;
-        console.log('room Healthy: ' + roomHealthy);
       } else {
         eNetwork.retire();
+      }
+    }
+
+    // Execute Extension Groups
+    if (flagIsColor(flag, EXTENSION_GROUP_A_FLAG)) {
+      const extend = new ExtensionGroup(flag);
+      if (extend.init()) {
+        extend.replaceMissingExtension();
+      } else {
+        extend.retire();
       }
     }
   }
@@ -84,6 +95,10 @@ export const loop = () => {
     roomHealthy = false;
   }
 
+  /**
+   * Initialize a mission and run it if successful, otherwise retire the
+   * mission as it has been corrupted
+   */
   function executeMission(mission: Mission<any>) {
     if (mission.init()) {
       mission.roleCall();
@@ -92,7 +107,10 @@ export const loop = () => {
       mission.retire();
     }
   }
-
+  /**
+   * Initialize a Operation and run it if successful, otherwise retire the
+   * operation as it has been corrupted
+   */
   function executeOperation(operation: AllOperations) {
     if (operation.init()) {
       operation.run();
@@ -107,7 +125,6 @@ export const loop = () => {
   const controller = room.controller;
   const sources = room.find(FIND_SOURCES);
   // Launch Pioneer Mission if room isn't healthy
-  console.log('Final: roomHealthy: ' + roomHealthy);
   if (!roomHealthy) {
     const existingFlag =
         spawn.pos.lookFor(LOOK_FLAGS)
@@ -124,12 +141,11 @@ export const loop = () => {
       msn.setSources(sources);
     }
   } else {
-    console.log('room healthy, looking for existing pioneer flag')
     const existingFlag =
         spawn.pos.lookFor(LOOK_FLAGS)
             .filter((flag) => flagIsColor(flag, PIONEER_MISSION_FLAG));
     if (existingFlag.length > 0) {
-      console.log('retiring existing pioneer mission');
+      console.log('Room Healthy: Retiring Pioneer Mission');
       const msn = new PioneerMission(existingFlag[0]);
       msn.retire();
     }
@@ -143,7 +159,7 @@ export const loop = () => {
   }
 
   // Hack for now
-  const corePos = spawn.room.getPositionAt(spawn.pos.x + 2, spawn.pos.y);
+  const corePos = spawn.room.getPositionAt(spawn.pos.x, spawn.pos.y - 2);
   if (corePos) {
     // Look for Container/Storage
     const structs = corePos.lookFor(LOOK_STRUCTURES);

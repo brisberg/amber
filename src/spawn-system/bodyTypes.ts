@@ -23,4 +23,4 @@ creepBodies[HAULER_1] = createWorkerBody(0, 4, 2);
 
 /** Off-road Hauler RCL1 */
 export const OR_HAULER_1 = 'orhauler1';
-creepBodies[OR_HAULER_1] = createWorkerBody(0, 3, 1);
+creepBodies[OR_HAULER_1] = createWorkerBody(0, 3, 3);

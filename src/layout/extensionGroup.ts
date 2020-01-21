@@ -15,8 +15,8 @@ enum ExtensionGroupConfig {
  * Distribution Mission for extension filling.
  */
 export class ExtensionGroup {
-  private static configA = [[0, 0], [0, 1], [1, 0], [1, 2], [2, 1], [2, 2]];
-  private static configB = [[0, 1], [0, 2], [1, 0], [1, 2], [2, 0], [2, 1]];
+  private static configA = [[-1, -1], [-1, 0], [0, -1], [0, 1], [1, 0], [1, 1]];
+  private static configB = [[-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0]];
   public readonly flag: Flag;
 
   private readonly config: number[][];
@@ -40,11 +40,13 @@ export class ExtensionGroup {
    */
   public init(): boolean {
     if (this.flag.room) {
+      // Need to be careful about Xs and Ys with this API
       const matrix = this.flag.room.lookAtArea(
-          this.flag.pos.x - 1, this.flag.pos.y - 1, this.flag.pos.x + 1,
-          this.flag.pos.y + 1);
-      for (const pos of ExtensionGroup.configA) {
-        const results = matrix[pos[0]][pos[1]];
+          this.flag.pos.y - 1, this.flag.pos.x - 1, this.flag.pos.y + 1,
+          this.flag.pos.x + 1);
+      for (const pos of this.config) {
+        const results =
+            matrix[this.flag.pos.y + pos[1]][this.flag.pos.x + pos[0]];
         for (const result of results) {
           if (result.structure &&
               result.structure.structureType === STRUCTURE_EXTENSION) {

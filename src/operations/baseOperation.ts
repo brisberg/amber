@@ -2,7 +2,7 @@ import {ExtensionGroup} from 'layout/extensionGroup';
 import {DistributionMission} from 'missions/distribution';
 
 import {EnergyNode} from '../energy-network/energyNode';
-import {CORE_ENERGY_NODE_FLAG, DISTRIBUTION_MISSION_FLAG, EXTENSION_GROUP_FLAG} from '../flagConstants';
+import {CORE_ENERGY_NODE_FLAG, DISTRIBUTION_MISSION_FLAG, EXTENSION_GROUP_A_FLAG} from '../flagConstants';
 
 /**
  * Base Operation
@@ -12,9 +12,8 @@ import {CORE_ENERGY_NODE_FLAG, DISTRIBUTION_MISSION_FLAG, EXTENSION_GROUP_FLAG} 
  * It must be given an Energy node (usually the CoreNode but not necessary),
  * from which it will draw energy to fill the spawn.
  *
- * Following the RCL of the
- * room, it will create a number of Extension Groups near the spawn. For now,
- * this will be laregly themselves.
+ * Following the RCL of the room, it will create a number of Extension Groups
+ * near the spawn. For now, this will be hardcoded.
  *
  * Note: Might want to rename this, as "Base" sounds like a Base Class.
  */
@@ -60,8 +59,7 @@ export class BaseOperation {
       if (!Game.flags[this.mem.distMsn]) {
         this.mem.distMsn = null;
       } else {
-        // this.distMsn = new
-        // DistributionMission(Game.flags[this.mem.distMsn]);
+        this.distMsn = new DistributionMission(Game.flags[this.mem.distMsn]);
       }
     }
 
@@ -134,7 +132,7 @@ export class BaseOperation {
       );
       pos!.createFlag(
           this.name + '_entend_' + this.extensionGroups.length,
-          EXTENSION_GROUP_FLAG.color, EXTENSION_GROUP_FLAG.secondaryColor);
+          EXTENSION_GROUP_A_FLAG.color, EXTENSION_GROUP_A_FLAG.secondaryColor);
       // const group = new ExtensionGroup()
     }
 
