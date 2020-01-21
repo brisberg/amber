@@ -130,10 +130,13 @@ export class BaseOperation {
           this.spawn.pos.x - 3,
           this.spawn.pos.y,
       );
+      const groupName = this.name + '_entend_' + this.extensionGroups.length;
       pos!.createFlag(
-          this.name + '_entend_' + this.extensionGroups.length,
-          EXTENSION_GROUP_A_FLAG.color, EXTENSION_GROUP_A_FLAG.secondaryColor);
-      // const group = new ExtensionGroup()
+          groupName, EXTENSION_GROUP_A_FLAG.color,
+          EXTENSION_GROUP_A_FLAG.secondaryColor);
+      const flag = Game.flags[groupName];
+      const group = new ExtensionGroup(flag)
+      group.setMaxExtensions(5);  // Hardcoded
     }
 
     if (!this.distMsn) {

@@ -5,6 +5,10 @@ enum ExtensionGroupConfig {
   BETA,
 }
 
+export interface ExtensionGroupMemory {
+  max: number;
+}
+
 /**
  * ExtensionGroup is an abstraction around a group of 6 Extension Structures.
  *
@@ -19,9 +23,12 @@ export class ExtensionGroup {
   private static configB = [[-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0]];
   public readonly flag: Flag;
 
+  private readonly mem: ExtensionGroupMemory;
   private readonly config: number[][];
   private readonly extensions: StructureExtension[] = [];
   private readonly sites: Array<ConstructionSite<STRUCTURE_EXTENSION>> = [];
+
+  private maxExtensions = 6;
 
   constructor(flag: Flag) {
     this.flag = flag;
@@ -32,6 +39,16 @@ export class ExtensionGroup {
       // TODO: Add an UNKNOWN failure case?
       this.config = ExtensionGroup.configB;
     }
+
+    // Init memory
+    if (!Memory.missions[this.flag.name]) {
+      const mem: ExtensionGroupMemory = {
+        max: this.maxExtensions,
+      };
+      Memory.missions[this.flag.name] = mem;
+    }
+    this.mem = Memory.missions[this.flag.name] as ExtensionGroupMemory;
+    this.maxExtensions = this.mem.max;
   }
 
   /**
@@ -69,6 +86,10 @@ export class ExtensionGroup {
     }
   }
 
+  public setMaxExtensions(max: number) {
+    this.maxExtensions = max;
+  }
+
   /** True if all Extensions in the group are at full capacity. */
   public isFull(): boolean {
     // TODO: cache this, but how to invalidate cache?
@@ -91,7 +112,7 @@ export class ExtensionGroup {
    * coordinates.
    */
   public replaceMissingExtension() {
-    if ((this.extensions.length + this.sites.length) === 6) {
+    if ((this.extensions.length + this.sites.length) >= this.maxExtensions) {
       return;
     }
 
