@@ -1,4 +1,4 @@
-import {registerEnergyNode} from 'energy-network/energyNode';
+import {registerEnergyNode, unregisterEnergyNode} from 'energy-network/energyNode';
 import {ENERGY_NODE_FLAG, flagIsColor, HARVEST_SOURCE_FLAG} from 'flagConstants';
 
 import {HarvestingMission} from '../missions/harvesting';
@@ -22,45 +22,106 @@ import {analyzeSourceForHarvesting, SourceAnalysis} from './sourceAnalysis';
 export interface MiningOperationMemory {
   analysis: SourceAnalysis|null;
   harvestMission: string|null;
-  sourceID: Id<Source>;
+  sourceID: Id<Source>|null;
   containerID: Id<StructureContainer|ConstructionSite<STRUCTURE_CONTAINER>>|
       null;
   eNodeFlag: string|null;
 }
 
 export class MiningOperation {
-  private readonly name: string;
+  public readonly name: string;
+
+  private readonly flag: Flag;
   private readonly room: Room;
-  private readonly source: Source;
   private readonly mem: MiningOperationMemory;
 
+  private source: Source|null = null;
+  private harvestMns: HarvestingMission|null = null;
   private container: StructureContainer|ConstructionSite<STRUCTURE_CONTAINER>|
       null = null;
 
-  constructor(name: string, source: Source) {
-    this.name = name;
-    this.room = source.room;
-    this.source = source;
+  constructor(flag: Flag) {
+    this.flag = flag;
+    this.name = flag.name;
+    this.room = flag.room!;
 
     // Init memory
-    if (!Memory.operations[name]) {
+    if (!Memory.operations[flag.name]) {
       const mem: MiningOperationMemory = {
         analysis: null,
         containerID: null,
         eNodeFlag: null,
         harvestMission: null,
-        sourceID: source.id,
+        sourceID: null,
       };
-      Memory.operations[name] = mem;
+      Memory.operations[flag.name] = mem;
     }
-    this.mem = Memory.operations[name] as MiningOperationMemory;
+    this.mem = Memory.operations[flag.name] as MiningOperationMemory;
 
     if (this.mem.containerID) {
       this.container = Game.getObjectById(this.mem.containerID);
     }
   }
 
+  public init() {
+    // Validate missions cache
+    if (this.mem.harvestMission) {
+      if (!Game.flags[this.mem.harvestMission]) {
+        this.mem.harvestMission = null;
+      } else {
+        this.harvestMns =
+            new HarvestingMission(Game.flags[this.mem.harvestMission]);
+      }
+    }
+
+    // Validate Source cache
+    if (this.mem.sourceID) {
+      const source = Game.getObjectById(this.mem.sourceID);
+      if (!source) {
+        console.log('Mining Operation: Source no longer exists. Retiring.');
+        this.mem.sourceID = null;
+        return false;
+      } else {
+        this.source = source;
+      }
+    } else {
+      // Check at our flag location for the source
+      const sources = this.flag.pos.lookFor(LOOK_SOURCES);
+      if (sources.length > 0) {
+        const source = sources[0];
+        this.mem.sourceID = source.id;
+        this.source = source;
+      }
+    }
+
+    // Validate Container cache, Non-blocking as we can request a new one
+    if (this.mem.containerID) {
+      const container = Game.getObjectById(this.mem.containerID);
+      if (!container) {
+        console.log('Mining Operation: Container no longer exists.');
+        this.mem.containerID = null;
+      } else {
+        this.container = container;
+      }
+    }
+
+    // Validate ENode cache. Non-blocking as we can register a new one
+    if (this.mem.eNodeFlag) {
+      const flag = Game.flags[this.mem.eNodeFlag];
+      if (!flag) {
+        console.log('Mining Operation: ENode no longer exists');
+        this.mem.eNodeFlag = null;
+      }
+    }
+
+    return true;
+  }
+
   public run() {
+    if (!this.source) {
+      return;
+    }
+
     // Run source analysis if we don't have one
     if (!this.mem.analysis) {
       this.mem.analysis = analyzeSourceForHarvesting(this.source);
@@ -110,7 +171,7 @@ export class MiningOperation {
       // Start the misions
       if (!this.mem.harvestMission) {
         if (this.source.pos.lookFor(LOOK_FLAGS)
-                .filter((flag) => !flagIsColor(flag, HARVEST_SOURCE_FLAG))
+                .filter((flag) => flagIsColor(flag, HARVEST_SOURCE_FLAG))
                 .length === 0) {
           this.room.createFlag(
               this.source.pos.x, this.source.pos.y, this.name + '_harvest',
@@ -131,5 +192,34 @@ export class MiningOperation {
                        ConstructionSite<STRUCTURE_CONTAINER>) {
     this.container = container;
     this.mem.containerID = container.id;
+  }
+
+  public isHealthy(): boolean {
+    if (this.container === null) {
+      return false;
+    }
+
+    if (!this.mem.harvestMission) {
+      return false;
+    }
+
+    if (!HarvestingMission.isHealthy(this.mem.harvestMission)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  public retire() {
+    console.log('Retiring MiningOp: ' + this.name);
+    if (this.harvestMns) {
+      this.harvestMns.retire();
+    }
+    if (this.mem.eNodeFlag) {
+      const flag = Game.flags[this.mem.eNodeFlag];
+      unregisterEnergyNode(flag);
+    }
+    this.flag.remove();
+    delete Memory.operations[this.name];
   }
 }

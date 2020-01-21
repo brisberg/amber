@@ -21,6 +21,9 @@ export abstract class NetworkEdge<T = any> {
   /** Removes all sub tasks of this edge. Edge can then be safely removed */
   public abstract retire(): void;
 
+  /** Returns true if this edge has valid connections and at least one Hauler */
+  public abstract isHealthy(): boolean;
+
   public get mem() {
     return this._mem;
   }

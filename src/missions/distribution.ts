@@ -139,4 +139,18 @@ export class DistributionMission extends Mission<DistributionMemory> {
   protected needMoreCreepsCritical(): boolean {
     return this.creeps.length < 1;
   }
+
+  public static isHealthy(name: string): boolean {
+    const mem = Memory.missions[name];
+
+    if (!mem) {
+      return false;
+    }
+
+    if (mem.creeps.length === 0) {
+      return false;
+    }
+
+    return true;
+  }
 }

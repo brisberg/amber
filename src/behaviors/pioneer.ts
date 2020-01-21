@@ -1,8 +1,7 @@
 import {Behavior, BehaviorMemory} from './behavior';
-import {BUILDER, Builder} from './builder';
-import {DEPOSITER, Depositer} from './depositer';
+import {DEPOSITER, Depositer, UnitWithStore} from './depositer';
+import {FETCHER, Fetcher} from './fetcher';
 import {HARVESTER, Harvester} from './harvester';
-import {Upgrader, UPGRADER} from './upgrader';
 
 interface PioneerMemory extends BehaviorMemory {
   controllerId: Id<StructureController>;
@@ -13,21 +12,18 @@ interface PioneerMemory extends BehaviorMemory {
 export const PIONEER = 'pioneer';
 
 /**
- * Versatile Creep behavior class for Pioneer creeps.
+ * Versatile Creep behavior class for Pioneer creeps. (Maybe rename to
+ * EmergencyMiner?)
  *
  * These creeps will perform a wide range of tasks to get a colony going:
  *
  * Harvest energy from source if they don't have any.
- * Deliver to Spawn or Extensions if it is not full.
- * Will construct any construction sites (extensions first)
- * Upgrade Controller if everything is full.
+ * Deliver to Spawn or Extensions if they are not full.
  *
- * This can get a colony off the ground, but pioneers are not particularly
- * efficient compared to specialized creeps. This missions should be abandoned.
- * at RCL3.
- *
- * Tied to the spawn system, creeps with no active missions will be assigned
- * this behavior.
+ * This creep can get a new colony started, or restart an existing colony that
+ * has suffered a catastrophic failure. However, these creeps are not as
+ * efficient as specialized creeps and the mission should be abandoned as soon
+ * as the colony is healthy.
  */
 export class Pioneer extends Behavior<PioneerMemory> {
   /* @override */
@@ -48,9 +44,21 @@ export class Pioneer extends Behavior<PioneerMemory> {
     }
 
     if (mem.state === 'fetching' && creep.store.getFreeCapacity() > 0) {
-      mem.subBehavior = HARVESTER;
-      mem.mem = Harvester.initMemory(source);
-      return false;
+      const stores = creep.room.find(FIND_STRUCTURES).filter((struct) => {
+        return struct.structureType === STRUCTURE_CONTAINER ||
+            struct.structureType === STRUCTURE_STORAGE;
+      }) as Array<StructureStorage|StructureContainer>;
+
+      const store = stores.find((s) => s.store.energy > 0);
+
+      if (store) {
+        mem.subBehavior = FETCHER;
+        mem.mem = Fetcher.initMemory(store as UnitWithStore);
+      } else {
+        mem.subBehavior = HARVESTER;
+        mem.mem = Harvester.initMemory(source);
+        return false;
+      }
     }
 
     if (mem.state === 'working') {
@@ -76,19 +84,6 @@ export class Pioneer extends Behavior<PioneerMemory> {
           return false;
         }
       }
-
-      // Build closest Construction Site to us.
-      const site = creep.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES);
-      if (site !== null) {
-        mem.subBehavior = BUILDER;
-        mem.mem = Builder.initMemory(site);
-        return false;
-      }
-
-      // Upgrade the Controller with what is left
-      mem.subBehavior = UPGRADER;
-      mem.mem = Upgrader.initMemory(controller);
-      return false;
     }
 
     return false;

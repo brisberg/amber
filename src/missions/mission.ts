@@ -103,7 +103,7 @@ export abstract class Mission<M extends MissionMemory> {
     return global.spawnQueue.requestCreep({
       bodyType,
       mission: this.name,
-      priority: critical ? 0 : this.spawnPriority,
+      priority: critical ? 1 : this.spawnPriority,
     });
   }
 

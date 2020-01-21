@@ -6,13 +6,12 @@ import {IDLER} from 'behaviors/idler';
 import {registerEnergyNode} from 'energy-network/energyNode';
 import {RoomEnergyNetwork} from 'energy-network/roomEnergyNetwork';
 // tslint:disable-next-line: max-line-length
-import {BASE_OPERATION_FLAG, BUILD_OPERATION_FLAG, CORE_ENERGY_NODE_FLAG, ENERGY_NODE_FLAG, flagIsColor, PIONEER_MISSION_FLAG, UPGRADE_OPERATION_FLAG} from 'flagConstants';
+import {BASE_OPERATION_FLAG, BUILD_OPERATION_FLAG, CORE_ENERGY_NODE_FLAG, flagIsColor, MINING_OPERATION_FLAG, PIONEER_MISSION_FLAG, UPGRADE_OPERATION_FLAG} from 'flagConstants';
 import {Mission} from 'missions/mission';
 import {PioneerMission} from 'missions/pioneer';
 import {AllOperations} from 'operations';
-import {BuildOperation} from 'operations/buildOperation';
+import {BaseOperation} from 'operations/BaseOperation';
 import {MiningOperation} from 'operations/miningOperation';
-import {UpgradeOperation} from 'operations/upgradeOperation';
 import {declareOrphan} from 'spawn-system/orphans';
 import {SpawnQueue} from 'spawn-system/spawnQueue';
 
@@ -40,6 +39,8 @@ export const loop = () => {
   installConsoleCommands();
   garbageCollection();
 
+  let roomHealthy = true;
+
   // Execute all Missions and Operations based on flags
   for (const name in Game.flags) {
     const flag = Game.flags[name];
@@ -53,17 +54,34 @@ export const loop = () => {
     const op = global.operations(flag);
     if (op) {
       executeOperation(op);
+      // Aggregate health check on the base
+      if (op instanceof MiningOperation || op instanceof BaseOperation) {
+        console.log(op.name + ' is Healthy: ' + op.isHealthy());
+        roomHealthy = op.isHealthy() && roomHealthy;
+        console.log('room Healthy: ' + roomHealthy);
+      }
       continue;
     }
 
     if (flagIsColor(flag, CORE_ENERGY_NODE_FLAG)) {
       const eNetwork = new RoomEnergyNetwork(flag);
+
       if (eNetwork.init()) {
         eNetwork.run();
+        // Aggregate health check on the base
+        console.log('eNetwork is Healthy: ' + eNetwork.isHealthy());
+        roomHealthy = eNetwork.isHealthy() && roomHealthy;
+        console.log('room Healthy: ' + roomHealthy);
       } else {
         eNetwork.retire();
       }
     }
+  }
+
+  // Hack, check for existance of network
+  if (Game.spawns.Spawn1.room.find(FIND_FLAGS, {filter: CORE_ENERGY_NODE_FLAG})
+          .length === 0) {
+    roomHealthy = false;
   }
 
   function executeMission(mission: Mission<any>) {
@@ -83,12 +101,14 @@ export const loop = () => {
     }
   }
 
-  // HACK for now
+  // HACK for now, Pioneer Mission if the colony is not healthy
   const spawn = Game.spawns.Spawn1;
   const room = spawn.room;
   const controller = room.controller;
   const sources = room.find(FIND_SOURCES);
-  if (controller && controller.level === 1) {
+  // Launch Pioneer Mission if room isn't healthy
+  console.log('Final: roomHealthy: ' + roomHealthy);
+  if (!roomHealthy) {
     const existingFlag =
         spawn.pos.lookFor(LOOK_FLAGS)
             .filter((flag) => flagIsColor(flag, PIONEER_MISSION_FLAG));
@@ -100,15 +120,26 @@ export const loop = () => {
           PIONEER_MISSION_FLAG.secondaryColor);
       const flag = Game.flags[flagName];
       const msn = new PioneerMission(flag);
-      msn.setController(controller);
+      msn.setController(controller!);
       msn.setSources(sources);
+    }
+  } else {
+    console.log('room healthy, looking for existing pioneer flag')
+    const existingFlag =
+        spawn.pos.lookFor(LOOK_FLAGS)
+            .filter((flag) => flagIsColor(flag, PIONEER_MISSION_FLAG));
+    if (existingFlag.length > 0) {
+      console.log('retiring existing pioneer mission');
+      const msn = new PioneerMission(existingFlag[0]);
+      msn.retire();
     }
   }
 
-  // HACK for now
+  // HACK for now, Spawn a Mining operation for each source
   for (const source of sources) {
-    const mOp = new MiningOperation('mining-' + source.id, source);
-    mOp.run();
+    source.pos.createFlag(
+        'mining-' + source.id, MINING_OPERATION_FLAG.color,
+        MINING_OPERATION_FLAG.secondaryColor);
   }
 
   // Hack for now

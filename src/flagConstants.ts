@@ -36,6 +36,11 @@ export const TEMP_ENERGY_NODE_FLAG: FlagColor = {
   secondaryColor: COLOR_GREY,
 };
 
+/** Reserve Brown/Yellow flag color for Mining Operation Flag */
+export const MINING_OPERATION_FLAG: FlagColor = {
+  color: COLOR_BROWN,
+  secondaryColor: COLOR_YELLOW,
+};
 /** Reserve Brown/Brown flag color for Harvest Mission Sources */
 export const HARVEST_SOURCE_FLAG: FlagColor = {
   color: COLOR_BROWN,

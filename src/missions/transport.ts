@@ -184,4 +184,18 @@ export class TransportMission extends Mission<TransportMissionMemory> {
   private tooManyHaulers(): boolean {
     return this.creeps.length > this.maxhaulers;
   }
+
+  public static isHealthy(name: string): boolean {
+    const mem = Memory.missions[name] as TransportMissionMemory;
+
+    if (!mem) {
+      return false;
+    }
+
+    if (mem.creeps.length === 0) {
+      return false;
+    }
+
+    return true;
+  }
 }

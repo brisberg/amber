@@ -72,4 +72,17 @@ export class WalkEdge extends NetworkEdge<WalkEdgeMemory> {
     }
     return;
   }
+
+  /** @override */
+  public isHealthy(): boolean {
+    if (!this.mem.state.transportMsn) {
+      return false;
+    }
+
+    if (!TransportMission.isHealthy(this.mem.state.transportMsn)) {
+      return false;
+    }
+
+    return true;
+  }
 }

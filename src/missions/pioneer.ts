@@ -136,7 +136,7 @@ export class PioneerMission extends Mission<PioneerMissionMemory> {
   }
 
   private get maxPioneers() {
-    return this.sources.length * 3;
+    return this.sources.length * 2;
   }
 
   /**

@@ -124,4 +124,20 @@ export class RoomEnergyNetwork {
       default: { throw Error('Unknown Network Edge Type'); }
     }
   }
+
+  public isHealthy(): boolean {
+    if (this.coreNode === null) {
+      return false;
+    }
+
+    if (this.edges.length === 0) {
+      return false;
+    }
+
+    if (this.edges.some((edge) => !edge.isHealthy())) {
+      return false;
+    }
+
+    return true;
+  }
 }

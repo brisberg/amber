@@ -179,4 +179,20 @@ export class BaseOperation {
     this.flag.remove();
     delete Memory.operations[this.name];
   }
+
+  public isHealthy(): boolean {
+    if (this.spawn === null) {
+      return false;
+    }
+
+    if (!this.mem.distMsn) {
+      return false;
+    }
+
+    if (!DistributionMission.isHealthy(this.mem.distMsn)) {
+      return false;
+    }
+
+    return true;
+  }
 }
