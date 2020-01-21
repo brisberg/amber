@@ -11,9 +11,23 @@ export function garbageCollection() {
   }
 
   // Automatically deallocation missing/disabled missions
-  for (const name in Memory.flags) {
-    if (!(name in Memory.missions)) {
+  for (const name in Memory.missions) {
+    if (!(name in Game.flags)) {
       delete Memory.missions[name];
+    }
+  }
+
+  // Automatically deallocation missing/disabled operations
+  for (const name in Memory.operations) {
+    if (!(name in Game.flags)) {
+      delete Memory.operations[name];
+    }
+  }
+
+  // Automatically deallocation missing/disabled energy nodes
+  for (const name in Memory.flags) {
+    if (!(name in Game.flags)) {
+      delete Memory.flags[name];
     }
   }
 }
