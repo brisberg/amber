@@ -100,16 +100,18 @@ export class DistributionMission extends Mission<DistributionMemory> {
       const container = structs.find((struct) => {
         return struct.structureType === STRUCTURE_CONTAINER;
       }) as StructureContainer;
-      if (container && (container.hits - container.hitsMax) > 100) {
+      if (container && (container.hitsMax - container.hits) > 100) {
         // TODO: This should probably be abstracted into a ENET_REPAIRER
-        if (distributor.store.getFreeCapacity() > 0) {
+        if (distributor.store.energy === 0) {
           // Fetch energy from the node
           distributor.memory.behavior = ENET_FETCHER;
           distributor.memory.mem = ENetFetcher.initMemory(this.eNode!);
+          distributor.memory.mission = this.name;
         } else {
           // Repair the container
           distributor.memory.behavior = REPAIRER;
           distributor.memory.mem = Repairer.initMemory(container);
+          distributor.memory.mission = this.name;
         }
         return;
       }
