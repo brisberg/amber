@@ -109,4 +109,10 @@ export class HarvestingMission extends Mission<HarvestingMemory> {
 
     return true;
   }
+
+  /** @override */
+  /** Returns true if we REALLY need another Harvester. */
+  protected needMoreCreepsCritical(): boolean {
+    return this.creeps.length < 1;
+  }
 }

@@ -122,7 +122,7 @@ export class DistributionMission extends Mission<DistributionMemory> {
 
   /**
    * @override
-   * Returns true if we need another Harvester.
+   * Returns true if we need another Distributor.
    */
   protected needMoreCreeps(): boolean {
     if (this.creeps.length >= this.maxDistributors) {
@@ -130,5 +130,11 @@ export class DistributionMission extends Mission<DistributionMemory> {
     }
 
     return true;
+  }
+
+  /** @override */
+  /** Returns true if we REALLY need another Distributor. */
+  protected needMoreCreepsCritical(): boolean {
+    return this.creeps.length < 1;
   }
 }

@@ -157,4 +157,10 @@ export class PioneerMission extends Mission<PioneerMissionMemory> {
 
     return true;
   }
+
+  /** @override */
+  /** This mission is never critical */
+  protected needMoreCreepsCritical(): boolean {
+    return false;
+  }
 }

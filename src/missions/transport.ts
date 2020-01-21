@@ -174,6 +174,12 @@ export class TransportMission extends Mission<TransportMissionMemory> {
     return false;
   }
 
+  /** @override */
+  /** Returns true if we REALLY need another Hauler. */
+  protected needMoreCreepsCritical(): boolean {
+    return this.creeps.length < 1;
+  }
+
   /** Returns true if we have more than enough Haulers working this line. */
   private tooManyHaulers(): boolean {
     return this.creeps.length > this.maxhaulers;

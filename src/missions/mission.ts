@@ -87,8 +87,11 @@ export abstract class Mission<M extends MissionMemory> {
       delete this.mem.nextCreep;
     }
 
-    // Check for creep allocation
-    if (this.needMoreCreeps()) {
+    // Check for critical creep allocation
+    if (this.needMoreCreepsCritical()) {
+      this.mem.nextCreep = this.requestCreep(this.bodyType, true);
+    } else if (this.needMoreCreeps()) {
+      // Check for creep allocation
       this.mem.nextCreep = this.requestCreep(this.bodyType);
     }
 
@@ -96,11 +99,11 @@ export abstract class Mission<M extends MissionMemory> {
   }
 
   /** Requests another Creep from the SpawnQueue */
-  protected requestCreep(bodyType: string): string {
+  protected requestCreep(bodyType: string, critical: boolean = false): string {
     return global.spawnQueue.requestCreep({
       bodyType,
       mission: this.name,
-      priority: this.spawnPriority,
+      priority: critical ? 0 : this.spawnPriority,
     });
   }
 
@@ -115,6 +118,11 @@ export abstract class Mission<M extends MissionMemory> {
    * called for new missions.
    */
   protected abstract initialMemory(): M;
+  /**
+   * Return true if this mission needs to request a new Creep with critical
+   * priority
+   */
+  protected abstract needMoreCreepsCritical(): boolean;
   /** Return true if this mission needs to request a new Creep */
   protected abstract needMoreCreeps(): boolean;
 

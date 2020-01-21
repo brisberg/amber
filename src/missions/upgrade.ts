@@ -104,4 +104,10 @@ export class UpgradeMission extends Mission<UpgradeMissionMemory> {
 
     return true;
   }
+
+  /** @override */
+  /** This mission is never critical. */
+  protected needMoreCreepsCritical(): boolean {
+    return false;
+  }
 }

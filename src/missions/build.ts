@@ -140,4 +140,10 @@ export class BuildMission extends Mission<BuildMissionMemory> {
 
     return true;
   }
+
+  /** @override */
+  /** Returns true if we REALLY need another Builder. */
+  protected needMoreCreepsCritical(): boolean {
+    return this.creeps.length < 1;
+  }
 }
