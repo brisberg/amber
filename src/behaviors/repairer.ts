@@ -31,7 +31,8 @@ export class Repairer extends Behavior<RepairerMemory> {
 
       // Repair structure if it is low
       const hitsMissing = structure.hitsMax - structure.hits;
-      if (hitsMissing > 0 && creep.store.energy > (repairPower * REPAIR_COST)) {
+      if (hitsMissing > 0 &&
+          creep.store.energy >= (repairPower * REPAIR_COST)) {
         creep.repair(structure);
         return false;
       }
