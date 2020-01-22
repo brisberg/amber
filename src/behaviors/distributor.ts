@@ -33,40 +33,54 @@ export class Distributor extends Behavior<DistributorMemory> {
     let extendGroup: ExtensionGroup|null = null;
     if (mem.extensionGroup) {
       extendGroup = new ExtensionGroup(Game.flags[mem.extensionGroup]);
+      extendGroup.init();
     }
 
     if (!node || (!spawn && !extendGroup)) {
       return false;
     }
 
-    if (mem.phase === 'deliver' && creep.store.energy === 0) {
-      mem.phase = 'fetch';
+    // Deliver State
+    if (mem.phase === 'deliver') {
+      if (creep.store.energy < 5) {
+        // Out of energy, go to fetch phase
+        mem.phase = 'fetch';
+        return false;
+      }
+
+      if (spawn && spawn.energy < spawn.energyCapacity) {
+        mem.subBehavior = DEPOSITER;
+        mem.mem = Depositer.initMemory(spawn);
+        return false;
+      }
+
+      if (extendGroup) {
+        if (creep.pos.getRangeTo(extendGroup.flag) > 1) {
+          creep.moveTo(extendGroup.flag);
+          return true;
+        }
+
+        // We are next to the extendGroup flag
+        // Interact with the Extend Group to fill it
+        const extend = extendGroup.getNextExtension();
+        if (extend) {
+          mem.subBehavior = DEPOSITER;
+          mem.mem = Depositer.initMemory(extend);
+          return false;
+        }
+      }
+    } else if (mem.phase === 'fetch') {  // Fetch state
+      if (creep.store.getFreeCapacity() === 0) {
+        // We are full, go to deliver
+        mem.phase = 'deliver';
+        return false;
+      }
+
       mem.subBehavior = ENET_FETCHER;
       mem.mem = ENetFetcher.initMemory(node);
       return false;
     }
 
-    if (mem.phase === 'fetch' && creep.store.getFreeCapacity() === 0) {
-      mem.phase = 'deliver';
-      delete mem.subBehavior;
-      delete mem.mem;
-    }
-
-    if (spawn && spawn.energy < spawn.energyCapacity) {
-      mem.subBehavior = DEPOSITER;
-      mem.mem = Depositer.initMemory(spawn);
-      return false;
-    }
-
-    if (extendGroup) {
-      if (creep.pos.getRangeTo(extendGroup.flag) > 1) {
-        creep.moveTo(extendGroup.flag, {range: 1});
-        return true;
-      }
-
-      // We are next to the extendGroup flag
-      // Interact with the Extend Group to fill it
-    }
     return false;
   }
 

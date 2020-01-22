@@ -1,9 +1,8 @@
 import {ExtensionGroup} from 'layout/extensionGroup';
-import {TownSquare} from 'layout/townSquare';
 import {DistributionMission} from 'missions/distribution';
 
 import {EnergyNode} from '../energy-network/energyNode';
-import {CORE_ENERGY_NODE_FLAG, DISTRIBUTION_MISSION_FLAG, EXTENSION_GROUP_A_FLAG} from '../flagConstants';
+import {CORE_ENERGY_NODE_FLAG, DISTRIBUTION_MISSION_FLAG, EXTENSION_GROUP_A_FLAG, EXTENSION_GROUP_B_FLAG} from '../flagConstants';
 
 /**
  * Base Operation
@@ -35,7 +34,6 @@ export class BaseOperation {
 
   private spawn: StructureSpawn|null = null;
   private distMsn: DistributionMission|null = null;
-  private townSquare: TownSquare|null = null;
   private extensionGroups: ExtensionGroup[] = [];
   private eNode: EnergyNode|null = null;
 
@@ -122,6 +120,17 @@ export class BaseOperation {
       return;
     }
 
+    // Aquire new ExtenionGroups as they appear
+    const groupAFlags =
+        this.flag.room!.find(FIND_FLAGS, {filter: EXTENSION_GROUP_A_FLAG});
+    const groupBFlags =
+        this.flag.room!.find(FIND_FLAGS, {filter: EXTENSION_GROUP_B_FLAG});
+    const groupNames = groupAFlags.concat(groupBFlags).map((flag) => flag.name);
+    this.mem.extensionFlags = groupNames;
+    this.extensionGroups = groupNames.map((flag) => {
+      return new ExtensionGroup(Game.flags[flag]);
+    })
+
     if (!this.distMsn) {
       // Set up a Distribution mission to supply spawn/extensions
       const distMsn = this.setUpDistributionMission(this.name + '_dist');
@@ -130,7 +139,8 @@ export class BaseOperation {
       distMsn.setExtensionGroups(this.extensionGroups);
       distMsn.init();
       this.mem.distMsn = distMsn.name;
-    } else {
+    }
+    else {
       // Update existing Distribution mission with new extension groups
       this.distMsn.setSpawn(this.spawn);
       this.distMsn.setExtensionGroups(this.extensionGroups);

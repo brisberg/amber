@@ -69,7 +69,9 @@ export class DistributionMission extends Mission<DistributionMemory> {
     this.spawn = Game.getObjectById(this.mem.spawnID);
     this.eNode = new EnergyNode(Game.flags[this.mem.eNodeFlag]);
     this.extensinGroups = this.mem.extensionGroups.map((name) => {
-      return new ExtensionGroup(Game.flags[name]);
+      const group = new ExtensionGroup(Game.flags[name]);
+      group.init();
+      return group;
     });
     return true;
   }
@@ -93,7 +95,16 @@ export class DistributionMission extends Mission<DistributionMemory> {
       }
 
       // Check for empty Extension Groups
-      // TODO: Loop through the groups
+      for (const group of this.extensinGroups) {
+        if (!group.isFull()) {
+          if (distributor.memory.behavior !== DISTRIBUTOR) {
+            distributor.memory.behavior = DISTRIBUTOR,
+            distributor.memory.mem =
+                Distributor.initMemory(this.eNode!, null, group);
+            return;
+          }
+        }
+      }
 
       // Hack: Repair the Energy Node Container
       const structs = this.eNode!.flag.pos.lookFor(LOOK_STRUCTURES);
@@ -101,8 +112,8 @@ export class DistributionMission extends Mission<DistributionMemory> {
         return struct.structureType === STRUCTURE_CONTAINER;
       }) as StructureContainer;
       if (container && (container.hitsMax - container.hits) > 100) {
-        // TODO: This should probably be abstracted into a ENET_REPAIRER
-        if (distributor.store.energy === 0) {
+        // TODO: This should probably be abstracted into an ENET_REPAIRER
+        if (distributor.store.energy < 5) {
           // Fetch energy from the node
           distributor.memory.behavior = ENET_FETCHER;
           distributor.memory.mem = ENetFetcher.initMemory(this.eNode!);
