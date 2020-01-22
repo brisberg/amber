@@ -8,6 +8,9 @@ import {EXTENSION_GROUP_A_FLAG, EXTENSION_GROUP_B_FLAG} from '../flagConstants';
  * above and below the Town Square, regardless of available terrain.
  *
  * Passed a TownSquare flag.
+ *
+ * DEPRECATED: For the moment, I am going to forgo base autolayout until
+ * flexible refilling/spawning is completed.
  */
 export class BaseLayoutController {
   private static extendOffsets = [[-2, 4], [2, 4], [-5, 1], [5, 1]];

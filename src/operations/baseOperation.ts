@@ -124,25 +124,6 @@ export class BaseOperation {
       return;
     }
 
-    // const maxExtensionGroups =
-    //     CONTROLLER_STRUCTURES.extension[this.spawn.room.controller!.level]
-    //     / 5;
-    const maxExtensionGroups = 1;  // Debug value for now
-    if (this.extensionGroups.length < maxExtensionGroups) {
-      // Spawn another group
-      const pos = this.spawn.room.getPositionAt(
-          this.spawn.pos.x - 3,
-          this.spawn.pos.y,
-      );
-      const groupName = this.name + '_entend_' + this.extensionGroups.length;
-      pos!.createFlag(
-          groupName, EXTENSION_GROUP_A_FLAG.color,
-          EXTENSION_GROUP_A_FLAG.secondaryColor);
-      const flag = Game.flags[groupName];
-      const group = new ExtensionGroup(flag)
-      group.setMaxExtensions(5);  // Hardcoded
-    }
-
     if (!this.distMsn) {
       // Set up a Distribution mission to supply spawn/extensions
       const distMsn = this.setUpDistributionMission(this.name + '_dist');

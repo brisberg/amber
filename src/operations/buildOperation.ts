@@ -37,6 +37,7 @@ export class BuildOperation {
   private buildMsn: BuildMission|null = null;
   private transportMsn: TransportMission|null = null;
   private node: EnergyNode|null = null;
+  private handoff: EnergyNode|null = null;
   private source: Source|null = null;
 
   constructor(flag: Flag) {
@@ -87,6 +88,18 @@ export class BuildOperation {
         this.mem.eNodeFlag = null;
       } else {
         this.node = new EnergyNode(flag);
+      }
+    }
+
+    // Validate Handoff ENode cache. Non blocking as we can register a new one
+    if (this.mem.handoffFlag) {
+      const flag = Game.flags[this.mem.handoffFlag];
+      if (!flag) {
+        console.log(
+            'Build Operation: Handoff ENode no longer exists. Clearing cache.');
+        this.mem.handoffFlag = null;
+      } else {
+        this.handoff = new EnergyNode(flag);
       }
     }
 
@@ -177,7 +190,7 @@ export class BuildOperation {
         this.buildMsn.setMaxBuilders(2);
       }
     } else if (this.node) {
-      // Special case for construction sites directly next to spawn
+      // Special case for construction sites close to spawn next to spawn
       if (this.node.flag.pos.inRangeTo(
               this.target.pos.x, this.target.pos.y, 2)) {
         if (!this.mem.buildMsn) {
@@ -185,49 +198,50 @@ export class BuildOperation {
           this.buildMsn = this.setUpBuildMission(this.name + '_build');
           this.buildMsn.setTargetSite(this.target);
           this.buildMsn.setEnergyNode(this.node);
+          this.buildMsn.setMaxBuilders(2);
+          this.mem.buildMsn = this.buildMsn.name;
+        }
+      } else {
+        // Energy node is far, use a Handoff point
+        if (!this.handoff) {
+          // We don't have a midway handoff, lets create one
+          const path = this.node.flag.pos.findPathTo(this.target);
+          const dropPoint =
+              path[path.length - 3];  // Handoff two steps from target
+          const flag = registerEnergyNode(
+              this.room!,
+              [dropPoint.x, dropPoint.y],
+              {
+                color: TEMP_ENERGY_NODE_FLAG,
+                persistant: false,
+                polarity: -10,
+                type: 'creep',
+              },
+          );
+          this.mem.handoffFlag = flag.name;
+          const handoffFlag = Game.flags[this.mem.handoffFlag];
+          this.handoff = new EnergyNode(handoffFlag);
+        }
+
+        if (!this.mem.buildMsn) {
+          // Set up the build mission to construct the structure
+          this.buildMsn = this.setUpBuildMission(this.name + '_build');
+          this.buildMsn.setTargetSite(this.target);
+          this.buildMsn.setEnergyNode(this.handoff);
           this.buildMsn.setMaxBuilders(3);
           this.mem.buildMsn = this.buildMsn.name;
         }
-      }
 
-      // Energy node is far, use a Handoff point
-      if (!this.mem.handoffFlag) {
-        // We don't have a midway handoff, lets create one
-        const path = this.node.flag.pos.findPathTo(this.target);
-        const dropPoint =
-            path[path.length - 3];  // Handoff two steps from target
-        const flag = registerEnergyNode(
-            this.room!,
-            [dropPoint.x, dropPoint.y],
-            {
-              color: TEMP_ENERGY_NODE_FLAG,
-              persistant: false,
-              polarity: -10,
-              type: 'creep',
-            },
-        );
-        this.mem.handoffFlag = flag.name;
-      }
-      const handoffFlag = Game.flags[this.mem.handoffFlag];
-      const handoffNode = new EnergyNode(handoffFlag);
-
-      if (!this.mem.transportMsn) {
-        // Set up a transport mission to bring energy to us
-        const transportMsn = this.setUpTransportMission(this.name + '_supply');
-        transportMsn.setSource(this.node);
-        transportMsn.setDestination(handoffNode);
-        transportMsn.setThroughput(30);
-        transportMsn.init();
-        this.mem.transportMsn = transportMsn.name;
-      }
-
-      if (!this.mem.buildMsn) {
-        // Set up the build mission to construct the structure
-        this.buildMsn = this.setUpBuildMission(this.name + '_build');
-        this.buildMsn.setTargetSite(this.target);
-        this.buildMsn.setEnergyNode(handoffNode);
-        this.buildMsn.setMaxBuilders(3);
-        this.mem.buildMsn = this.buildMsn.name;
+        if (!this.mem.transportMsn) {
+          // Set up a transport mission to bring energy to us
+          const transportMsn =
+              this.setUpTransportMission(this.name + '_supply');
+          transportMsn.setSource(this.node);
+          transportMsn.setDestination(this.handoff);
+          transportMsn.setThroughput(6);
+          transportMsn.init();
+          this.mem.transportMsn = transportMsn.name;
+        }
       }
     }
   }

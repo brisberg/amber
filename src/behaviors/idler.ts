@@ -33,7 +33,7 @@ export class Idler extends Behavior<IdlerMemory> {
   protected behaviorActions(creep: Creep, mem: IdlerMemory) {
     if (!mem.destPos) {
       const struct = creep.pos.findClosestByRange(FIND_STRUCTURES);
-      if (!struct || struct.pos.getRangeTo(creep) >= 2) {
+      if (!struct || struct.pos.getRangeTo(creep) >= 3) {
         mem.destPos = [creep.pos.x, creep.pos.y];
       } else {
         // HACK: Just moving randomly for now until we get out of the way

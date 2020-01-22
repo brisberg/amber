@@ -7,7 +7,6 @@ import {registerEnergyNode} from 'energy-network/energyNode';
 import {RoomEnergyNetwork} from 'energy-network/roomEnergyNetwork';
 // tslint:disable-next-line: max-line-length
 import {BASE_OPERATION_FLAG, BUILD_OPERATION_FLAG, CORE_ENERGY_NODE_FLAG, ENERGY_NODE_FLAG, EXTENSION_GROUP_A_FLAG, flagIsColor, MINING_OPERATION_FLAG, PIONEER_MISSION_FLAG, TOWN_SQUARE_FLAG, UPGRADE_OPERATION_FLAG} from 'flagConstants';
-import {BaseLayoutController} from 'layout/baseLayout';
 import {ExtensionGroup} from 'layout/extensionGroup';
 import {TownSquare} from 'layout/townSquare';
 import {Mission} from 'missions/mission';
@@ -87,8 +86,8 @@ export const loop = () => {
         if (Game.time % 100 === 0) {
           square.replaceMissingStructures();
         }
-        const layout = new BaseLayoutController(flag);
-        layout.layoutFlags();
+        // const layout = new BaseLayoutController(flag);
+        // layout.layoutFlags();
       } else {
         square.retire();
       }
@@ -98,7 +97,7 @@ export const loop = () => {
     if (flagIsColor(flag, EXTENSION_GROUP_A_FLAG)) {
       const extend = new ExtensionGroup(flag);
       if (extend.init()) {
-        if (Game.time % 10 === 0) {
+        if (Game.time % 100 === 0) {
           extend.replaceMissingExtension();
         }
       } else {
@@ -209,13 +208,13 @@ export const loop = () => {
     }
   }
 
-  // HACK for now
-  const sites = room.find(
+  // HACK for now, initialze Source Builder Operations
+  const conts = room.find(
       FIND_CONSTRUCTION_SITES, {filter: {structureType: STRUCTURE_CONTAINER}});
-  if (sites.length !== 0) {
-    for (let i = 0; i < 2; i++) {  // run 2 concurrent build ops
-      const site = sites.shift();
-      if (site !== undefined) {
+  if (conts.length !== 0) {
+    for (const site of conts) {
+      // Always run Source Builder Operations
+      if (site.pos.findInRange(FIND_SOURCES, 1).length > 0) {
         const opName = 'build-' + site.id;
         if (!Game.flags[opName]) {
           site.pos.createFlag(
@@ -226,9 +225,25 @@ export const loop = () => {
     }
   }
 
-  // HACK for now
-  const eNodes = room.find(FIND_FLAGS, {filter: CORE_ENERGY_NODE_FLAG});
+  const eNodes = room.find(FIND_FLAGS, {filter: ENERGY_NODE_FLAG});
   if (eNodes.length > 0) {
+    // Initialize Build Operation for other structures once EnergyNetwork is
+    // online
+    const sites = room.find(FIND_MY_CONSTRUCTION_SITES);
+    for (const site of sites) {
+      // Check for existing source builder flag or global room build flag
+      if (!Game.flags['build-' + site.id] &&
+          !Game.flags['build-op-' + room.name]) {
+        site.pos.createFlag(
+            'build-op-' + room.name, BUILD_OPERATION_FLAG.color,
+            BUILD_OPERATION_FLAG.secondaryColor);
+      }
+    }
+  }
+
+  // HACK for now
+  const coreNodes = room.find(FIND_FLAGS, {filter: CORE_ENERGY_NODE_FLAG});
+  if (coreNodes.length > 0) {
     // Initialize the Upgrade Operation once the Energy Network is online
     if (controller) {
       if (!Game.flags.upgrade_op) {
@@ -239,7 +254,7 @@ export const loop = () => {
     }
 
     // Initialize the Base Operation once the Energy Network is online
-    const tsPos = spawn.room.getPositionAt(spawn.pos.x, spawn.pos.y - 2);
+    const tsPos = room.getPositionAt(spawn.pos.x, spawn.pos.y - 2);
     if (!Game.flags.base_op) {
       tsPos!.createFlag(
           'base_op', BASE_OPERATION_FLAG.color,
@@ -248,11 +263,11 @@ export const loop = () => {
 
     // Initialize Base Layout once Energy Network is online, at the base
     // location.
-    if (!Game.flags.town_square) {
-      tsPos!.createFlag(
-          'town_square', TOWN_SQUARE_FLAG.color,
-          TOWN_SQUARE_FLAG.secondaryColor);
-    }
+    // if (!Game.flags.town_square) {
+    //   tsPos!.createFlag(
+    //       'town_square', TOWN_SQUARE_FLAG.color,
+    //       TOWN_SQUARE_FLAG.secondaryColor);
+    // }
   }
 
   // SpawnQueue must execute after missions have a chance request creeps
