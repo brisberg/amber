@@ -79,11 +79,9 @@ export class BaseOperation {
       }
     } else {
       // Check at our flag location for the spawn
-      const spawns =
-          this.flag.pos.lookFor(LOOK_STRUCTURES)
-              .filter((struct) => struct.structureType === STRUCTURE_SPAWN);
+      const spawns = this.flag.room!.find(FIND_MY_SPAWNS);
       if (spawns.length > 0) {
-        const spawn = spawns[0] as StructureSpawn;
+        const spawn = spawns[0];
         this.mem.spawnID = spawn.id;
         this.spawn = spawn;
       }

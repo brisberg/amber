@@ -190,9 +190,9 @@ export class BuildOperation {
         this.buildMsn.setMaxBuilders(2);
       }
     } else if (this.node) {
-      // Special case for construction sites close to spawn next to spawn
+      // Special case for construction sites close to spawn
       if (this.node.flag.pos.inRangeTo(
-              this.target.pos.x, this.target.pos.y, 2)) {
+              this.target.pos.x, this.target.pos.y, 6)) {
         if (!this.mem.buildMsn) {
           // Set up the build mission to construct the structure
           this.buildMsn = this.setUpBuildMission(this.name + '_build');

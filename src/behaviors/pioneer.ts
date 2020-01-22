@@ -4,9 +4,10 @@ import {FETCHER, Fetcher} from './fetcher';
 import {HARVESTER, Harvester} from './harvester';
 
 interface PioneerMemory extends BehaviorMemory {
-  controllerId: Id<StructureController>;
-  sourceId: Id<Source>;
+  controllerID: Id<StructureController>;
+  sourceID: Id<Source>;
   state: 'fetching'|'working';
+  storeID: Id<StructureContainer|StructureStorage>|null;
 }
 
 export const PIONEER = 'pioneer';
@@ -28,8 +29,8 @@ export const PIONEER = 'pioneer';
 export class Pioneer extends Behavior<PioneerMemory> {
   /* @override */
   protected behaviorActions(creep: Creep, mem: PioneerMemory) {
-    const controller = Game.getObjectById(mem.controllerId);
-    const source = Game.getObjectById(mem.sourceId);
+    const controller = Game.getObjectById(mem.controllerID);
+    const source = Game.getObjectById(mem.sourceID);
 
     if (!controller || !source) {
       return false;
@@ -37,6 +38,7 @@ export class Pioneer extends Behavior<PioneerMemory> {
 
     if (mem.state === 'fetching' && creep.store.getFreeCapacity() === 0) {
       mem.state = 'working';
+      mem.storeID = null;
     }
 
     if (mem.state === 'working' && creep.store.energy === 0) {
@@ -44,12 +46,35 @@ export class Pioneer extends Behavior<PioneerMemory> {
     }
 
     if (mem.state === 'fetching' && creep.store.getFreeCapacity() > 0) {
-      const stores = creep.room.find(FIND_STRUCTURES).filter((struct) => {
-        return struct.structureType === STRUCTURE_CONTAINER ||
-            struct.structureType === STRUCTURE_STORAGE;
-      }) as Array<StructureStorage|StructureContainer>;
+      let store;
+      if (!mem.storeID) {
+        // No target store cached, look for the closest
+        const stores = creep.room.find(FIND_STRUCTURES).filter((struct) => {
+          // Structure is a non-empty Container or Storage
+          return (struct.structureType === STRUCTURE_CONTAINER ||
+                  struct.structureType === STRUCTURE_STORAGE) &&
+              struct.store.energy > 0;
+        }) as Array<StructureStorage|StructureContainer>;
 
-      const store = stores.find((s) => s.store.energy > 0);
+        if (stores.length > 0) {
+          let closest = stores[0];
+          for (const struct of stores) {
+            if (creep.pos.getRangeTo(struct) < creep.pos.getRangeTo(closest)) {
+              closest = struct;
+            }
+          }
+          store = closest;
+          mem.storeID = store.id;
+        }
+      } else {
+        // Reuse cached store
+        store = Game.getObjectById(mem.storeID);
+        if (!store || store.store.energy === 0) {
+          // Store was removed or is out of energy, moving on
+          store = undefined;
+          mem.storeID = null;
+        }
+      }
 
       if (store) {
         mem.subBehavior = FETCHER;
@@ -92,9 +117,10 @@ export class Pioneer extends Behavior<PioneerMemory> {
   public static initMemory(controller: StructureController, source: Source):
       PioneerMemory {
     return {
-      controllerId: controller.id,
-      sourceId: source.id,
+      controllerID: controller.id,
+      sourceID: source.id,
       state: 'fetching',
+      storeID: null,
     };
   }
 }
