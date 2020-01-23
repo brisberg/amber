@@ -37,21 +37,37 @@ export class TowerBehavior {
       return;
     }
 
+    // Scan for damaged structures every 100 ticks
+    if (Game.time % 100 === 0) {
+      const structs = tower.room
+                          .lookForAtArea(
+                              LOOK_STRUCTURES, tower.pos.y - 5, tower.pos.x - 5,
+                              tower.pos.y + 5, tower.pos.x + 5, true)
+                          .map((result) => result.structure);
+      const damaged = structs.filter(
+          (struct) => struct.hitsMax - struct.hits >= TOWER_POWER_REPAIR);
+      Memory.rooms[tower.room.name].damaged =
+          damaged.map((struct) => struct.id);
+    }
+
     // Repair damaged structures
-    const damagedStructs = Memory.rooms[tower.room.name].damaged;
-    if (damagedStructs.length > 0) {
-      let repaired = false;
-      for (const struct of damagedStructs) {
-        if (struct.hitsMax - struct.hits > TOWER_POWER_REPAIR) {
+    const damagedIDs = Memory.rooms[tower.room.name].damaged;
+    let repaired = false;
+    // Filter the cached damaged Ids for still damaged, existing structures
+    const finalIDs = damagedIDs.filter((id) => {
+      const struct = Game.getObjectById(id);
+      if (!struct || (struct.hitsMax - struct.hits) < TOWER_POWER_REPAIR) {
+        return false;
+      } else {
+        if (!repaired) {
           tower.repair(struct);
           repaired = true;
-          break;
         }
+        return true;
       }
-      if (repaired) {
-        return;
-      }
-    }
+    });
+    // Save the filtered list to memory
+    Memory.rooms[tower.room.name].damaged = finalIDs;
 
     return;
   }
