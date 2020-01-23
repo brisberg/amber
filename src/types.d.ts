@@ -17,7 +17,8 @@ interface Memory {
 }
 
 interface RoomMemory {
-  network: any;
+  damaged: any[];  // List of damaged structures
+  network: any;    // Energy Network Memory
 }
 
 interface FlagMemory {
@@ -29,6 +30,8 @@ declare namespace NodeJS {
   interface Global {
     // Global creep behavior registry
     behaviors: import('./behaviors').BehaviorMap;
+    // Global tower behavior registry
+    tower: import('./towers/tower').TowerBehavior;
     // Global creep behavior registry
     missions: import('./missions').MissionMap;
     // Global creep behavior registry

@@ -33,13 +33,24 @@ export const loop = () => {
 
   const roomName = Game.spawns.Spawn1.room.name;
   if (!Memory.rooms[roomName]) {
-    Memory.rooms[roomName] = {network: null};
+    Memory.rooms[roomName] = {network: null, damaged: []};
   }
 
   const queue = global.spawnQueue = new SpawnQueue(Game.spawns.Spawn1);
 
   installConsoleCommands();
   garbageCollection();
+
+  // Run Tower Code
+  // TODO: Refactor this into a Defense Mission/Operation based on a flag
+  const towers = Game.rooms[roomName].find(FIND_MY_STRUCTURES, {
+    filter: {
+      structureType: STRUCTURE_TOWER,
+    },
+  }) as StructureTower[];
+  for (const tower of towers) {
+    global.tower.run(tower);
+  }
 
   // Aggregate status of Room Health checks
   let roomHealthy = true;
