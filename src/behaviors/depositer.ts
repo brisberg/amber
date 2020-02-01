@@ -39,7 +39,8 @@ export class Depositer extends Behavior<DepositerMemory> {
       // Have to special case spawns and extensions for some reason
       // spawn.store.getFreeCapacity() always returns 0
       if (target instanceof StructureSpawn ||
-          target instanceof StructureExtension) {
+          target instanceof StructureExtension ||
+          target instanceof StructureTower) {
         amount = Math.min(amount, target.energyCapacity - target.energy);
       } else {
         amount = Math.min(amount, target.store.getFreeCapacity());
