@@ -123,8 +123,23 @@ export function generateFlexibleCreep(
 
   const costPerTier = costOfRatio(ratio);
   while (energy + costPerTier <= maxEnergy) {
-    // TODO: respect max values
-    body = addToRatio(body, ratio);
+    const nextBody = addToRatio(body, ratio);
+
+    if (opts && opts.max) {
+      const max = opts.max;
+      if (nextBody.work > (max.work || 99) &&
+          nextBody.carry > (max.carry || 99) &&
+          nextBody.move > (max.move || 99) &&
+          nextBody.attack > (max.attack || 99) &&
+          nextBody.heal > (max.heal || 99) &&
+          nextBody.tough > (max.tough || 99) &&
+          nextBody.claim > (max.claim || 99)) {
+        // Another ratio will go over the maximum.
+        break;
+      }
+    }
+
+    body = nextBody;
     energy += costPerTier;
   }
 
