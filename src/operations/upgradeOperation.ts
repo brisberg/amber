@@ -169,6 +169,7 @@ export class UpgradeOperation {
             this.controller.room, [this.container.pos.x, this.container.pos.y],
             {
               color: ENERGY_NODE_FLAG,
+              coreBuffer: 1000,
               persistant: true,
               polarity: -10,
               structureID: this.container.id,

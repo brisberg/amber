@@ -4,6 +4,7 @@ import {Behavior, BehaviorMemory} from './behavior';
 
 interface ENetFetcherMemory extends BehaviorMemory {
   eNodeFlag: string;
+  buffer: number;  // Min amount of energy to leave in Target
 }
 
 export const ENET_FETCHER = 'enet-fetcher';
@@ -20,7 +21,7 @@ export class ENetFetcher extends Behavior<ENetFetcherMemory> {
   protected behaviorActions(creep: Creep, mem: ENetFetcherMemory) {
     const node = new EnergyNode(Game.flags[mem.eNodeFlag]);
 
-    if (node) {
+    if (node && node.getStoredEnergy() >= mem.buffer) {
       if (!creep.pos.inRangeTo(node.flag.pos, 1)) {
         creep.moveTo(node.flag.pos);
         return true;
@@ -35,8 +36,10 @@ export class ENetFetcher extends Behavior<ENetFetcherMemory> {
     return false;
   }
 
-  public static initMemory(node: EnergyNode): ENetFetcherMemory {
+  public static initMemory(node: EnergyNode, buffer: number):
+      ENetFetcherMemory {
     return {
+      buffer,
       eNodeFlag: node.flag.name,
     };
   }

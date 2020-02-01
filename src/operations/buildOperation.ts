@@ -213,6 +213,7 @@ export class BuildOperation {
               [dropPoint.x, dropPoint.y],
               {
                 color: TEMP_ENERGY_NODE_FLAG,
+                coreBuffer: 200,
                 persistant: false,
                 polarity: -10,
                 type: 'creep',

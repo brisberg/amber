@@ -9,6 +9,7 @@ import {Mission, MissionMemory} from './mission';
 
 interface TransportMissionMemory extends MissionMemory {
   source: EnergyNodeMemory|null;
+  buffer: number;
   dest: EnergyNodeMemory|null;
   throughput: number;  // Desired throughput
   _path?: string;      // TODO: still unused
@@ -35,6 +36,7 @@ export class TransportMission extends Mission<TransportMissionMemory> {
   /** @override */
   protected initialMemory(): TransportMissionMemory {
     return {
+      buffer: 0,
       creeps: [],
       dest: null,
       source: null,
@@ -69,6 +71,10 @@ export class TransportMission extends Mission<TransportMissionMemory> {
   public setSource(source: EnergyNode) {
     this.mem.source = source.mem;
     this.source = source;
+  }
+
+  public setBuffer(buffer: number) {
+    this.mem.buffer = buffer;
   }
 
   public setDestination(dest: EnergyNode) {
@@ -107,7 +113,8 @@ export class TransportMission extends Mission<TransportMissionMemory> {
         if (ENetFetcher.getTarget(creep.memory.mem) !==
             this.source!.flag.name) {
           // Update fetch target
-          creep.memory.mem = ENetFetcher.initMemory(this.source!);
+          creep.memory.mem =
+              ENetFetcher.initMemory(this.source!, this.mem.buffer);
         }
 
         if (creep.store.getFreeCapacity() === 0) {
@@ -135,7 +142,8 @@ export class TransportMission extends Mission<TransportMissionMemory> {
           } else {
             // Fetch more energy
             creep.memory.behavior = ENET_FETCHER;
-            creep.memory.mem = ENetFetcher.initMemory(this.source!);
+            creep.memory.mem =
+                ENetFetcher.initMemory(this.source!, this.mem.buffer);
             creep.memory.mission = this.name;
           }
         }

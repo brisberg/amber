@@ -25,7 +25,6 @@ export const DISTRIBUTOR = 'distributor';
 export class Distributor extends Behavior<DistributorMemory> {
   /* @override */
   protected behaviorActions(creep: Creep, mem: DistributorMemory) {
-    console.log('running distributor for ' + creep.name);
     const node = new EnergyNode(Game.flags[mem.eNodeFlag]);
     let spawn: StructureSpawn|null = null;
     if (mem.spawnID) {
@@ -95,7 +94,7 @@ export class Distributor extends Behavior<DistributorMemory> {
       }
 
       mem.subBehavior = ENET_FETCHER;
-      mem.mem = ENetFetcher.initMemory(node);
+      mem.mem = ENetFetcher.initMemory(node, 0);
       return false;
     }
 

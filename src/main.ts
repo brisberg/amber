@@ -7,7 +7,7 @@ import {IDLER} from 'behaviors/idler';
 import {registerEnergyNode} from 'energy-network/energyNode';
 import {RoomEnergyNetwork} from 'energy-network/roomEnergyNetwork';
 // tslint:disable-next-line: max-line-length
-import {BASE_OPERATION_FLAG, BUILD_OPERATION_FLAG, CORE_ENERGY_NODE_FLAG, ENERGY_NODE_FLAG, EXTENSION_GROUP_A_FLAG, flagIsColor, MINING_OPERATION_FLAG, PIONEER_MISSION_FLAG, TOWN_SQUARE_FLAG, UPGRADE_OPERATION_FLAG} from 'flagConstants';
+import {BASE_OPERATION_FLAG, BUILD_OPERATION_FLAG, CORE_ENERGY_NODE_FLAG, ENERGY_NODE_FLAG, EXTENSION_GROUP_A_FLAG, EXTENSION_GROUP_B_FLAG, flagIsColor, MINING_OPERATION_FLAG, PIONEER_MISSION_FLAG, TOWN_SQUARE_FLAG, UPGRADE_OPERATION_FLAG} from 'flagConstants';
 import {ExtensionGroup} from 'layout/extensionGroup';
 import {TownSquare} from 'layout/townSquare';
 import {Mission} from 'missions/mission';
@@ -106,7 +106,8 @@ export const loop = () => {
     }
 
     // Execute Extension Groups
-    if (flagIsColor(flag, EXTENSION_GROUP_A_FLAG)) {
+    if (flagIsColor(flag, EXTENSION_GROUP_A_FLAG) ||
+        flagIsColor(flag, EXTENSION_GROUP_B_FLAG)) {
       const extend = new ExtensionGroup(flag);
       if (extend.init()) {
         if (Game.time % 100 === 0) {
@@ -212,6 +213,7 @@ export const loop = () => {
         const flagName = 'network_core_node';
         registerEnergyNode(spawn.room, [corePos.x, corePos.y], {
           color: CORE_ENERGY_NODE_FLAG,
+          coreBuffer: 0,
           persistant: true,
           polarity: 0,
           type: 'structure',

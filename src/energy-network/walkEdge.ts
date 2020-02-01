@@ -46,6 +46,7 @@ export class WalkEdge extends NetworkEdge<WalkEdgeMemory> {
           // Init core -> target
           this.transportMission.setSource(this.core);
           this.transportMission.setDestination(this.node);
+          this.transportMission.setBuffer(this.node.mem.coreBuffer);
         }
         this.mem.state.transportMsn = this.transportMission.name;
 

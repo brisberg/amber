@@ -160,6 +160,7 @@ export class MiningOperation {
         const flag = registerEnergyNode(
             this.room, [this.container.pos.x, this.container.pos.y], {
               color: ENERGY_NODE_FLAG,
+              coreBuffer: 0,
               persistant: true,
               polarity: 10,  // Keep us empty
               structureID: this.container.id,

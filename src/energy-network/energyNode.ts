@@ -22,6 +22,7 @@ export interface EnergyNodeMemory {
   polarity: number;  // Expected generated/consumed per tick
   type: 'link'|'structure'|'creep';
   persistant: boolean;  // Unused for now
+  coreBuffer: number;   // Amount of energy left in core node
   _cache: {
     structureID?: Id<StructureStore>;
     creep?: string;
@@ -49,6 +50,7 @@ export class EnergyNode {
     if (!Memory.flags[flag.name].state) {
       const mem: EnergyNodeMemory = {
         _cache: {},
+        coreBuffer: 0,
         flag: flag.name,
         persistant: false,
         polarity: 0,
@@ -122,9 +124,14 @@ export class EnergyNode {
   }
 
   public getStoredEnergy(): number {
-    if (this.mem.type !== 'structure') {
-      // Non structure energy nodes unimplemented
-      return -1;
+    if (this.mem.type === 'creep') {
+      const creepName = this.mem._cache.creep;
+      if (creepName && Game.creeps[creepName]) {
+        return Game.creeps[creepName].store.energy;
+      } else {
+        // No creep in the cache
+        return -1;
+      }
     }
 
     const cache = this.mem._cache;
@@ -230,6 +237,9 @@ export class EnergyNode {
 interface RegisterEnergyNodeOptions {
   type: 'link'|'structure'|'creep';
   polarity: number;
+  // Amount of energy that must be in the core for this
+  // Node to request Energy
+  coreBuffer: number;
   persistant: boolean;
   structureID?: Id<StructureStore>;
   color: FlagColor;
@@ -241,6 +251,7 @@ export function registerEnergyNode(
 
   const mem: EnergyNodeMemory = {
     _cache: {},
+    coreBuffer: opts.coreBuffer,
     flag: flagName,
     persistant: opts.persistant,
     polarity: opts.polarity,

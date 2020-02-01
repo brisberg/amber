@@ -1,6 +1,4 @@
 import {DISTRIBUTOR, Distributor} from 'behaviors/distributor';
-import {ENET_FETCHER, ENetFetcher} from 'behaviors/eNetFetcher';
-import {Repairer, REPAIRER} from 'behaviors/repairer';
 import {EnergyNode} from 'energy-network/energyNode';
 import {ExtensionGroup} from 'layout/extensionGroup';
 import {HAULER} from 'spawn-system/bodyTypes';

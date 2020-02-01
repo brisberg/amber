@@ -1,5 +1,4 @@
 import {EnergyNode} from '../energy-network/energyNode';
-import {findMidPoint} from '../utils/midpoint';
 
 import {Behavior, BehaviorMemory, clearSubBehavior} from './behavior';
 import {Builder, BUILDER} from './builder';
@@ -86,7 +85,7 @@ export class ENetBuilder extends Behavior<ENetBuilderMemory> {
     if (creep.store.energy < 5) {
       // Invoke the sub-behavior directly as it may not be blocking
       const eFetcher = global.behaviors[ENET_FETCHER];
-      if (eFetcher.run(creep, ENetFetcher.initMemory(eNode))) {
+      if (eFetcher.run(creep, ENetFetcher.initMemory(eNode, 0))) {
         return true;
       }
       // No return as we can still harvest on the same tick
