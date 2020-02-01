@@ -90,13 +90,20 @@ export class UpgradeMission extends Mission<UpgradeMissionMemory> {
 
   /**
    * @override
-   * Returns true if we need another Harvester.
+   * Returns true if we need another Upgrader.
    *
-   * Takes into account total WORK parts of existing harvesters and max
-   * harvesters from Source Analysis.
+   * Takes into account total WORK parts of existing upgraders.
    */
   protected needMoreCreeps(): boolean {
     if (this.creeps.length >= this.maxUpgraders) {
+      return false;
+    }
+
+    let totalWorkParts = 0;
+    for (const upgrader of this.creeps) {
+      totalWorkParts += upgrader.getActiveBodyparts(WORK);
+    }
+    if (totalWorkParts >= 15) {
       return false;
     }
 
