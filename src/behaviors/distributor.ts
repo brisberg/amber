@@ -9,7 +9,7 @@ interface DistributorMemory extends BehaviorMemory {
   eNodeFlag: string;
   spawnID: Id<StructureSpawn>|null;
   extensionGroup: string|null;
-  phase: 'fetch'|'deliver';
+  phase: 'fetch'|'deliver'|'idle';
 }
 
 export const DISTRIBUTOR = 'distributor';
@@ -41,30 +41,39 @@ export class Distributor extends Behavior<DistributorMemory> {
       return false;
     }
 
-    // Deliver State
-    if (mem.phase === 'deliver') {
+    if (mem.phase === 'idle') {
+      if (mem.spawnID || mem.extensionGroup) {
+        // We have been assigned a Fill target
+        mem.phase = 'fetch';
+        return false;
+      }
+    } else if (mem.phase === 'deliver') {  // Deliver State
       if (creep.store.energy < 5) {
-        console.log('distributor low on energy, switching to fetch');
         // Out of energy, go to fetch phase
         mem.phase = 'fetch';
         return false;
       }
 
-      if (spawn && spawn.energy < spawn.energyCapacity) {
-        console.log('distributor depositing energy in spawn');
+      if (spawn) {
+        if (spawn.energy === spawn.energyCapacity) {
+          // Spawn is full, we are done here
+          mem.spawnID = null;
+          mem.phase = 'idle';
+        }
+
         mem.subBehavior = DEPOSITER;
         mem.mem = Depositer.initMemory(spawn);
         return false;
       }
 
-      if (extendGroup && !extendGroup.isFull()) {
-        console.log('distributor looking at extendGroup');
-        console.log(
-            'range to group: ' + creep.pos.getRangeTo(extendGroup.flag));
-        console.log(creep.pos);
-        console.log(extendGroup.flag.pos);
+      if (extendGroup) {
+        if (extendGroup.isFull()) {
+          // Extension Group is full, we are done here
+          mem.extensionGroup = null;
+          mem.phase = 'idle';
+        }
+
         if (creep.pos.getRangeTo(extendGroup.flag) >= 1) {
-          console.log('distributor moving to extend flag');
           creep.moveTo(extendGroup.flag);
           return true;
         }
@@ -72,9 +81,7 @@ export class Distributor extends Behavior<DistributorMemory> {
         // We are next to the extendGroup flag
         // Interact with the Extend Group to fill it
         const extend = extendGroup.getNextExtension();
-        console.log('target extend: ' + extend);
         if (extend) {
-          console.log('distributor delivering energy to ' + extend);
           mem.subBehavior = DEPOSITER;
           mem.mem = Depositer.initMemory(extend);
           return false;
@@ -82,13 +89,11 @@ export class Distributor extends Behavior<DistributorMemory> {
       }
     } else if (mem.phase === 'fetch') {  // Fetch state
       if (creep.store.getFreeCapacity() === 0) {
-        console.log('distributor full on energy, switching to deliver');
         // We are full, go to deliver
         mem.phase = 'deliver';
         return false;
       }
 
-      console.log('distributor fetching');
       mem.subBehavior = ENET_FETCHER;
       mem.mem = ENetFetcher.initMemory(node);
       return false;
@@ -103,7 +108,7 @@ export class Distributor extends Behavior<DistributorMemory> {
     return {
       eNodeFlag: node.flag.name,
       extensionGroup: extendGroup ? extendGroup.flag.name : null,
-      phase: 'deliver',
+      phase: 'idle',
       spawnID: spawn ? spawn.id : null,
     };
   }

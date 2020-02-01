@@ -82,53 +82,33 @@ export class DistributionMission extends Mission<DistributionMemory> {
     if (!this.spawn || !this.eNode) {
       return;
     }
-    // Need to do the thinking here, to fill highest priority extensions and
-    // repair container
+
     this.creeps.forEach((distributor) => {
-      // First refill the spawn
-      if (this.spawn!.energy < this.spawn!.energyCapacity) {
-        console.log('assigning distributor to ' + this.spawn!.name);
-        if (distributor.memory.behavior !== DISTRIBUTOR) {
-          distributor.memory.behavior = DISTRIBUTOR,
+      if (distributor.memory.behavior !== DISTRIBUTOR) {
+        distributor.memory.behavior = DISTRIBUTOR;
+        distributor.memory.mem =
+            Distributor.initMemory(this.eNode!, null, null);
+        return;
+      }
+
+      // Only reassign distributors who are idle
+      if (distributor.memory.mem.phase === 'idle') {
+        // First refill the spawn
+        if (this.spawn!.energy < this.spawn!.energyCapacity) {
           distributor.memory.mem =
               Distributor.initMemory(this.eNode!, this.spawn, null);
           return;
         }
-      }
 
-      // Check for empty Extension Groups
-      for (const group of this.extensinGroups) {
-        if (!group.isFull()) {
-          console.log('assigning distributor to ' + group.flag.name);
-          if (distributor.memory.behavior !== DISTRIBUTOR) {
-            distributor.memory.behavior = DISTRIBUTOR,
+        // Check for empty Extension Groups
+        for (const group of this.extensinGroups) {
+          if (!group.isFull()) {
             distributor.memory.mem =
                 Distributor.initMemory(this.eNode!, null, group);
             return;
           }
         }
       }
-
-      // // Hack: Repair the Energy Node Container
-      // const structs = this.eNode!.flag.pos.lookFor(LOOK_STRUCTURES);
-      // const container = structs.find((struct) => {
-      //   return struct.structureType === STRUCTURE_CONTAINER;
-      // }) as StructureContainer;
-      // if (container && (container.hitsMax - container.hits) > 100) {
-      //   // TODO: This should probably be abstracted into an ENET_REPAIRER
-      //   if (distributor.store.energy < 5) {
-      //     // Fetch energy from the node
-      //     distributor.memory.behavior = ENET_FETCHER;
-      //     distributor.memory.mem = ENetFetcher.initMemory(this.eNode!);
-      //     distributor.memory.mission = this.name;
-      //   } else {
-      //     // Repair the container
-      //     distributor.memory.behavior = REPAIRER;
-      //     distributor.memory.mem = Repairer.initMemory(container);
-      //     distributor.memory.mission = this.name;
-      //   }
-      //   return;
-      // }
     });
   }
 
