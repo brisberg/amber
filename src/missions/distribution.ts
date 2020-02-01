@@ -110,7 +110,7 @@ export class DistributionMission extends Mission<DistributionMemory> {
       if (distributor.memory.mem.phase === 'idle') {
         // First refill towers
         for (const tower of this.towers) {
-          if (tower.store.getFreeCapacity()) {
+          if (tower.energy < tower.energyCapacity) {  // Towers have weird store
             distributor.memory.mem =
                 Distributor.initMemory(this.eNode!, null, null, tower);
             return;

@@ -1,3 +1,4 @@
+import {emit} from 'cluster';
 import {EnergyNode} from 'energy-network/energyNode';
 import {ExtensionGroup} from 'layout/extensionGroup';
 
@@ -46,7 +47,7 @@ export class Distributor extends Behavior<DistributorMemory> {
     }
 
     if (mem.phase === 'idle') {
-      if (mem.spawnID || mem.extensionGroup) {
+      if (mem.spawnID || mem.extensionGroup || mem.towerID) {
         // We have been assigned a Fill target
         mem.phase = 'fetch';
         return false;
