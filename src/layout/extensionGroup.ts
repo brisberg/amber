@@ -41,6 +41,7 @@ export class ExtensionGroup {
     }
 
     // Init memory
+    // TODO: Move this memory out of Memory.missions ?
     if (!Memory.missions[this.flag.name]) {
       const mem: ExtensionGroupMemory = {
         max: this.maxExtensions,
