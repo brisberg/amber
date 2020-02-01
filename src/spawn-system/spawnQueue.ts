@@ -1,10 +1,7 @@
-import {CORE_ENERGY_NODE_FLAG} from 'flagConstants';
-
 import {IDLER, Idler} from '../behaviors/idler';
-import {registerEnergyNode} from '../energy-network/energyNode';
-import {totalCost} from '../utils/workerUtils';
+import {totalCost} from '../utils/creepBodyUtils';
 
-import {creepBodies} from './bodyTypes';
+import {creepBodyRatios, GenerateCreepBodyOptions, generateFlexibleCreep} from './bodyTypes';
 import {isOrphan} from './orphans';
 
 /**
@@ -22,7 +19,8 @@ import {isOrphan} from './orphans';
 export interface SpawnRequest {
   name?: string;  // Determined by SpawnQueue, not requester
   priority: number;
-  bodyType: string;
+  bodyRatio: string;
+  bodyOptions?: GenerateCreepBodyOptions;
   mission: string;
   options?: SpawnOptions;
 }
@@ -33,19 +31,6 @@ export class SpawnQueue {
 
   constructor(spawner: StructureSpawn) {
     this.spawner = spawner;
-
-    // No longer needed, handled by Base Operation
-    // if (!Game.flags['enode_' + this.spawner.name]) {
-    //   // Register us as an Energy Sink
-    //   registerEnergyNode(
-    //       this.spawner.room, [this.spawner.pos.x, this.spawner.pos.y], {
-    //         color: CORE_ENERGY_NODE_FLAG,
-    //         persistant: true,
-    //         polarity: 0,  // Core Node
-    //         structureID: this.spawner.id,
-    //         type: 'structure',
-    //       });
-    // }
   }
 
   /**
@@ -56,7 +41,7 @@ export class SpawnQueue {
     // TODO: Maybe find a better system for avoid collisions?
     let name;
     while (!name || Game.creeps[name]) {
-      name = request.bodyType + Math.floor(Math.random() * 9999);
+      name = request.bodyRatio + Math.floor(Math.random() * 9999);
     }
     request.name = name;
     this.requests.push(request);
@@ -71,7 +56,8 @@ export class SpawnQueue {
     }
 
     this.sortQueueByPriority();
-    // // Look for Orphaned creeps
+
+    // Look for Orphaned creeps
     const orphans: Creep[] = [];
     for (const name in Game.creeps) {
       const creep = Game.creeps[name];
@@ -85,7 +71,8 @@ export class SpawnQueue {
     // those requests in the process
     this.requests.filter((request) => {
       const index = orphans.findIndex((orphan) => {
-        return orphan.memory.bodyType === request.bodyType;
+        // TODO: Expand this check to look for things like Min/Max parts
+        return orphan.memory.bodyRatio === request.bodyRatio;
       });
 
       if (index !== -1) {
@@ -107,12 +94,16 @@ export class SpawnQueue {
     // Attempt to spawn the highest priority remaining request
     const req = this.requests.shift()!;
 
-    if (this.spawner.room.energyAvailable >=
-        totalCost(creepBodies[req.bodyType])) {
+    // Generate the flex creep with the given body ratio and options.
+    const body = generateFlexibleCreep(
+        this.spawner.room.energyCapacityAvailable,
+        creepBodyRatios[req.bodyRatio], req.bodyOptions);
+
+    if (this.spawner.room.energyAvailable >= totalCost(body)) {
       const defaultOptions: SpawnOptions = {
         memory: {
           behavior: IDLER,
-          bodyType: req.bodyType,
+          bodyRatio: req.bodyRatio,
           mem: Idler.initMemory(),
           mission: null,
         },
@@ -124,13 +115,12 @@ export class SpawnQueue {
           ...req.options,
           memory: {
             ...req.options.memory,
-            bodyType: req.bodyType,
+            bodyRatio: req.bodyRatio,
             mission: req.mission,
           },
         };
       }
-      this.spawner.spawnCreep(
-          creepBodies[req.bodyType], req.name!, combinedOptions);
+      this.spawner.spawnCreep(body, req.name!, combinedOptions);
     }
   }
 

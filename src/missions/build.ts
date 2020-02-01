@@ -1,7 +1,7 @@
 import {ENET_BUILDER, ENetBuilder} from 'behaviors/eNetBuilder';
 import {SOURCE_BUILDER, SourceBuilder} from 'behaviors/sourceBuilder';
 import {EnergyNode} from 'energy-network/energyNode';
-import {WORKER_1} from 'spawn-system/bodyTypes';
+import {WORKER, zeroRatio} from 'spawn-system/bodyTypes';
 
 import {Mission, MissionMemory} from './mission';
 
@@ -20,7 +20,8 @@ interface BuildMissionMemory extends MissionMemory {
  */
 export class BuildMission extends Mission<BuildMissionMemory> {
   protected readonly spawnPriority = 4;
-  protected readonly bodyType = WORKER_1;
+  protected readonly bodyType = WORKER;
+  protected readonly bodyOptions = {min: {...zeroRatio, carry: 1}};
 
   public target: ConstructionSite|null = null;
 

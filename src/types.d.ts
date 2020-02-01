@@ -3,7 +3,7 @@
 // memory extension samples
 interface CreepMemory {
   mission: string|null;
-  bodyType: string;
+  bodyRatio: string;
   behavior: string;
   mem: any;
 }

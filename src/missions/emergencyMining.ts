@@ -1,5 +1,5 @@
 import {EMERGENCY_MINER, EmergencyMiner} from 'behaviors/emergencyMiner';
-import {CARRY_WORKER_1} from 'spawn-system/bodyTypes';
+import {CARRY_WORKER} from 'spawn-system/bodyTypes';
 import {declareOrphan} from 'spawn-system/orphans';
 
 interface EmergencyMiningMemory {
@@ -56,12 +56,12 @@ export class EmergencyMining {
       const spawn = this.room.find(FIND_MY_SPAWNS)[0];
       const source = spawn.pos.findClosestByPath(FIND_SOURCES);
       this.mem.nextCreep = global.spawnQueue.requestCreep({
-        bodyType: CARRY_WORKER_1,
+        bodyRatio: CARRY_WORKER,
         mission: this.name,
         options: {
           memory: {
             behavior: EMERGENCY_MINER,
-            bodyType: CARRY_WORKER_1,  // not needed
+            bodyRatio: CARRY_WORKER,  // not needed
             mem: EmergencyMiner.initMemory(spawn, source!),
             mission: this.name,  // not needed
           },

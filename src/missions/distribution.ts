@@ -3,7 +3,7 @@ import {ENET_FETCHER, ENetFetcher} from 'behaviors/eNetFetcher';
 import {Repairer, REPAIRER} from 'behaviors/repairer';
 import {EnergyNode} from 'energy-network/energyNode';
 import {ExtensionGroup} from 'layout/extensionGroup';
-import {WORKER_1} from 'spawn-system/bodyTypes';
+import {HAULER} from 'spawn-system/bodyTypes';
 
 import {Mission, MissionMemory} from './mission';
 
@@ -21,7 +21,8 @@ interface DistributionMemory extends MissionMemory {
  * should be removed later.
  */
 export class DistributionMission extends Mission<DistributionMemory> {
-  protected readonly bodyType: string = WORKER_1;
+  protected readonly bodyType = HAULER;
+  protected readonly bodyOptions = {};
   protected readonly spawnPriority = 1;
 
   private eNode: EnergyNode|null = null;
@@ -86,6 +87,7 @@ export class DistributionMission extends Mission<DistributionMemory> {
     this.creeps.forEach((distributor) => {
       // First refill the spawn
       if (this.spawn!.energy < this.spawn!.energyCapacity) {
+        console.log('assigning distributor to ' + this.spawn!.name);
         if (distributor.memory.behavior !== DISTRIBUTOR) {
           distributor.memory.behavior = DISTRIBUTOR,
           distributor.memory.mem =
@@ -97,6 +99,7 @@ export class DistributionMission extends Mission<DistributionMemory> {
       // Check for empty Extension Groups
       for (const group of this.extensinGroups) {
         if (!group.isFull()) {
+          console.log('assigning distributor to ' + group.flag.name);
           if (distributor.memory.behavior !== DISTRIBUTOR) {
             distributor.memory.behavior = DISTRIBUTOR,
             distributor.memory.mem =
@@ -106,26 +109,26 @@ export class DistributionMission extends Mission<DistributionMemory> {
         }
       }
 
-      // Hack: Repair the Energy Node Container
-      const structs = this.eNode!.flag.pos.lookFor(LOOK_STRUCTURES);
-      const container = structs.find((struct) => {
-        return struct.structureType === STRUCTURE_CONTAINER;
-      }) as StructureContainer;
-      if (container && (container.hitsMax - container.hits) > 100) {
-        // TODO: This should probably be abstracted into an ENET_REPAIRER
-        if (distributor.store.energy < 5) {
-          // Fetch energy from the node
-          distributor.memory.behavior = ENET_FETCHER;
-          distributor.memory.mem = ENetFetcher.initMemory(this.eNode!);
-          distributor.memory.mission = this.name;
-        } else {
-          // Repair the container
-          distributor.memory.behavior = REPAIRER;
-          distributor.memory.mem = Repairer.initMemory(container);
-          distributor.memory.mission = this.name;
-        }
-        return;
-      }
+      // // Hack: Repair the Energy Node Container
+      // const structs = this.eNode!.flag.pos.lookFor(LOOK_STRUCTURES);
+      // const container = structs.find((struct) => {
+      //   return struct.structureType === STRUCTURE_CONTAINER;
+      // }) as StructureContainer;
+      // if (container && (container.hitsMax - container.hits) > 100) {
+      //   // TODO: This should probably be abstracted into an ENET_REPAIRER
+      //   if (distributor.store.energy < 5) {
+      //     // Fetch energy from the node
+      //     distributor.memory.behavior = ENET_FETCHER;
+      //     distributor.memory.mem = ENetFetcher.initMemory(this.eNode!);
+      //     distributor.memory.mission = this.name;
+      //   } else {
+      //     // Repair the container
+      //     distributor.memory.behavior = REPAIRER;
+      //     distributor.memory.mem = Repairer.initMemory(container);
+      //     distributor.memory.mission = this.name;
+      //   }
+      //   return;
+      // }
     });
   }
 

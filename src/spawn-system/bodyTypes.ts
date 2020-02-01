@@ -5,22 +5,149 @@
  * be expanded later into a more sophisticated definition system.
  */
 
-import {createWorkerBody} from '../utils/workerUtils';
+import {createCreepBody} from '../utils/creepBodyUtils';
 
-export const creepBodies: {[bodyType: string]: BodyPartConstant[]} = {};
+export const creepBodyRatios: {[name: string]: CreepRatio} = {};
 
-/** Basic Worker RCL1 */
-export const WORKER_1 = 'worker1';
-creepBodies[WORKER_1] = createWorkerBody(2, 1, 1);
+interface CreepRatio {
+  work: number;
+  carry: number;
+  move: number;
+  attack: number;
+  heal: number;
+  tough: number;
+  claim: number;
+}
 
-/** Carry Focused Worker RCL1 (Pioneer) */
-export const CARRY_WORKER_1 = 'cworker1';
-creepBodies[CARRY_WORKER_1] = createWorkerBody(1, 2, 2);
+/** Empty CreepRatio used as a base to simplify initialization. */
+export const zeroRatio: CreepRatio = {
+  attack: 0,
+  carry: 0,
+  claim: 0,
+  heal: 0,
+  move: 0,
+  tough: 0,
+  work: 0,
+};
 
-/** Hauler RCL1 */
-export const HAULER_1 = 'hauler1';
-creepBodies[HAULER_1] = createWorkerBody(0, 4, 2);
+/**
+ * Basic Worker
+ * Worker to move 1 cell per tick on roads when unloaded.
+ */
+export const WORKER = 'worker';
+const worker: CreepRatio = {
+  attack: 0,
+  carry: 0,
+  claim: 0,
+  heal: 0,
+  move: 1,
+  tough: 0,
+  work: 2,
+};
+creepBodyRatios[WORKER] = worker;
 
-/** Off-road Hauler RCL1 */
-export const OR_HAULER_1 = 'orhauler1';
-creepBodies[OR_HAULER_1] = createWorkerBody(0, 3, 3);
+/**
+ * Carry Focused Worker
+ * Carry Workers are workers which prioritize carry capacity. Mainly used by the
+ * Pioneer missions, but may be suitable for distance mining or Power Bank
+ * robbing.
+ */
+export const CARRY_WORKER = 'cworker';
+const carryWorker: CreepRatio = {
+  attack: 0,
+  carry: 1,
+  claim: 0,
+  heal: 0,
+  move: 2,
+  tough: 0,
+  work: 1,
+};
+creepBodyRatios[CARRY_WORKER] = carryWorker;
+
+/**
+ * Hauler
+ * Haulers can move 1 cell per tick when loaded on roads. Half speed off roads
+ */
+export const HAULER = 'hauler';
+const hauler: CreepRatio = {
+  attack: 0,
+  carry: 2,
+  claim: 0,
+  heal: 0,
+  move: 1,
+  tough: 0,
+  work: 0,
+};
+creepBodyRatios[HAULER] = hauler;
+
+/**
+ * Off-road Hauler
+ * Off-Road Haulers can move 1 cell per tick when loaded even off roads
+ */
+export const OR_HAULER = 'orhauler';
+const offRoadHauler: CreepRatio = {
+  attack: 0,
+  carry: 1,
+  claim: 0,
+  heal: 0,
+  move: 1,
+  tough: 0,
+  work: 0,
+};
+creepBodyRatios[OR_HAULER] = offRoadHauler;
+
+export interface GenerateCreepBodyOptions {
+  min?: CreepRatio;
+  max?: {
+    work?: number;
+    carry?: number;
+    move?: number;
+    attack?: number;
+    heal?: number;
+    tough?: number;
+    claim?: number;
+  };
+}
+
+export function generateFlexibleCreep(
+    maxEnergy: number, ratio: CreepRatio,
+    opts?: GenerateCreepBodyOptions): BodyPartConstant[] {
+  let energy = 0;
+  let body: CreepRatio = {...zeroRatio};
+
+  if (opts && opts.min) {
+    // Add the minimum body composition
+    body = addToRatio(body, opts.min);
+    energy = costOfRatio(body);
+  }
+
+  const costPerTier = costOfRatio(ratio);
+  while (energy + costPerTier <= maxEnergy) {
+    // TODO: respect max values
+    body = addToRatio(body, ratio);
+    energy += costPerTier;
+  }
+
+  return createCreepBody(
+      body.work, body.carry, body.move, body.attack, body.heal, body.tough,
+      body.claim);
+}
+
+function addToRatio(base: CreepRatio, addition: CreepRatio): CreepRatio {
+  return {
+    attack: base.attack + addition.attack,
+    carry: base.carry + addition.carry,
+    claim: base.claim + addition.claim,
+    heal: base.heal + addition.heal,
+    move: base.move + addition.move,
+    tough: base.tough + addition.tough,
+    work: base.work + addition.work,
+  };
+}
+
+function costOfRatio(ratio: CreepRatio): number {
+  return ratio.attack * BODYPART_COST[ATTACK] +
+      ratio.carry * BODYPART_COST[CARRY] + ratio.claim * BODYPART_COST[CLAIM] +
+      ratio.heal * BODYPART_COST[HEAL] + ratio.move * BODYPART_COST[MOVE] +
+      ratio.tough * BODYPART_COST[TOUGH] + ratio.work * BODYPART_COST[WORK];
+}

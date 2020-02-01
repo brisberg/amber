@@ -1,5 +1,5 @@
 import {CONTAINER_UPGRADER, ContainerUpgrader} from 'behaviors/containerUpgrader';
-import {WORKER_1} from 'spawn-system/bodyTypes';
+import {WORKER, zeroRatio} from 'spawn-system/bodyTypes';
 
 import {Mission, MissionMemory} from './mission';
 
@@ -17,7 +17,8 @@ interface UpgradeMissionMemory extends MissionMemory {
  */
 export class UpgradeMission extends Mission<UpgradeMissionMemory> {
   protected readonly spawnPriority = 5;
-  protected readonly bodyType = WORKER_1;
+  protected readonly bodyType = WORKER;
+  protected readonly bodyOptions = {min: {...zeroRatio, carry: 1}};
 
   private container: StructureContainer|null = null;
   private controller: StructureController|null = null;
@@ -72,15 +73,12 @@ export class UpgradeMission extends Mission<UpgradeMissionMemory> {
       this.creeps.forEach((creep) => {
         if (creep.memory.behavior !== CONTAINER_UPGRADER) {
           // Upgrade controller
-          creep.memory = {
-            behavior: CONTAINER_UPGRADER,
-            bodyType: WORKER_1,
-            mem: ContainerUpgrader.initMemory(
-                this.controller!,
-                this.container!,
-                ),
-            mission: this.name,
-          };
+          creep.memory.behavior = CONTAINER_UPGRADER;
+          creep.memory.mem = ContainerUpgrader.initMemory(
+              this.controller!,
+              this.container!,
+          );
+          creep.memory.mission = this.name;
         }
       });
     }

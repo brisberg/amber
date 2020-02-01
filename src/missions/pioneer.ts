@@ -1,5 +1,5 @@
 import {PIONEER, Pioneer} from 'behaviors/pioneer';
-import {CARRY_WORKER_1} from 'spawn-system/bodyTypes';
+import {CARRY_WORKER} from 'spawn-system/bodyTypes';
 
 import {Mission, MissionMemory} from './mission';
 
@@ -38,7 +38,8 @@ interface PioneerMissionMemory extends MissionMemory {
  */
 export class PioneerMission extends Mission<PioneerMissionMemory> {
   protected readonly spawnPriority = 0;
-  protected readonly bodyType = CARRY_WORKER_1;
+  protected readonly bodyType = CARRY_WORKER;
+  protected readonly bodyOptions = {max: {work: 1, carry: 1, move: 2}};
 
   private controller: StructureController|null = null;
   private sources: Source[] = [];
@@ -115,19 +116,17 @@ export class PioneerMission extends Mission<PioneerMissionMemory> {
         return;
       }
 
-      // Direct each creep to upgrade from the sourceNode
+      // Direct each creep to act as a pioneer
       this.creeps.forEach((creep) => {
         if (creep.memory.behavior !== PIONEER) {
-          // Upgrade controller
-          creep.memory = {
-            behavior: PIONEER,
-            bodyType: CARRY_WORKER_1,
-            mem: Pioneer.initMemory(
-                this.controller!,
-                this.sources[this.mem.nextSource],
-                ),
-            mission: this.name,
-          };
+          // Become a Pioneer!
+          creep.memory.behavior = PIONEER;
+          creep.memory.mem = Pioneer.initMemory(
+              this.controller!,
+              this.sources[this.mem.nextSource],
+          );
+          creep.memory.mission = this.name;
+
           // Cycle the next index
           this.mem.nextSource = (this.mem.nextSource + 1) % this.sources.length;
         }

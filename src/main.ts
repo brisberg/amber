@@ -1,6 +1,7 @@
-import 'behaviors';  // Required to initialize BehaviorMap
-import 'missions';   // Required to initialize MissionsMap
-import 'operations'; // Required to initialize OperationsMap
+import 'behaviors';    // Required to initialize BehaviorMap
+import 'missions';     // Required to initialize MissionsMap
+import 'operations';   // Required to initialize OperationsMap
+import 'towers/tower'; // Required to initialize Tower Behavior
 
 import {IDLER} from 'behaviors/idler';
 import {registerEnergyNode} from 'energy-network/energyNode';
@@ -90,7 +91,7 @@ export const loop = () => {
       }
     }
 
-    // Execute Extension Groups
+    // Execute Town Square
     if (flagIsColor(flag, TOWN_SQUARE_FLAG)) {
       const square = new TownSquare(flag);
       if (square.init()) {

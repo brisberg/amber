@@ -2,7 +2,7 @@ import {ENET_DEPOSITER, ENetDepositer} from 'behaviors/eNetDepositer';
 import {ENET_FETCHER, ENetFetcher} from 'behaviors/eNetFetcher';
 import {IDLER} from 'behaviors/idler';
 import {EnergyNode, EnergyNodeMemory} from 'energy-network/energyNode';
-import {HAULER_1} from 'spawn-system/bodyTypes';
+import {HAULER} from 'spawn-system/bodyTypes';
 import {declareOrphan} from 'spawn-system/orphans';
 
 import {Mission, MissionMemory} from './mission';
@@ -22,7 +22,8 @@ interface TransportMissionMemory extends MissionMemory {
  */
 export class TransportMission extends Mission<TransportMissionMemory> {
   protected readonly spawnPriority = 3;
-  protected readonly bodyType = HAULER_1;
+  protected readonly bodyType = HAULER;
+  protected readonly bodyOptions = {};
 
   public source: EnergyNode|null = null;
   public dest: EnergyNode|null = null;
@@ -111,12 +112,9 @@ export class TransportMission extends Mission<TransportMissionMemory> {
 
         if (creep.store.getFreeCapacity() === 0) {
           // Have energy, travel to destination
-          creep.memory = {
-            behavior: ENET_DEPOSITER,
-            bodyType: HAULER_1,
-            mem: ENetDepositer.initMemory(this.dest!),
-            mission: this.name,
-          };
+          creep.memory.behavior = ENET_DEPOSITER;
+          creep.memory.mem = ENetDepositer.initMemory(this.dest!);
+          creep.memory.mission = this.name;
         }
       } else if (creep.memory.behavior === ENET_DEPOSITER) {
         if (ENetDepositer.getTarget(creep.memory.mem) !==
@@ -136,12 +134,9 @@ export class TransportMission extends Mission<TransportMissionMemory> {
                 this.mem.creeps.filter((name) => name !== creep.name);
           } else {
             // Fetch more energy
-            creep.memory = {
-              behavior: ENET_FETCHER,
-              bodyType: HAULER_1,
-              mem: ENetFetcher.initMemory(this.source!),
-              mission: this.name,
-            };
+            creep.memory.behavior = ENET_FETCHER;
+            creep.memory.mem = ENetFetcher.initMemory(this.source!);
+            creep.memory.mission = this.name;
           }
         }
       }

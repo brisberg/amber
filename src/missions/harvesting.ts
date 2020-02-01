@@ -1,5 +1,5 @@
 import {CONTAINER_HARVESTER, ContainerHarvester} from 'behaviors/containerHarvester';
-import {WORKER_1} from 'spawn-system/bodyTypes';
+import {WORKER, zeroRatio} from 'spawn-system/bodyTypes';
 
 import {MAX_WORK_PER_SOURCE} from '../constants';
 
@@ -22,7 +22,11 @@ export class HarvestingMission extends Mission<HarvestingMemory> {
   public source: Source|null = null;
   public container: StructureContainer|null = null;
 
-  protected readonly bodyType: string = WORKER_1;
+  protected readonly bodyType: string = WORKER;
+  protected readonly bodyOptions = {
+    max: {work: 6},
+    min: {...zeroRatio, carry: 1},
+  };
   protected readonly spawnPriority = 2;
 
   constructor(flag: Flag) {

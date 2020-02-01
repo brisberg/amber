@@ -1,3 +1,4 @@
+import {GenerateCreepBodyOptions} from 'spawn-system/bodyTypes';
 import {declareOrphan} from 'spawn-system/orphans';
 
 export interface MissionMemory {
@@ -44,6 +45,7 @@ export abstract class Mission<M extends MissionMemory> {
   private readonly flag: Flag;
 
   protected abstract readonly bodyType: string;
+  protected abstract readonly bodyOptions: GenerateCreepBodyOptions;
   protected abstract readonly spawnPriority: number;
 
   constructor(flag: Flag) {
@@ -89,19 +91,23 @@ export abstract class Mission<M extends MissionMemory> {
 
     // Check for critical creep allocation
     if (this.needMoreCreepsCritical()) {
-      this.mem.nextCreep = this.requestCreep(this.bodyType, true);
+      this.mem.nextCreep =
+          this.requestCreep(this.bodyType, this.bodyOptions, true);
     } else if (this.needMoreCreeps()) {
       // Check for creep allocation
-      this.mem.nextCreep = this.requestCreep(this.bodyType);
+      this.mem.nextCreep = this.requestCreep(this.bodyType, this.bodyOptions);
     }
 
     // TODO: Add a section to automatically release creeps we don't need
   }
 
   /** Requests another Creep from the SpawnQueue */
-  protected requestCreep(bodyType: string, critical: boolean = false): string {
+  protected requestCreep(
+      bodyRatio: string, bodyOptions?: GenerateCreepBodyOptions,
+      critical: boolean = false): string {
     return global.spawnQueue.requestCreep({
-      bodyType,
+      bodyOptions,
+      bodyRatio,
       mission: this.name,
       priority: critical ? 1 : this.spawnPriority,
     });
