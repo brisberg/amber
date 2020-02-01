@@ -9,6 +9,7 @@ interface DistributionMemory extends MissionMemory {
   spawnID: Id<StructureSpawn>|null;
   eNodeFlag: string|null;
   extensionGroups: string[];
+  towerIDs: Array<Id<StructureTower>>;
 }
 
 /**
@@ -26,6 +27,7 @@ export class DistributionMission extends Mission<DistributionMemory> {
   private eNode: EnergyNode|null = null;
   private spawn: StructureSpawn|null = null;
   private extensinGroups: ExtensionGroup[] = [];
+  private towers: StructureTower[] = [];
 
   constructor(flag: Flag) {
     super(flag);
@@ -46,6 +48,11 @@ export class DistributionMission extends Mission<DistributionMemory> {
     this.mem.extensionGroups = groups.map((group) => group.flag.name);
   }
 
+  public setTowers(towers: StructureTower[]) {
+    this.towers = towers;
+    this.mem.towerIDs = towers.map((tower) => tower.id);
+  }
+
   /** @override */
   protected initialMemory(): DistributionMemory {
     return {
@@ -53,6 +60,7 @@ export class DistributionMission extends Mission<DistributionMemory> {
       eNodeFlag: null,
       extensionGroups: [],
       spawnID: null,
+      towerIDs: [],
     };
   }
 
@@ -72,6 +80,13 @@ export class DistributionMission extends Mission<DistributionMemory> {
       group.init();
       return group;
     });
+    this.towers = this.mem.towerIDs
+                      .filter((id) => {
+                        return Game.getObjectById(id);
+                      })
+                      .map((id) => {
+                        return Game.getObjectById(id)!;
+                      });
     return true;
   }
 
@@ -91,10 +106,19 @@ export class DistributionMission extends Mission<DistributionMemory> {
 
       // Only reassign distributors who are idle
       if (distributor.memory.mem.phase === 'idle') {
-        // First refill the spawn
+        // First refill towers
+        for (const tower of this.towers) {
+          if (tower.store.getFreeCapacity()) {
+            distributor.memory.mem =
+                Distributor.initMemory(this.eNode!, null, null, tower);
+            return;
+          }
+        }
+
+        // Refill the spawn
         if (this.spawn!.energy < this.spawn!.energyCapacity) {
           distributor.memory.mem =
-              Distributor.initMemory(this.eNode!, this.spawn, null);
+              Distributor.initMemory(this.eNode!, this.spawn, null, null);
           return;
         }
 
@@ -102,7 +126,7 @@ export class DistributionMission extends Mission<DistributionMemory> {
         for (const group of this.extensinGroups) {
           if (!group.isFull()) {
             distributor.memory.mem =
-                Distributor.initMemory(this.eNode!, null, group);
+                Distributor.initMemory(this.eNode!, null, group, null);
             return;
           }
         }

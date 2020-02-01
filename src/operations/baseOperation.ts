@@ -23,6 +23,7 @@ export interface BaseOperationMemory {
   spawnID: Id<StructureSpawn>|null;
   townSquareFlag: string|null;
   extensionFlags: string[];
+  towerIDs: Array<Id<StructureTower>>;
   eNodeFlag: string|null;  // Cached Energy Node as Operation source
 }
 
@@ -35,6 +36,7 @@ export class BaseOperation {
   private spawn: StructureSpawn|null = null;
   private distMsn: DistributionMission|null = null;
   private extensionGroups: ExtensionGroup[] = [];
+  private towers: StructureTower[] = [];
   private eNode: EnergyNode|null = null;
 
   constructor(flag: Flag) {
@@ -49,6 +51,7 @@ export class BaseOperation {
         extensionFlags: [],
         spawnID: null,
         townSquareFlag: null,
+        towerIDs: [],
       };
       Memory.operations[this.name] = mem;
     }
@@ -112,6 +115,14 @@ export class BaseOperation {
       return new ExtensionGroup(Game.flags[flag]);
     });
 
+    // Validate Towers. Non blocking as we can build
+    const towerIds = this.mem.towerIDs.filter((id) => {
+      return Game.getObjectById(id) !== null;
+    });
+    this.towers = towerIds.map((id) => {
+      return Game.getObjectById(id)!;
+    });
+
     return true;
   }
 
@@ -131,19 +142,27 @@ export class BaseOperation {
       return new ExtensionGroup(Game.flags[flag]);
     })
 
+    // Aquire new Towers as they appear
+    const towers = this.flag.room!.find(
+        FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_TOWER}});
+    const towerIDs = towers.map((tower) => tower.id as Id<StructureTower>);
+    this.mem.towerIDs = towerIDs;
+    this.towers = towers as StructureTower[];
+
     if (!this.distMsn) {
       // Set up a Distribution mission to supply spawn/extensions
       const distMsn = this.setUpDistributionMission(this.name + '_dist');
       distMsn.setSource(this.eNode);
       distMsn.setSpawn(this.spawn);
       distMsn.setExtensionGroups(this.extensionGroups);
+      distMsn.setTowers(this.towers);
       distMsn.init();
       this.mem.distMsn = distMsn.name;
-    }
-    else {
+    } else {
       // Update existing Distribution mission with new extension groups
       this.distMsn.setSpawn(this.spawn);
       this.distMsn.setExtensionGroups(this.extensionGroups);
+      this.distMsn.setTowers(this.towers);
     }
   }
 

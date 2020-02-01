@@ -10,6 +10,7 @@ interface DistributorMemory extends BehaviorMemory {
   spawnID: Id<StructureSpawn>|null;
   extensionGroup: string|null;
   phase: 'fetch'|'deliver'|'idle';
+  towerID: Id<StructureTower>|null;
 }
 
 export const DISTRIBUTOR = 'distributor';
@@ -35,8 +36,12 @@ export class Distributor extends Behavior<DistributorMemory> {
       extendGroup = new ExtensionGroup(Game.flags[mem.extensionGroup]);
       extendGroup.init();
     }
+    let tower: StructureTower|null = null;
+    if (mem.towerID) {
+      tower = Game.getObjectById(mem.towerID);
+    }
 
-    if (!node || (!spawn && !extendGroup)) {
+    if (!node || (!spawn && !extendGroup && !tower)) {
       return false;
     }
 
@@ -62,6 +67,18 @@ export class Distributor extends Behavior<DistributorMemory> {
 
         mem.subBehavior = DEPOSITER;
         mem.mem = Depositer.initMemory(spawn);
+        return false;
+      }
+
+      if (tower) {
+        if (tower.store.getFreeCapacity() === 0) {
+          // Tower is full, we are done here
+          mem.towerID = null;
+          mem.phase = 'idle';
+        }
+
+        mem.subBehavior = DEPOSITER;
+        mem.mem = Depositer.initMemory(tower);
         return false;
       }
 
@@ -103,12 +120,14 @@ export class Distributor extends Behavior<DistributorMemory> {
 
   public static initMemory(
       node: EnergyNode, spawn: StructureSpawn|null = null,
-      extendGroup: ExtensionGroup|null = null): DistributorMemory {
+      extendGroup: ExtensionGroup|null = null,
+      tower: StructureTower|null = null): DistributorMemory {
     return {
       eNodeFlag: node.flag.name,
       extensionGroup: extendGroup ? extendGroup.flag.name : null,
       phase: 'idle',
       spawnID: spawn ? spawn.id : null,
+      towerID: tower ? tower.id : null,
     };
   }
 }
