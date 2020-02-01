@@ -97,6 +97,8 @@ export class DistributionMission extends Mission<DistributionMemory> {
     }
 
     this.creeps.forEach((distributor) => {
+      distributor.memory.mission = this.name;
+
       if (distributor.memory.behavior !== DISTRIBUTOR) {
         distributor.memory.behavior = DISTRIBUTOR;
         distributor.memory.mem =
