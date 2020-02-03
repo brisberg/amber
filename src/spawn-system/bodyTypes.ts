@@ -127,12 +127,12 @@ export function generateFlexibleCreep(
 
     if (opts && opts.max) {
       const max = opts.max;
-      if (nextBody.work > (max.work || 99) &&
-          nextBody.carry > (max.carry || 99) &&
-          nextBody.move > (max.move || 99) &&
-          nextBody.attack > (max.attack || 99) &&
-          nextBody.heal > (max.heal || 99) &&
-          nextBody.tough > (max.tough || 99) &&
+      if (nextBody.work > (max.work || 99) ||
+          nextBody.carry > (max.carry || 99) ||
+          nextBody.move > (max.move || 99) ||
+          nextBody.attack > (max.attack || 99) ||
+          nextBody.heal > (max.heal || 99) ||
+          nextBody.tough > (max.tough || 99) ||
           nextBody.claim > (max.claim || 99)) {
         // Another ratio will go over the maximum.
         break;
