@@ -26,6 +26,11 @@ import {garbageCollection} from './garbageCollect';
 // numbers and file names of the original, TS source code
 // export const loop = ErrorMapper.wrapLoop(() => {
 export const loop = () => {
+  // Pause Script Execution
+  if (Memory.pauseUtil && Game.time < Memory.pauseUtil) {
+    return;
+  }
+
   // Initialize global constructs
   Memory.missions = Memory.missions || {};
   Memory.operations = Memory.operations || {};

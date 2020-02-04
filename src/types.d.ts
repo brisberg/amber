@@ -9,6 +9,7 @@ interface CreepMemory {
 }
 
 interface Memory {
+  pauseUtil?: number;  // Script paused until this Game Tick
   nextID: number;
   missions: {[name: string]: any};
   operations: {[name: string]: any};
@@ -41,6 +42,6 @@ declare namespace NodeJS {
     // Global Energy Network instance
     eNetwork: import('./energy-network/roomEnergyNetwork').RoomEnergyNetwork;
     // Console Commands
-    cc: {[command: string]: (args: any) => void};
+    cc: {[command: string]: (...args: any) => any};
   }
 }

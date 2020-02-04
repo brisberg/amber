@@ -1,6 +1,3 @@
-import {registerEnergyNode, unregisterEnergyNode} from 'energy-network/energyNode';
-import {ENERGY_NODE_FLAG} from 'flagConstants';
-
 /**
  * Installs all Console Commands to the global scope. Can be accessed by:
  * `cc.command()`
@@ -10,34 +7,44 @@ export function installConsoleCommands() {
 }
 
 const CONSOLE_COMMANDS = {
-  addENode: (containerID: Id<StructureContainer>, threshold = 0) => {
-    const room = Game.spawns.Spawn1.room;
-    const container = Game.getObjectById(containerID);
-
-    if (!container) {
-      return;
-    }
-
-    const flag = registerEnergyNode(room, [container.pos.x, container.pos.y], {
-      color: ENERGY_NODE_FLAG,
-      persistant: true,
-      polarity: 0,
-      structureID: container.id,
-      type: 'structure',
-    });
-
-    return flag.name;
+  /** Pause Script execution for a number of Game ticks */
+  pauseFor(ticks: number = 100) {
+    Memory.pauseUtil = Game.time + ticks;
+    console.log('Script suspended until ' + Memory.pauseUtil);
+  },
+  /** Resume Script execution */
+  unpause() {
+    delete Memory.pauseUtil;
+    console.log('Script resumed.');
   },
 
-  removeENode: (flagName: string) => {
-    const flag = Game.flags[flagName];
+  reassignCreep(creepName: string, mission: string) {
+    const creep = Game.creeps[creepName];
+    const mem = Memory.creeps[creepName];
 
-    if (!flag) {
-      return;
+    // Validate inputs
+    if (!creep) {
+      console.log('No Creep found for name: ' + creepName);
+      return false;
     }
 
-    unregisterEnergyNode(flag);
+    const newMsn = global.missions(Game.flags[mission]);
+    if (!newMsn) {
+      console.log('No Mission flag found for: ' + mission);
+      return false;
+    }
 
-    return 'done';
+    // Un-assign creep from previous mission
+    if (mem && mem.mission && Game.flags[mem.mission]) {
+      const msn = global.missions(Game.flags[mem.mission]);
+
+      if (msn) {
+        msn.releaseCreep(creep);
+      }
+    }
+
+    // Assign creep to new Mission
+    newMsn.assignCreep(creep);
+    return true;
   },
 };
