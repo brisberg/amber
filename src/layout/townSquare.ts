@@ -89,8 +89,16 @@ export class TownSquare {
     const maxTowers =
         CONTROLLER_STRUCTURES.tower[this.flag.room!.controller!.level];
 
+    const terrain = this.flag.room!.getTerrain();
+
     for (let x = -3; x <= 3; x++) {
       for (let y = -3; y <= 2; y++) {
+        // Skip structures which would be placed in a wall
+        if (terrain.get(this.flag.pos.x + x, this.flag.pos.y + y) ===
+            TERRAIN_MASK_WALL) {
+          continue;
+        }
+
         const struct = TownSquare.config[y + 3][x + 3];
 
         // Limit spawns
