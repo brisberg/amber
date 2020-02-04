@@ -139,6 +139,14 @@ export class BuildMission extends Mission<BuildMissionMemory> {
       return false;
     }
 
+    let totalWorkParts = 0;
+    for (const builder of this.creeps) {
+      totalWorkParts += builder.getActiveBodyparts(WORK);
+    }
+    if (totalWorkParts >= 5) {
+      return false;
+    }
+
     return true;
   }
 

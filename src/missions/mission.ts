@@ -114,6 +114,31 @@ export abstract class Mission<M extends MissionMemory> {
   }
 
   /**
+   * Releases a given creep from this mission and makes it an orphan. Returns
+   * true if successful or false if the creep is not owned by this mission.
+   */
+  public releaseCreep(creep: Creep): boolean {
+    if (this.creeps.includes(creep)) {
+      this.creeps = this.creeps.filter((c) => c !== creep);
+      this.mem.creeps = this.mem.creeps.filter((n) => n !== creep.name);
+
+      declareOrphan(creep);
+    }
+
+    return false;
+  }
+
+  /**
+   * Assignes the given creep to this mission. Assumes the creep is an
+   * appropriate body ratio for this mission.
+   */
+  public assignCreep(creep: Creep) {
+    this.creeps.push(creep);
+    this.mem.creeps.push(creep.name);
+    declareOrphan(creep);
+  }
+
+  /**
    * Executes one update tick for this mission. We can assume that Memory and
    * all needed Game Objects are available and in play.
    */
