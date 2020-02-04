@@ -41,8 +41,8 @@ export class TowerBehavior {
     if (Game.time % 100 === 0) {
       const structs = tower.room
                           .lookForAtArea(
-                              LOOK_STRUCTURES, tower.pos.y - 5, tower.pos.x - 5,
-                              tower.pos.y + 5, tower.pos.x + 5, true)
+                              LOOK_STRUCTURES, tower.pos.y - 7, tower.pos.x - 7,
+                              tower.pos.y + 7, tower.pos.x + 7, true)
                           .map((result) => result.structure);
       const damaged = structs.filter(
           (struct) => struct.hitsMax - struct.hits >= TOWER_POWER_REPAIR);
