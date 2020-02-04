@@ -1,3 +1,4 @@
+import {setCreepBehavior} from 'behaviors/behavior';
 import {CONTAINER_HARVESTER, ContainerHarvester} from 'behaviors/containerHarvester';
 import {WORKER, zeroRatio} from 'spawn-system/bodyTypes';
 
@@ -77,12 +78,9 @@ export class HarvestingMission extends Mission<HarvestingMemory> {
     this.creeps.forEach((harvester) => {
       // Reassign the harvesters if they were given to us
       if (harvester.memory.behavior !== CONTAINER_HARVESTER) {
-        harvester.memory = {
-          ...harvester.memory,
-          behavior: CONTAINER_HARVESTER,
-          mem: ContainerHarvester.initMemory(this.source!, this.container!),
-          mission: this.name,
-        };
+        setCreepBehavior(
+            harvester, CONTAINER_HARVESTER,
+            ContainerHarvester.initMemory(this.source!, this.container!));
       }
     });
   }

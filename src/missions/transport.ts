@@ -1,3 +1,4 @@
+import {setCreepBehavior} from 'behaviors/behavior';
 import {ENET_DEPOSITER, ENetDepositer} from 'behaviors/eNetDepositer';
 import {ENET_FETCHER, ENetFetcher} from 'behaviors/eNetFetcher';
 import {IDLER} from 'behaviors/idler';
@@ -113,14 +114,20 @@ export class TransportMission extends Mission<TransportMissionMemory> {
         if (ENetFetcher.getTarget(creep.memory.mem) !==
             this.source!.flag.name) {
           // Update fetch target
-          creep.memory.mem =
-              ENetFetcher.initMemory(this.source!, this.mem.buffer);
+          setCreepBehavior(
+              creep,
+              ENET_FETCHER,
+              ENetFetcher.initMemory(this.source!, this.mem.buffer),
+          );
         }
 
         if (creep.store.getFreeCapacity() === 0) {
           // Have energy, travel to destination
-          creep.memory.behavior = ENET_DEPOSITER;
-          creep.memory.mem = ENetDepositer.initMemory(this.dest!);
+          setCreepBehavior(
+              creep,
+              ENET_DEPOSITER,
+              ENetDepositer.initMemory(this.dest!),
+          );
           creep.memory.mission = this.name;
         }
       } else if (creep.memory.behavior === ENET_DEPOSITER) {
@@ -141,9 +148,11 @@ export class TransportMission extends Mission<TransportMissionMemory> {
                 this.mem.creeps.filter((name) => name !== creep.name);
           } else {
             // Fetch more energy
-            creep.memory.behavior = ENET_FETCHER;
-            creep.memory.mem =
-                ENetFetcher.initMemory(this.source!, this.mem.buffer);
+            setCreepBehavior(
+                creep,
+                ENET_FETCHER,
+                ENetFetcher.initMemory(this.source!, this.mem.buffer),
+            );
             creep.memory.mission = this.name;
           }
         }

@@ -1,3 +1,4 @@
+import {setCreepBehavior} from 'behaviors/behavior';
 import {PIONEER, Pioneer} from 'behaviors/pioneer';
 import {CARRY_WORKER} from 'spawn-system/bodyTypes';
 
@@ -120,10 +121,13 @@ export class PioneerMission extends Mission<PioneerMissionMemory> {
       this.creeps.forEach((creep) => {
         if (creep.memory.behavior !== PIONEER) {
           // Become a Pioneer!
-          creep.memory.behavior = PIONEER;
-          creep.memory.mem = Pioneer.initMemory(
-              this.controller!,
-              this.sources[this.mem.nextSource],
+          setCreepBehavior(
+              creep,
+              PIONEER,
+              Pioneer.initMemory(
+                  this.controller!,
+                  this.sources[this.mem.nextSource],
+                  ),
           );
           creep.memory.mission = this.name;
 

@@ -135,7 +135,9 @@ export abstract class Mission<M extends MissionMemory> {
   public assignCreep(creep: Creep) {
     this.creeps.push(creep);
     this.mem.creeps.push(creep.name);
+
     declareOrphan(creep);
+    creep.memory.mission = this.name;
   }
 
   /**

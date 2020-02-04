@@ -1,3 +1,5 @@
+import {BehaviorKey} from 'behaviors';
+
 /**
  * Signature of a Behavior update function. Takes a Creep and a Memory object
  * and executes one update tick modifying the Memory object and optionally
@@ -47,4 +49,14 @@ export abstract class Behavior<M extends BehaviorMemory> implements
 
     return moved;
   }
+}
+
+/**
+ * Cleanly modifies the given creep's memory to change its behavior class.
+ */
+export function setCreepBehavior<M>(
+    creep: Creep, behavior: BehaviorKey, memory: M) {
+  const mem = creep.memory;
+  mem.behavior = behavior;
+  mem.mem = memory;
 }

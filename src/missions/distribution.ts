@@ -1,3 +1,4 @@
+import {setCreepBehavior} from 'behaviors/behavior';
 import {DISTRIBUTOR, Distributor} from 'behaviors/distributor';
 import {EnergyNode} from 'energy-network/energyNode';
 import {ExtensionGroup} from 'layout/extensionGroup';
@@ -100,9 +101,9 @@ export class DistributionMission extends Mission<DistributionMemory> {
       distributor.memory.mission = this.name;
 
       if (distributor.memory.behavior !== DISTRIBUTOR) {
-        distributor.memory.behavior = DISTRIBUTOR;
-        distributor.memory.mem =
-            Distributor.initMemory(this.eNode!, null, null);
+        setCreepBehavior(
+            distributor, DISTRIBUTOR,
+            Distributor.initMemory(this.eNode!, null, null));
         return;
       }
 
@@ -111,24 +112,27 @@ export class DistributionMission extends Mission<DistributionMemory> {
         // First refill towers
         for (const tower of this.towers) {
           if (tower.energy < tower.energyCapacity) {  // Towers have weird store
-            distributor.memory.mem =
-                Distributor.initMemory(this.eNode!, null, null, tower);
+            setCreepBehavior(
+                distributor, DISTRIBUTOR,
+                Distributor.initMemory(this.eNode!, null, null, tower));
             return;
           }
         }
 
         // Refill the spawn
         if (this.spawn!.energy < this.spawn!.energyCapacity) {
-          distributor.memory.mem =
-              Distributor.initMemory(this.eNode!, this.spawn, null, null);
+          setCreepBehavior(
+              distributor, DISTRIBUTOR,
+              Distributor.initMemory(this.eNode!, this.spawn, null, null));
           return;
         }
 
         // Check for empty Extension Groups
         for (const group of this.extensinGroups) {
           if (!group.isFull()) {
-            distributor.memory.mem =
-                Distributor.initMemory(this.eNode!, null, group, null);
+            setCreepBehavior(
+                distributor, DISTRIBUTOR,
+                Distributor.initMemory(this.eNode!, null, group, null));
             return;
           }
         }

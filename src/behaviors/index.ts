@@ -16,6 +16,12 @@ import {Repairer, REPAIRER} from './repairer';
 import {SOURCE_BUILDER, SourceBuilder} from './sourceBuilder';
 import {Upgrader, UPGRADER} from './upgrader';
 
+export type BehaviorKey = typeof PIONEER|typeof REPAIRER|typeof FETCHER|
+    typeof DEPOSITER|typeof CONTAINER_HARVESTER|typeof EMERGENCY_MINER|
+    typeof BUILDER|typeof SOURCE_BUILDER|typeof ENET_BUILDER|
+    typeof ENET_FETCHER|typeof ENET_DEPOSITER|typeof UPGRADER|
+    typeof CONTAINER_UPGRADER|typeof DISTRIBUTOR|typeof IDLER;
+
 export interface BehaviorMap {
   [name: string]: Behavior<any>;
 }

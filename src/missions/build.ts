@@ -1,3 +1,4 @@
+import {setCreepBehavior} from 'behaviors/behavior';
 import {ENET_BUILDER, ENetBuilder} from 'behaviors/eNetBuilder';
 import {SOURCE_BUILDER, SourceBuilder} from 'behaviors/sourceBuilder';
 import {EnergyNode} from 'energy-network/energyNode';
@@ -104,12 +105,11 @@ export class BuildMission extends Mission<BuildMissionMemory> {
         // Harvest the energy ourselves right from the source
         if (creep.memory.behavior !== SOURCE_BUILDER) {
           console.log('setting ' + creep.name + ' memory to SourceBuilder');
-          creep.memory = {
-            ...creep.memory,
-            behavior: SOURCE_BUILDER,
-            mem: SourceBuilder.initMemory(this.target!, this.rawSource),
-            mission: this.name,
-          };
+          setCreepBehavior(
+              creep,
+              SOURCE_BUILDER,
+              SourceBuilder.initMemory(this.target!, this.rawSource),
+          );
         }
       }
 
@@ -117,12 +117,11 @@ export class BuildMission extends Mission<BuildMissionMemory> {
         // Gather the energy from the energy network
         if (creep.memory.behavior !== ENET_BUILDER) {
           // Get settled and start building from the network
-          creep.memory = {
-            ...creep.memory,
-            behavior: ENET_BUILDER,
-            mem: ENetBuilder.initMemory(this.target!, this.eNode),
-            mission: this.name,
-          };
+          setCreepBehavior(
+              creep,
+              ENET_BUILDER,
+              ENetBuilder.initMemory(this.target!, this.eNode),
+          );
         }
       }
     });
