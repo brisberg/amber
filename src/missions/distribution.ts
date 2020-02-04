@@ -149,7 +149,7 @@ export class DistributionMission extends Mission<DistributionMemory> {
    * Returns true if we need another Distributor.
    */
   protected needMoreCreeps(): boolean {
-    if (this.creeps.length >= this.maxDistributors) {
+    if (this.getYoungCreeps().length >= this.maxDistributors) {
       return false;
     }
 

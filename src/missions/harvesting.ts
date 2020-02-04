@@ -97,12 +97,13 @@ export class HarvestingMission extends Mission<HarvestingMemory> {
    * harvesters from Source Analysis.
    */
   protected needMoreCreeps(): boolean {
-    if (this.creeps.length >= this.maxHarvesters) {
+    const creeps = this.getYoungCreeps();
+    if (creeps.length >= this.maxHarvesters) {
       return false;
     }
 
     let totalWorkParts = 0;
-    for (const harvester of this.creeps) {
+    for (const harvester of creeps) {
       totalWorkParts += harvester.getActiveBodyparts(WORK);
     }
     if (totalWorkParts >= MAX_WORK_PER_SOURCE + 1) {

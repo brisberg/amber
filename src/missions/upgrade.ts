@@ -99,12 +99,13 @@ export class UpgradeMission extends Mission<UpgradeMissionMemory> {
    * Takes into account total WORK parts of existing upgraders.
    */
   protected needMoreCreeps(): boolean {
-    if (this.creeps.length >= this.maxUpgraders) {
+    const creeps = this.getYoungCreeps();
+    if (creeps.length >= this.maxUpgraders) {
       return false;
     }
 
     let totalWorkParts = 0;
-    for (const upgrader of this.creeps) {
+    for (const upgrader of creeps) {
       totalWorkParts += upgrader.getActiveBodyparts(WORK);
     }
     if (totalWorkParts >= 15) {

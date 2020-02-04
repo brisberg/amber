@@ -134,12 +134,13 @@ export class BuildMission extends Mission<BuildMissionMemory> {
   /** @override */
   /** Returns true if we need another Builder. */
   protected needMoreCreeps(): boolean {
-    if (this.creeps.length >= this.maxBuilders) {
+    const creeps = this.getYoungCreeps();
+    if (creeps.length >= this.maxBuilders) {
       return false;
     }
 
     let totalWorkParts = 0;
-    for (const builder of this.creeps) {
+    for (const builder of creeps) {
       totalWorkParts += builder.getActiveBodyparts(WORK);
     }
     if (totalWorkParts >= 5) {

@@ -188,12 +188,13 @@ export class TransportMission extends Mission<TransportMissionMemory> {
    * hauler congestion based on lane distance.
    */
   protected needMoreCreeps(): boolean {
-    if (this.creeps.length >= this.maxCongestionForLane) {
+    const creeps = this.getYoungCreeps();
+    if (creeps.length >= this.maxCongestionForLane) {
       return false;
     }
 
     let totalWorkParts = 0;
-    for (const hauler of this.creeps) {
+    for (const hauler of creeps) {
       totalWorkParts += hauler.getActiveBodyparts(CARRY);
     }
     if (totalWorkParts < this.maxCarryPartsForLane) {

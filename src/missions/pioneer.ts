@@ -150,7 +150,7 @@ export class PioneerMission extends Mission<PioneerMissionMemory> {
    * die off.
    */
   protected needMoreCreeps(): boolean {
-    if (this.creeps.length >= this.maxPioneers) {
+    if (this.getYoungCreeps().length >= this.maxPioneers) {
       return false;
     }
 
