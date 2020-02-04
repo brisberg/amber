@@ -193,9 +193,35 @@ export const loop = () => {
         MINING_OPERATION_FLAG.secondaryColor);
   }
 
-  // Hack for now
+  // Hack for now, initialize Core ENetwork at storage or temp container
+  const storage = room.storage;
   const corePos = spawn.room.getPositionAt(spawn.pos.x + 2, spawn.pos.y);
-  if (corePos) {
+  if (storage) {  // We have storage, use it as the network core
+    const existingFlag = room.find(FIND_FLAGS, {filter: CORE_ENERGY_NODE_FLAG});
+    if (existingFlag.length === 0) {
+      // Initialize the network
+      const flagName = 'network_core_node';
+      registerEnergyNode(spawn.room, [storage.pos.x, storage.pos.y], {
+        color: CORE_ENERGY_NODE_FLAG,
+        coreBuffer: 0,
+        persistant: true,
+        polarity: 0,
+        type: 'structure',
+      });
+    } else {
+      const flag = existingFlag[0];
+      if (!flag.pos.isEqualTo(storage.pos)) {
+        // Remove old container, if it exists
+        const structs = flag.pos.lookFor(LOOK_STRUCTURES).filter((struct) => {
+          return struct.structureType === STRUCTURE_CONTAINER;
+        });
+        for (const cont of structs) {
+          cont.destroy();
+        }
+        flag.remove();
+      }
+    }
+  } else if (corePos) {  // No storage, look for temp container
     // Look for Container/Storage
     const structs = corePos.lookFor(LOOK_STRUCTURES);
     if (structs.length === 0) {
