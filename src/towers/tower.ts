@@ -39,12 +39,11 @@ export class TowerBehavior {
 
     // Scan for damaged structures every 100 ticks
     if (Game.time % 100 === 0) {
-      const structs =
-          tower.room
-              .lookForAtArea(
-                  LOOK_STRUCTURES, tower.pos.y - 10, tower.pos.x - 10,
-                  tower.pos.y + 10, tower.pos.x + 10, true)
-              .map((result) => result.structure);
+      const structs = tower.room
+                          .lookForAtArea(
+                              LOOK_STRUCTURES, tower.pos.y - 5, tower.pos.x - 5,
+                              tower.pos.y + 5, tower.pos.x + 5, true)
+                          .map((result) => result.structure);
       const damaged = structs.filter(
           (struct) => struct.hitsMax - struct.hits >= TOWER_POWER_REPAIR);
       Memory.rooms[tower.room.name].damaged =
