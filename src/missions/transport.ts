@@ -182,10 +182,10 @@ export class TransportMission extends Mission<TransportMissionMemory> {
 
   /**
    * @override
-   * Returns true if we need another Harvester.
+   * Returns true if we need another Hauler.
    *
-   * Takes into account total WORK parts of existing harvesters and max
-   * harvesters from Source Analysis.
+   * Takes into account total CARRY parts of existing haulers and max
+   * hauler congestion based on lane distance.
    */
   protected needMoreCreeps(): boolean {
     if (this.creeps.length >= this.maxCongestionForLane) {
@@ -194,7 +194,7 @@ export class TransportMission extends Mission<TransportMissionMemory> {
 
     let totalWorkParts = 0;
     for (const hauler of this.creeps) {
-      totalWorkParts += hauler.getActiveBodyparts(WORK);
+      totalWorkParts += hauler.getActiveBodyparts(CARRY);
     }
     if (totalWorkParts < this.maxCarryPartsForLane) {
       return true;
@@ -211,9 +211,13 @@ export class TransportMission extends Mission<TransportMissionMemory> {
 
   /** Returns true if we have more than enough Haulers working this line. */
   private tooManyHaulers(): boolean {
+    if (this.creeps.length === 1) {
+      return false;
+    }
+
     let totalWorkParts = 0;
     for (const hauler of this.creeps) {
-      totalWorkParts += hauler.getActiveBodyparts(WORK);
+      totalWorkParts += hauler.getActiveBodyparts(CARRY);
     }
     return totalWorkParts > this.maxCarryPartsForLane;
   }
