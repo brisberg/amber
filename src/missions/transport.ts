@@ -160,15 +160,24 @@ export class TransportMission extends Mission<TransportMissionMemory> {
     });
   }
 
-  /** Calculates the number of haulers required to maintain this transit line */
-  private get maxhaulers() {
+  /**
+   * Calculates the number of CARRY parts required to maintain this transit
+   * line
+   */
+  private get maxCarryPartsForLane() {
     const distance = this.mem._path ?.length || 10;
     // TODO: Harcoding 66 for now, the static E/Tick/Cell for 4C2M Haulers
     // This should be dependant on the size of the Hauler creeps available.
-    const byThroughput = (Math.abs(this.mem.throughput) * distance) / 66;
+    const byThroughput = (Math.abs(this.mem.throughput) * distance) / 17;
     // Ceiling on the number of creeps per road
     const maxCongestion = distance / 7;
     return Math.floor(Math.min(maxCongestion, byThroughput));
+  }
+
+  /** Calculate max number of haulers for this lane */
+  private get maxCongestionForLane() {
+    const distance = this.mem._path ?.length || 10;
+    return Math.floor(distance / 7);
   }
 
   /**
@@ -179,7 +188,15 @@ export class TransportMission extends Mission<TransportMissionMemory> {
    * harvesters from Source Analysis.
    */
   protected needMoreCreeps(): boolean {
-    if (this.creeps.length < this.maxhaulers) {
+    if (this.creeps.length >= this.maxCongestionForLane) {
+      return false;
+    }
+
+    let totalWorkParts = 0;
+    for (const hauler of this.creeps) {
+      totalWorkParts += hauler.getActiveBodyparts(WORK);
+    }
+    if (totalWorkParts < this.maxCarryPartsForLane) {
       return true;
     }
 
@@ -194,7 +211,11 @@ export class TransportMission extends Mission<TransportMissionMemory> {
 
   /** Returns true if we have more than enough Haulers working this line. */
   private tooManyHaulers(): boolean {
-    return this.creeps.length > this.maxhaulers;
+    let totalWorkParts = 0;
+    for (const hauler of this.creeps) {
+      totalWorkParts += hauler.getActiveBodyparts(WORK);
+    }
+    return totalWorkParts > this.maxCarryPartsForLane;
   }
 
   public static isHealthy(name: string): boolean {
