@@ -89,16 +89,39 @@ export abstract class Mission<M extends MissionMemory> {
       delete this.mem.nextCreep;
     }
 
-    // Check for critical creep allocation
-    if (this.needMoreCreepsCritical()) {
+    if (this.needMoreCreepsCritical()) {  // Check for critical creep allocation
       this.mem.nextCreep =
           this.requestCreep(this.bodyType, this.bodyOptions, true);
-    } else if (this.needMoreCreeps()) {
-      // Check for creep allocation
+    } else if (this.needMoreCreeps()) {  // Check for creep allocation
+      this.mem.nextCreep = this.requestCreep(this.bodyType, this.bodyOptions);
+    } else if (this.needPrespawn()) {  // Check for prespawn to replace creep
       this.mem.nextCreep = this.requestCreep(this.bodyType, this.bodyOptions);
     }
 
     // TODO: Add a section to automatically release creeps we don't need
+  }
+
+  /**
+   * Returns true if an existing creep for the mission will expire in less than
+   * 100 ticks. Used to request an extra creep before the existing one dies.
+   */
+  private needPrespawn(): boolean {
+    if (this.creeps.length === 0) {
+      return false;
+    }
+
+    let ticksToLive: number = CREEP_LIFE_TIME;
+    for (const creep of this.creeps) {
+      if ((creep.ticksToLive || CREEP_LIFE_TIME) < ticksToLive) {
+        ticksToLive = creep.ticksToLive || CREEP_LIFE_TIME;
+      }
+    }
+
+    if (ticksToLive <= 100) {
+      return true;
+    }
+
+    return false;
   }
 
   /** Requests another Creep from the SpawnQueue */
