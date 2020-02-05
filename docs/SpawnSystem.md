@@ -17,7 +17,7 @@ Additionally, I was planning for the system to automatically allocate 'Idle' cre
 
 ## Second Pass
 
-BonzAI uses a similar queue system, but doesn't use Promises of any kind. His simply has missions ask their spawn group for a creep in order of mission instantiation (as a proxy for mission priority). If the spawn group can fulfill, it does. If not it does not. The missions will keep requesting all of their creeps every tick until they are finally fulfilled, or conditions change and the mission no longer needs one.
+BonzAI uses a similar queue system, but doesn't use Promises of any kind. His simply has missions ask their spawn group for a creep in order of mission instantiation (as a proxy for mission priority). If the spawn group can fulfill the request, it does. If not it does not. The missions will keep requesting all of their creeps every tick until they are finally fulfilled, or conditions change and the mission no longer needs one.
 
 I think I will use a similar system, where there are no promises (creeps are either spawned or not). However, I still want the ability to order spawns by priority or fulfill missions on a piecemeal basis.
 
