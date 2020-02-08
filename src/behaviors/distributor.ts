@@ -71,13 +71,15 @@ export class Distributor extends Behavior<DistributorMemory> {
       }
 
       if (tower) {
-        if (tower.store.getFreeCapacity() > creep.store.energy) {
+        const missingEnergy = (tower.energyCapacity - tower.energy);
+        if (missingEnergy > creep.store.energy &&
+            creep.store.getFreeCapacity() > 0) {
           // Not enough energy for the task, go to fetch phase
           mem.phase = 'fetch';
           return false;
         }
 
-        if (tower.store.getFreeCapacity() === 0) {
+        if (missingEnergy === 0) {
           // Tower is full, we are done here
           mem.towerID = null;
           mem.phase = 'idle';
