@@ -49,17 +49,16 @@ export class Distributor extends Behavior<DistributorMemory> {
     if (mem.phase === 'idle') {
       if (mem.spawnID || mem.extensionGroup || mem.towerID) {
         // We have been assigned a Fill target
-        mem.phase = 'fetch';
+        mem.phase = 'deliver';
         return false;
       }
     } else if (mem.phase === 'deliver') {  // Deliver State
-      if (creep.store.energy < 5) {
-        // Out of energy, go to fetch phase
-        mem.phase = 'fetch';
-        return false;
-      }
-
       if (spawn) {
+        if ((spawn.energyCapacity - spawn.energy) > creep.store.energy) {
+          // Not enough energy for the task, go to fetch phase
+          mem.phase = 'fetch';
+          return false;
+        }
         if (spawn.energy === spawn.energyCapacity) {
           // Spawn is full, we are done here
           mem.spawnID = null;
@@ -72,6 +71,12 @@ export class Distributor extends Behavior<DistributorMemory> {
       }
 
       if (tower) {
+        if (tower.store.getFreeCapacity() > creep.store.energy) {
+          // Not enough energy for the task, go to fetch phase
+          mem.phase = 'fetch';
+          return false;
+        }
+
         if (tower.store.getFreeCapacity() === 0) {
           // Tower is full, we are done here
           mem.towerID = null;
@@ -84,7 +89,14 @@ export class Distributor extends Behavior<DistributorMemory> {
       }
 
       if (extendGroup) {
-        if (extendGroup.isFull()) {
+        const missingEnergy = extendGroup.getFreeCapacity();
+        if (missingEnergy > creep.store.energy) {
+          // Not enough energy for the task, go to fetch phase
+          mem.phase = 'fetch';
+          return false;
+        }
+
+        if (missingEnergy === 0) {
           // Extension Group is full, we are done here
           mem.extensionGroup = null;
           mem.phase = 'idle';

@@ -99,6 +99,14 @@ export class ExtensionGroup {
     }, true);
   }
 
+  /** Returns the total amount of energy missing from all extensions. */
+  public getFreeCapacity(): number {
+    // TODO: cache this, but how to invalidate cache?
+    return this.extensions.reduce<number>((missing, extension) => {
+      return missing + (extension.energyCapacity - extension.energy);
+    }, 0);
+  }
+
   /**
    * Return the first Extension which is not full.
    * Return null if all are full.
