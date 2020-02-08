@@ -37,3 +37,7 @@ This plan is a "task queue", which the creep will execute in sequence. It will i
 Once a plan is set, it is assigned to the creep and it heads off to complete them. When it starts, it references each of the tasks and registeres a reservation for the Energy / Free capacity that it's tasks require.
 
 Generating this plan may be much harder than I suspect.
+
+--
+
+A simple solution to this might be a simple greedy one. Have each creep evaluate all of the available tasks by expected utilization and take the task worth the highest value.
