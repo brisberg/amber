@@ -7,7 +7,7 @@ import {HAULER} from 'spawn-system/bodyTypes';
 import {Mission, MissionMemory} from './mission';
 
 interface DistributionMemory extends MissionMemory {
-  spawnID: Id<StructureSpawn>|null;
+  spawnIDs: Array<Id<StructureSpawn>>;
   eNodeFlag: string|null;
   extensionGroups: string[];
   towerIDs: Array<Id<StructureTower>>;
@@ -26,7 +26,7 @@ export class DistributionMission extends Mission<DistributionMemory> {
   protected readonly spawnPriority = 1;
 
   private eNode: EnergyNode|null = null;
-  private spawn: StructureSpawn|null = null;
+  private spawns: StructureSpawn[] = [];
   private extensinGroups: ExtensionGroup[] = [];
   private towers: StructureTower[] = [];
 
@@ -39,9 +39,9 @@ export class DistributionMission extends Mission<DistributionMemory> {
     this.mem.eNodeFlag = source.flag.name;
   }
 
-  public setSpawn(spawn: StructureSpawn) {
-    this.spawn = spawn;
-    this.mem.spawnID = spawn.id;
+  public setSpawns(spawns: StructureSpawn[]) {
+    this.spawns = spawns;
+    this.mem.spawnIDs = spawns.map((spawn) => spawn.id);
   }
 
   public setExtensionGroups(groups: ExtensionGroup[]) {
@@ -60,21 +60,19 @@ export class DistributionMission extends Mission<DistributionMemory> {
       creeps: [],
       eNodeFlag: null,
       extensionGroups: [],
-      spawnID: null,
+      spawnIDs: [],
       towerIDs: [],
     };
   }
 
   /** @override */
   public init(): boolean {
-    if (!this.mem.spawnID || !Game.getObjectById(this.mem.spawnID)) {
-      return false;
-    }
     if (!this.mem.eNodeFlag || !Game.flags[this.mem.eNodeFlag]) {
       return false;
     }
 
-    this.spawn = Game.getObjectById(this.mem.spawnID);
+    this.spawns = this.mem.spawnIDs.map((id) => Game.getObjectById(id))
+                      .filter((spawn) => !!spawn) as StructureSpawn[];
     this.eNode = new EnergyNode(Game.flags[this.mem.eNodeFlag]);
     this.extensinGroups = this.mem.extensionGroups.map((name) => {
       const group = new ExtensionGroup(Game.flags[name]);
@@ -93,7 +91,7 @@ export class DistributionMission extends Mission<DistributionMemory> {
 
   /** Executes one update tick for this mission */
   public run() {
-    if (!this.spawn || !this.eNode) {
+    if (this.spawns.length === 0 || !this.eNode) {
       return;
     }
 
@@ -120,11 +118,13 @@ export class DistributionMission extends Mission<DistributionMemory> {
         }
 
         // Refill the spawn
-        if (this.spawn!.energy < this.spawn!.energyCapacity) {
-          setCreepBehavior(
-              distributor, DISTRIBUTOR,
-              Distributor.initMemory(this.eNode!, this.spawn, null, null));
-          return;
+        for (const spawn of this.spawns) {
+          if (spawn.energy < spawn.energyCapacity) {
+            setCreepBehavior(
+                distributor, DISTRIBUTOR,
+                Distributor.initMemory(this.eNode!, spawn, null, null));
+            return;
+          }
         }
 
         // Check for empty Extension Groups

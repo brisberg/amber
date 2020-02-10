@@ -89,8 +89,7 @@ export class Pioneer extends Behavior<PioneerMemory> {
     if (mem.state === 'working') {
       // Fill the spawn first
       const spawns = creep.room.find(FIND_MY_SPAWNS);
-      if (spawns.length > 0) {
-        const spawn = spawns[0];
+      for (const spawn of spawns) {
         if (spawn.energy < spawn.energyCapacity) {
           mem.subBehavior = DEPOSITER;
           mem.mem = Depositer.initMemory(spawn);

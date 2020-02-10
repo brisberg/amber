@@ -22,7 +22,10 @@ interface BuildMissionMemory extends MissionMemory {
 export class BuildMission extends Mission<BuildMissionMemory> {
   protected readonly spawnPriority = 4;
   protected readonly bodyType = WORKER;
-  protected readonly bodyOptions = {min: {...zeroRatio, carry: 1}};
+  protected readonly bodyOptions = {
+    max: {work: 5},
+    min: {...zeroRatio, carry: 1},
+  };
 
   public target: ConstructionSite|null = null;
 

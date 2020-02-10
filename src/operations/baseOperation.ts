@@ -20,7 +20,7 @@ import {CORE_ENERGY_NODE_FLAG, DISTRIBUTION_MISSION_FLAG, EXTENSION_GROUP_A_FLAG
 
 export interface BaseOperationMemory {
   distMsn: string|null;  // Distribution Mission
-  spawnID: Id<StructureSpawn>|null;
+  spawnIDs: Array<Id<StructureSpawn>>;
   townSquareFlag: string|null;
   extensionFlags: string[];
   towerIDs: Array<Id<StructureTower>>;
@@ -33,7 +33,7 @@ export class BaseOperation {
   private readonly flag: Flag;
   private readonly mem: BaseOperationMemory;
 
-  private spawn: StructureSpawn|null = null;
+  private spawns: StructureSpawn[] = [];
   private distMsn: DistributionMission|null = null;
   private extensionGroups: ExtensionGroup[] = [];
   private towers: StructureTower[] = [];
@@ -49,7 +49,7 @@ export class BaseOperation {
         distMsn: null,
         eNodeFlag: null,
         extensionFlags: [],
-        spawnID: null,
+        spawnIDs: [],
         townSquareFlag: null,
         towerIDs: [],
       };
@@ -68,23 +68,24 @@ export class BaseOperation {
       }
     }
 
-    // Validate Spawn cache
-    if (this.mem.spawnID) {
-      const spawn = Game.getObjectById(this.mem.spawnID);
-      if (!spawn) {
-        console.log('Base Operation: Spawn no longer exists. Retiring.');
-        this.mem.spawnID = null;
-        return false;
-      } else {
-        this.spawn = spawn;
-      }
-    } else {
-      // Check at our flag location for the spawn
+    // Validate Spawns cache
+    const spawnNames = this.mem.spawnIDs.filter((spawn) => {
+      return Game.getObjectById(spawn) !== undefined;
+    });
+    this.mem.spawnIDs = spawnNames;
+    this.spawns = spawnNames.map((spawn) => {
+      return Game.getObjectById(spawn)!;
+    });
+
+    if (this.spawns.length === 0) {
+      // Check for spawns in our room
       const spawns = this.flag.room!.find(FIND_MY_SPAWNS);
       if (spawns.length > 0) {
-        const spawn = spawns[0];
-        this.mem.spawnID = spawn.id;
-        this.spawn = spawn;
+        this.spawns = spawns;
+        this.mem.spawnIDs = spawns.map((spawn) => spawn.id);
+      } else {
+        console.log('Base Operation: Spawn no longer exists. Retiring.');
+        return false;
       }
     }
 
@@ -127,7 +128,7 @@ export class BaseOperation {
   }
 
   public run() {
-    if (!this.spawn || !this.eNode) {
+    if (this.spawns.length === 0 || !this.eNode) {
       return;
     }
 
@@ -153,30 +154,30 @@ export class BaseOperation {
       // Set up a Distribution mission to supply spawn/extensions
       const distMsn = this.setUpDistributionMission(this.name + '_dist');
       distMsn.setSource(this.eNode);
-      distMsn.setSpawn(this.spawn);
+      distMsn.setSpawns(this.spawns);
       distMsn.setExtensionGroups(this.extensionGroups);
       distMsn.setTowers(this.towers);
       distMsn.init();
       this.mem.distMsn = distMsn.name;
     } else {
       // Update existing Distribution mission with new extension groups
-      this.distMsn.setSpawn(this.spawn);
+      this.distMsn.setSpawns(this.spawns);
       this.distMsn.setExtensionGroups(this.extensionGroups);
       this.distMsn.setTowers(this.towers);
     }
   }
 
   private setUpDistributionMission(name: string) {
-    this.spawn!.pos.createFlag(
+    this.flag.pos.createFlag(
         name, DISTRIBUTION_MISSION_FLAG.color,
         DISTRIBUTION_MISSION_FLAG.secondaryColor);
     const flag = Game.flags[name];
     return new DistributionMission(flag);
   }
 
-  public setSpawn(spawn: StructureSpawn) {
-    this.spawn = spawn;
-    this.mem.spawnID = spawn.id;
+  public setSpawns(spawns: StructureSpawn[]) {
+    this.spawns = spawns;
+    this.mem.spawnIDs = spawns.map((spawn) => spawn.id);
   }
 
   public setSource(node: EnergyNode) {
@@ -194,7 +195,7 @@ export class BaseOperation {
   }
 
   public isHealthy(): boolean {
-    if (this.spawn === null) {
+    if (this.spawns.length === 0) {
       return false;
     }
 
