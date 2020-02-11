@@ -1,4 +1,3 @@
-
 // tslint:disable:no-var-requires
 const {readFileSync} = require('fs');
 const _ = require('lodash');
