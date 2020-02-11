@@ -1,10 +1,9 @@
-import {readFileSync} from 'fs';
-import _ from 'lodash';
+
 // tslint:disable:no-var-requires
+const {readFileSync} = require('fs');
+const _ = require('lodash');
 const {ScreepsServer, stdHooks} = require('screeps-server-mockup');
 const DIST_MAIN_JS = 'dist/main.js';
-
-/** Integration tests currently DEFUNT */
 
 /*
  * Helper class for creating a ScreepsServer and resetting it between tests.
