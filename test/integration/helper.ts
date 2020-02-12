@@ -6,7 +6,7 @@ const DIST_MAIN_JS = 'dist/main.js';
 
 /*
  * Helper class for creating a ScreepsServer and resetting it between tests.
- * See https://github.com/Hiryus/screeps-server-mockup for instructions on
+ * See https://github.com/screepers/screeps-server-mockup for instructions on
  * manipulating the terrain and game state.
  */
 class IntegrationTestHelper {
@@ -56,10 +56,6 @@ afterEach(async () => {
 
 before(() => {
   stdHooks.hookWrite();
-});
-
-after(() => {
-  process.exit();
 });
 
 export const helper = new IntegrationTestHelper();

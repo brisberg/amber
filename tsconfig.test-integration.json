@@ -7,12 +7,11 @@
     "target": "es5",
     "moduleResolution": "Node",
     "outDir": "dist",
-    "baseUrl": "src/",
+    "baseUrl": "test/",
     "sourceMap": true,
     "strict": true,
     "experimentalDecorators": true,
     "noImplicitReturns": true,
-    "noImplicitAny": false,
     "allowSyntheticDefaultImports": true,
     "allowUnreachableCode": false
   },
