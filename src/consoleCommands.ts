@@ -18,6 +18,7 @@ const CONSOLE_COMMANDS = {
     console.log('Script resumed.');
   },
 
+  /** Manually reassign a creep to a particular Mission */
   reassignCreep(creepName: string, mission: string) {
     const creep = Game.creeps[creepName];
     const mem = Memory.creeps[creepName];
