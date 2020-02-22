@@ -1,3 +1,4 @@
+import {EventEmitter} from 'events';
 
 // tslint:disable:no-var-requires
 const {readFileSync} = require('fs');
@@ -7,7 +8,7 @@ const DIST_MAIN_JS = 'dist/main.js';
 
 /*
  * Helper class for creating a ScreepsServer and resetting it between tests.
- * See https://github.com/Hiryus/screeps-server-mockup for instructions on
+ * See https://github.com/screepers/screeps-server-mockup for instructions on
  * manipulating the terrain and game state.
  */
 class IntegrationTestHelper {
@@ -36,7 +37,15 @@ class IntegrationTestHelper {
       main: readFileSync(DIST_MAIN_JS).toString(),
     };
     this._player = await this._server.world.addBot(
-        {username: 'player', room: 'W0N1', x: 15, y: 15, modules});
+        {username: 'player', room: 'W0N1', x: 17, y: 45, modules});
+
+    // Subscribe to player's console output
+    (this._player as EventEmitter)
+        .on('console', (log, results, userid, username) => {
+          for (const line of log) {
+            console.log(`\t${username}: ${line}`);
+          }
+        });
 
     // Start server
     await this._server.start();
@@ -57,10 +66,6 @@ afterEach(async () => {
 
 before(() => {
   stdHooks.hookWrite();
-});
-
-after(() => {
-  process.exit();
 });
 
 export const helper = new IntegrationTestHelper();

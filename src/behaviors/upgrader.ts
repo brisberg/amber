@@ -31,7 +31,6 @@ export class Upgrader extends Behavior<UpgraderMemory> {
       }
 
       // We have arrived
-
       creep.upgradeController(controller);
       return false;
     }
