@@ -8,8 +8,8 @@ import {analyzeControllerForUpgrading, UpgradeControllerAnalysis} from './upgrad
 /**
  * Upgrade Operation
  *
- * This Operation will facilitate all of the sub operations required to set up a
- * upgrade controller operation.
+ * This Operation will facilitate all of the sub operations required to upgrade
+ * a Controller.
  *
  * It will perform Analysis on a Room Controller, designate where the
  * Container should be placed. It will run a Build missions to get this

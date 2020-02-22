@@ -1,3 +1,5 @@
+import {EventEmitter} from 'events';
+
 // tslint:disable:no-var-requires
 const {readFileSync} = require('fs');
 const _ = require('lodash');
@@ -35,7 +37,15 @@ class IntegrationTestHelper {
       main: readFileSync(DIST_MAIN_JS).toString(),
     };
     this._player = await this._server.world.addBot(
-        {username: 'player', room: 'W0N1', x: 15, y: 15, modules});
+        {username: 'player', room: 'W0N1', x: 17, y: 45, modules});
+
+    // Subscribe to player's console output
+    (this._player as EventEmitter)
+        .on('console', (log, results, userid, username) => {
+          for (const line of log) {
+            console.log(`\t${username}: ${line}`);
+          }
+        });
 
     // Start server
     await this._server.start();

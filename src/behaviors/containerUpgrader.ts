@@ -75,9 +75,11 @@ export class ContainerUpgrader extends Behavior<ContainerUpgraderMemory> {
       }
 
       // Attempt to refill from energy source
-      if (creep.store.energy < 20) {
-        const amount =
-            Math.min(creep.store.getFreeCapacity(), container.store.energy);
+      if (creep.store.energy < 20 && container.store.energy > 0) {
+        const amount = Math.min(
+            creep.store.getFreeCapacity(),
+            container.store.energy,
+        );
         creep.withdraw(container, RESOURCE_ENERGY, amount);
       }
 
