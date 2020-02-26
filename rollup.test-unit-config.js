@@ -4,7 +4,6 @@ import clear from 'rollup-plugin-clear';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import typescript from '@rollup/plugin-typescript';
-import buble from '@rollup/plugin-buble';
 import multiEntry from '@rollup/plugin-multi-entry';
 
 export default {
@@ -26,8 +25,7 @@ export default {
         clear({targets: ['dist/test.bundle.js']}),
         resolve(),
         commonjs(),
-        typescript({tsconfig: './tsconfig.test-unit.json'}),
+        typescript({tsconfig: './tsconfig.json'}),
         multiEntry(),
-        buble({transforms: {forOf: false}}),
       ],
 }
