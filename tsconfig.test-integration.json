@@ -7,7 +7,7 @@
     "target": "es5",
     "moduleResolution": "Node",
     "outDir": "dist",
-    "baseUrl": "test/",
+    "baseUrl": "src/",
     "sourceMap": true,
     "strict": true,
     "experimentalDecorators": true,
