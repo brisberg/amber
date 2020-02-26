@@ -4,7 +4,16 @@
     "lib": [
       "esnext"
     ],
-    "target": "es5",
+    "target": "es2015",
+    "types": [
+      "chai",
+      "lodash",
+      "node",
+      "mocha",
+      "screeps",
+      "sinon",
+      "sinon-chai",
+    ],
     "moduleResolution": "Node",
     "outDir": "dist",
     "baseUrl": "src/",

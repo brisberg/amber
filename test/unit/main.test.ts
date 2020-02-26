@@ -12,6 +12,13 @@ describe('main', () => {
     // runs before each test in this block
     // @ts-ignore : allow adding Game to global
     global.Game = _.clone(Game);
+    // @ts-ignore: allow modifying Game on global
+    global.Game.spawns.Spawn1 = {room: {name: 'W1N1', find: () => []}};
+    // @ts-ignore: allow modifying Rooms on global
+    global.Game.rooms.W1N1 = {
+      find: () => [],
+      name: 'W1N1',
+    };
     // @ts-ignore : allow adding Memory to global
     global.Memory = _.clone(Memory);
   });
