@@ -10,7 +10,7 @@ import {addContainer, getController, setFlag} from './roomObjectsHelper';
 describe('upgrade operation', () => {
   it('when fully stocked will upgrade controller', async () => {
     const room = 'W0N1';
-    const world = helper.server!.world;
+    const world = helper.server.world;
     const {db, C} = await world.load();
     // Starting energy in the container
     const INITIAL_ENERGY = 1000;
@@ -34,13 +34,15 @@ describe('upgrade operation', () => {
     });
 
     // Launch Upgrade Operation (with flag on Controller)
-    await setFlag(helper.player, room, 'upgrade_op', 8, 43, 2, 2);
+    await setFlag(
+        helper.player, room, 'upgrade_op', 8, 43, C.COLOR_PURPLE,
+        C.COLOR_PURPLE);
 
     // Run the test until passing conditions
     let controller = await getController(room);
     let gameTime = 0;
     while (gameTime < TIMEOUT_TICKS && controller.progress < TARGET_PROGRESS) {
-      await helper.server!.tick();
+      await helper.server.tick();
 
       gameTime = await world.gameTime;
       controller = await getController(room);

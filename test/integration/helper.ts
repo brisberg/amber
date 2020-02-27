@@ -1,8 +1,6 @@
-import {EventEmitter} from 'events';
-
-// tslint:disable:no-var-requires
 import {readFileSync} from 'fs';
 import {ScreepsServer, stdHooks} from 'screeps-server-mockup';
+import User from 'screeps-server-mockup/dist/src/user';
 const DIST_MAIN_JS = 'dist/main.js';
 
 /*
@@ -12,14 +10,14 @@ const DIST_MAIN_JS = 'dist/main.js';
  */
 class IntegrationTestHelper {
   private _server: ScreepsServer|null = null;
-  private _player: any;
+  private _player: User|null = null;
 
   get server() {
-    return this._server;
+    return this._server!;
   }
 
   get player() {
-    return this._player;
+    return this._player!;
   }
 
   public async beforeEach() {
@@ -39,19 +37,20 @@ class IntegrationTestHelper {
         {username: 'player', room: 'W0N1', x: 17, y: 45, modules});
 
     // Subscribe to player's console output
-    (this._player as EventEmitter)
-        .on('console', (log, results, userid, username) => {
-          for (const line of log) {
-            console.log(`\t${username}: ${line}`);
-          }
-        });
+    this._player.on('console', (log, results, userid, username) => {
+      for (const line of log) {
+        console.log(`\t[${username}]: ${line}`);
+      }
+    });
 
     // Start server
     await this._server.start();
   }
 
   public afterEach() {
-    this._server!.stop();
+    if (this._server) {
+      this._server.stop();
+    }
   }
 }
 
