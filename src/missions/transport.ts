@@ -48,16 +48,14 @@ export class TransportMission extends Mission<TransportMissionMemory> {
   /** @override */
   public init(): boolean {
     if (!this.mem.source || !Game.flags[this.mem.source.flag]) {
-      console.log(
-          'Transport Mission ' + this.name + ': Could not find Source Node ' +
-          this.mem.source!.flag + '. Retiring');
+      console.log(`Transport Mission ${this.name}: Could not find Source Node ${
+          this.mem.source!.flag}. Retiring`);
       return false;
     }
 
     if (!this.mem.dest || !Game.flags[this.mem.dest.flag]) {
-      console.log(
-          'Transport Mission ' + this.name + ': Could not find Dest Node ' +
-          this.mem.dest!.flag + '. Retiring');
+      console.log(`Transport Mission ${this.name}: Could not find Dest Node ${
+          this.mem.dest!.flag}. Retiring`);
       return false;
     }
 
