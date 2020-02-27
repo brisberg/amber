@@ -12,14 +12,14 @@ export default {
     file: 'dist/test-integration.bundle.js',
     name: 'lib',
     sourcemap: true,
-    format: 'iife',
+    format: 'cjs',
     globals: {
       chai: 'chai',
       it: 'it',
       describe: 'describe',
     }
   },
-  external: ['chai', 'it', 'describe'],
+  external: ['chai', 'fs', 'screeps-server-mockup'],
   plugins:
       [
         clear({targets: ['dist/test.bundle.js']}),

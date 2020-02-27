@@ -1,9 +1,8 @@
 import {EventEmitter} from 'events';
 
 // tslint:disable:no-var-requires
-const {readFileSync} = require('fs');
-const _ = require('lodash');
-const {ScreepsServer, stdHooks} = require('screeps-server-mockup');
+import {readFileSync} from 'fs';
+import {ScreepsServer, stdHooks} from 'screeps-server-mockup';
 const DIST_MAIN_JS = 'dist/main.js';
 
 /*
@@ -12,7 +11,7 @@ const DIST_MAIN_JS = 'dist/main.js';
  * manipulating the terrain and game state.
  */
 class IntegrationTestHelper {
-  private _server: any;
+  private _server: ScreepsServer|null = null;
   private _player: any;
 
   get server() {
@@ -51,8 +50,8 @@ class IntegrationTestHelper {
     await this._server.start();
   }
 
-  public async afterEach() {
-    await this._server.stop();
+  public afterEach() {
+    this._server!.stop();
   }
 }
 
@@ -60,8 +59,8 @@ beforeEach(async () => {
   await helper.beforeEach();
 });
 
-afterEach(async () => {
-  await helper.afterEach();
+afterEach(() => {
+  helper.afterEach();
 });
 
 before(() => {
