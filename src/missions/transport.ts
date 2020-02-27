@@ -48,12 +48,16 @@ export class TransportMission extends Mission<TransportMissionMemory> {
   /** @override */
   public init(): boolean {
     if (!this.mem.source || !Game.flags[this.mem.source.flag]) {
-      console.log('Transport Mission ' + this.name + ': Could not find Source Node ' + this.mem.source?.flag + '. Retiring');
+      console.log(
+          'Transport Mission ' + this.name + ': Could not find Source Node ' +
+          this.mem.source!.flag + '. Retiring');
       return false;
     }
 
     if (!this.mem.dest || !Game.flags[this.mem.dest.flag]) {
-      console.log('Transport Mission ' + this.name + ': Could not find Dest Node ' + this.mem.source?.flag + '. Retiring');
+      console.log(
+          'Transport Mission ' + this.name + ': Could not find Dest Node ' +
+          this.mem.dest!.flag + '. Retiring');
       return false;
     }
 
@@ -165,7 +169,8 @@ export class TransportMission extends Mission<TransportMissionMemory> {
    * line
    */
   private get maxCarryPartsForLane() {
-    const distance = this.mem._path ?.length || 10;
+    const path = this.mem._path;
+    const distance = path ? path.length : 10;
     // TODO: Harcoding 66 for now, the static E/Tick/Cell for 4C2M Haulers
     // This should be dependant on the size of the Hauler creeps available.
     const byThroughput = (Math.abs(this.mem.throughput) * distance) / 17;
@@ -176,7 +181,8 @@ export class TransportMission extends Mission<TransportMissionMemory> {
 
   /** Calculate max number of haulers for this lane */
   private get maxCongestionForLane() {
-    const distance = this.mem._path ?.length || 10;
+    const path = this.mem._path;
+    const distance = path ? path.length : 10;
     return Math.floor(distance / 7);
   }
 

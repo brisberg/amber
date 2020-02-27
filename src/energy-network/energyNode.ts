@@ -270,7 +270,10 @@ export function unregisterEnergyNode(flag: Flag|string) {
   const name = (typeof flag === 'string' ? flag : flag.name);
   console.log('Unregistering enode ' + name);
 
-  findFlag(name) ?.remove();
+  const flagInst = findFlag(name);
+  if (flagInst) {
+    flagInst.remove();
+  }
   delete Memory.flags[name];
 }
 
