@@ -3,7 +3,7 @@ import {ENET_DEPOSITER, ENetDepositer} from 'behaviors/eNetDepositer';
 import {ENET_FETCHER, ENetFetcher} from 'behaviors/eNetFetcher';
 import {IDLER} from 'behaviors/idler';
 import {EnergyNode, EnergyNodeMemory} from 'energy-network/energyNode';
-import {HAULER} from 'spawn-system/bodyTypes';
+import {GenerateCreepBodyOptions, HAULER} from 'spawn-system/bodyTypes';
 import {declareOrphan} from 'spawn-system/orphans';
 
 import {Mission, MissionMemory} from './mission';
@@ -25,7 +25,8 @@ interface TransportMissionMemory extends MissionMemory {
 export class TransportMission extends Mission<TransportMissionMemory> {
   protected readonly spawnPriority = 3;
   protected readonly bodyType = HAULER;
-  protected readonly bodyOptions = {};
+  // Hack: Limited size to optimal for the longest transport lane on Prod
+  protected readonly bodyOptions: GenerateCreepBodyOptions = {max: {carry: 22}};
 
   public source: EnergyNode|null = null;
   public dest: EnergyNode|null = null;

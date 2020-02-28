@@ -2,7 +2,7 @@ import {setCreepBehavior} from 'behaviors/behavior';
 import {DISTRIBUTOR, Distributor} from 'behaviors/distributor';
 import {EnergyNode} from 'energy-network/energyNode';
 import {ExtensionGroup} from 'layout/extensionGroup';
-import {HAULER} from 'spawn-system/bodyTypes';
+import {GenerateCreepBodyOptions, HAULER} from 'spawn-system/bodyTypes';
 
 import {Mission, MissionMemory} from './mission';
 
@@ -22,7 +22,8 @@ interface DistributionMemory extends MissionMemory {
  */
 export class DistributionMission extends Mission<DistributionMemory> {
   protected readonly bodyType = HAULER;
-  protected readonly bodyOptions = {};
+  // Limited to size of a RCL7 Extension Group
+  protected readonly bodyOptions: GenerateCreepBodyOptions = {max: {carry: 12}};
   protected readonly spawnPriority = 1;
 
   private eNode: EnergyNode|null = null;
