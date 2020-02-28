@@ -26,7 +26,7 @@ export class TransportMission extends Mission<TransportMissionMemory> {
   protected readonly spawnPriority = 3;
   protected readonly bodyType = HAULER;
   // Hack: Limited size to optimal for the longest transport lane on Prod
-  protected readonly bodyOptions: GenerateCreepBodyOptions = {max: {carry: 22}};
+  protected readonly bodyOptions: GenerateCreepBodyOptions = {max: {carry: 12}};
 
   public source: EnergyNode|null = null;
   public dest: EnergyNode|null = null;
