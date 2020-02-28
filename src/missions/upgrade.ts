@@ -1,6 +1,6 @@
 import {setCreepBehavior} from 'behaviors/behavior';
 import {CONTAINER_UPGRADER, ContainerUpgrader} from 'behaviors/containerUpgrader';
-import {WORKER, zeroRatio} from 'spawn-system/bodyTypes';
+import {GenerateCreepBodyOptions, WORKER, zeroRatio} from 'spawn-system/bodyTypes';
 
 import {Mission, MissionMemory} from './mission';
 
@@ -19,7 +19,10 @@ interface UpgradeMissionMemory extends MissionMemory {
 export class UpgradeMission extends Mission<UpgradeMissionMemory> {
   protected readonly spawnPriority = 5;
   protected readonly bodyType = WORKER;
-  protected readonly bodyOptions = {min: {...zeroRatio, carry: 1}};
+  protected readonly bodyOptions: GenerateCreepBodyOptions = {
+    max: {work: 15},
+    min: {...zeroRatio, carry: 1},
+  };
 
   private container: StructureContainer|null = null;
   private controller: StructureController|null = null;
