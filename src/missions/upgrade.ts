@@ -20,7 +20,7 @@ export class UpgradeMission extends Mission<UpgradeMissionMemory> {
   protected readonly spawnPriority = 5;
   protected readonly bodyType = WORKER;
   protected readonly bodyOptions: GenerateCreepBodyOptions = {
-    max: {work: 15},
+    max: {work: 16},
     min: {...zeroRatio, carry: 1},
   };
 
