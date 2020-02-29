@@ -50,8 +50,8 @@ export class BaseOperation {
         eNodeFlag: null,
         extensionFlags: [],
         spawnIDs: [],
-        townSquareFlag: null,
         towerIDs: [],
+        townSquareFlag: null,
       };
       Memory.operations[this.name] = mem;
     }
@@ -141,7 +141,7 @@ export class BaseOperation {
     this.mem.extensionFlags = groupNames;
     this.extensionGroups = groupNames.map((flag) => {
       return new ExtensionGroup(Game.flags[flag]);
-    })
+    });
 
     // Aquire new Towers as they appear
     const towers = this.flag.room!.find(

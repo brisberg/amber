@@ -19,8 +19,8 @@ interface Memory {
 }
 
 interface RoomMemory {
-  damaged: Id<Structure>[];  // List of damaged structures
-  network: any;              // Energy Network Memory
+  damaged: Array<Id<Structure>>;  // List of damaged structures
+  network: any;                   // Energy Network Memory
 }
 
 interface FlagMemory {
