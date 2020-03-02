@@ -111,7 +111,7 @@ export abstract class Mission<M extends MissionMemory> {
   protected requestCreep(
       bodyRatio: string, bodyOptions?: GenerateCreepBodyOptions,
       critical: boolean = false): string {
-    return global.spawnQueue.requestCreep({
+    return global.spawnQueues[this.room!.name].requestCreep({
       bodyOptions,
       bodyRatio,
       mission: this.name,
