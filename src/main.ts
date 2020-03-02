@@ -36,6 +36,7 @@ export const loop = () => {
   Memory.operations = Memory.operations || {};
   Memory.rooms = Memory.rooms || {};
   Memory.flags = Memory.flags || {};
+  global.spawnQueues = global.spawnQueues || {};
 
   installConsoleCommands();
   garbageCollection();
