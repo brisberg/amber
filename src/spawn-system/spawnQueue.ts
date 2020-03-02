@@ -120,6 +120,7 @@ export class SpawnQueue {
           },
         };
       }
+      // console.log(`Spawning new creeps: ${req.name} with ${body}`);
       this.spawner.spawnCreep(body, req.name!, combinedOptions);
     }
   }
