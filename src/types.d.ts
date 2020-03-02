@@ -9,7 +9,7 @@ interface CreepMemory {
 }
 
 interface Memory {
-  auto: boolean;
+  auto?: {[subsystem: string]: boolean};
   pauseUtil?: number;  // Script paused until this Game Tick
   nextID: number;
   missions: {[name: string]: any};

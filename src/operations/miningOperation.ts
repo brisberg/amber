@@ -147,6 +147,9 @@ export class MiningOperation {
       });
 
       if (!this.container) {
+        console.log(`Mining Op creating construction site at: (${
+            this.mem.analysis.containerPos[0]},${
+            this.mem.analysis.containerPos[1]})`);
         // No container assigned or none exsists, need to build a new one
         this.room.createConstructionSite(
             this.mem.analysis.containerPos[0],
@@ -174,6 +177,7 @@ export class MiningOperation {
         if (this.source.pos.lookFor(LOOK_FLAGS)
                 .filter((flag) => flagIsColor(flag, HARVEST_SOURCE_FLAG))
                 .length === 0) {
+          console.log(`Mining operation launching new harvesting missions`);
           this.room.createFlag(
               this.source.pos.x, this.source.pos.y, this.name + '_harvest',
               HARVEST_SOURCE_FLAG.color, HARVEST_SOURCE_FLAG.secondaryColor);
