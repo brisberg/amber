@@ -1,6 +1,6 @@
 import {setCreepBehavior} from 'behaviors/behavior';
-import {CONTAINER_UPGRADER, ContainerUpgrader} from 'behaviors/containerUpgrader';
-import {CLAIMER, GenerateCreepBodyOptions} from 'spawn-system/bodyTypes';
+import {Claimer, CLAIMER} from 'behaviors/claimer';
+import {CLAIMER as CLAIMER_BODY, GenerateCreepBodyOptions} from 'spawn-system/bodyTypes';
 
 import {Mission, MissionMemory} from './mission';
 
@@ -10,18 +10,17 @@ interface ClaimMissionMemory extends MissionMemory {
 }
 
 /**
- * Mission claim a foreign room Controller.
+ * Mission to claim a foreign room Controller.
  *
  * This mission will request a claimer creep.
  */
 export class ClaimMission extends Mission<ClaimMissionMemory> {
   protected readonly spawnPriority = 5;
-  protected readonly bodyType = CLAIMER;
+  protected readonly bodyType = CLAIMER_BODY;
   protected readonly bodyOptions: GenerateCreepBodyOptions = {
     max: {claim: 1, move: 1},
   };
 
-  private container: StructureContainer|null = null;
   private controller: StructureController|null = null;
 
   constructor(flag: Flag) {
@@ -62,17 +61,18 @@ export class ClaimMission extends Mission<ClaimMissionMemory> {
 
   /** Executes one update tick for this mission */
   public run() {
-    // Direct each creep to claim from the controller
+    if (!this.mem.roomName) {
+      return;
+    }
+
+    // Direct each creep to claim the controller
     this.creeps.forEach((creep) => {
       if (creep.memory.behavior !== CLAIMER) {
         // Upgrade controller
         setCreepBehavior(
             creep,
             CLAIMER,
-            ContainerUpgrader.initMemory(
-                this.controller!,
-                this.container!,
-                ),
+            Claimer.initMemory(this.mem.roomName!),
         );
         creep.memory.mission = this.name;
       }

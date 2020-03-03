@@ -4,6 +4,7 @@ import {declareOrphan} from 'spawn-system/orphans';
 export interface MissionMemory {
   creeps: string[];
   nextCreep?: string;
+  spawnSource?: string;
 }
 
 /**
@@ -111,12 +112,21 @@ export abstract class Mission<M extends MissionMemory> {
   protected requestCreep(
       bodyRatio: string, bodyOptions?: GenerateCreepBodyOptions,
       critical: boolean = false): string {
-    return global.spawnQueues[this.room!.name].requestCreep({
+    return global.spawnQueues[this.spawnSource].requestCreep({
       bodyOptions,
       bodyRatio,
       mission: this.name,
       priority: critical ? 1 : this.spawnPriority,
     });
+  }
+
+  /** Set the room this mission should use for spawning. */
+  public setSpawnSource(roomName: string) {
+    this.mem.spawnSource = roomName;
+  }
+
+  protected get spawnSource(): string {
+    return this.mem.spawnSource || this.flag.pos.roomName;
   }
 
   /**

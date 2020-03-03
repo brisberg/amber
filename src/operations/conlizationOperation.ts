@@ -13,6 +13,7 @@ import {CLAIM_MISSION_FLAG} from '../flagConstants';
 export interface ConlonizationOperationMemory {
   claimMsn: string|null;  // Claim Mission
   roomname: string;
+  host?: string;  // Room name of the spawngroup to use
 }
 
 export class ConlonizationOperation {
@@ -60,11 +61,11 @@ export class ConlonizationOperation {
       return;
     }
 
-
     if (room && room.controller && !room.controller.my && !this.claimMsn) {
       // Set up a Claim mission to supply spawn/extensions
       const claimMsn = this.setUpClaimMission(this.name + '_dist');
-      claimMsn.setRoomname(this.mem.roomname);
+      claimMsn.setRoomName(this.mem.roomname);
+      claimMsn.setSpawnSource(this.spawnSource);
       claimMsn.init();
       this.mem.claimMsn = claimMsn.name;
     }
@@ -73,6 +74,40 @@ export class ConlonizationOperation {
       this.claimMsn.retire();
       this.mem.claimMsn = null;
     }
+  }
+
+  /**
+   * Get the roomName of the host colony to fuel this operation
+   *
+   * Caches the result in operation memory once computed.
+   */
+  private get spawnSource(): string {
+    if (this.mem.host) {
+      return this.mem.host;
+    }
+
+    let closest = {name: '', dist: 99};
+    for (const name in Game.rooms) {
+      const room = Game.rooms[name];
+      if (room.controller && room.controller.owner &&
+          room.controller.owner.username === getUsername()) {
+        const dist = Game.map.findRoute(room, this.mem.roomname);
+        if (dist === ERR_NO_PATH) {
+          continue;
+        }
+
+        if (dist.length < closest.dist) {
+          closest = {name, dist: dist.length};
+        }
+      }
+    }
+
+    if (closest.name === '') {
+      // Throw error? No acceptable closest spawn found
+      return '';
+    }
+
+    return closest.name;
   }
 
   private setUpClaimMission(name: string) {
