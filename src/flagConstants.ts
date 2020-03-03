@@ -91,6 +91,17 @@ export const DISTRIBUTION_MISSION_FLAG: FlagColor = {
   secondaryColor: COLOR_BLUE,
 };
 
+/** Reserve Purple/White flag color for Colonization Operation */
+export const COLONIZATION_OPERATION_FLAG: FlagColor = {
+  color: COLOR_PURPLE,
+  secondaryColor: COLOR_WHITE,
+};
+/** Reserve Purple/Cyan flag color for Claim Mission */
+export const CLAIM_MISSION_FLAG: FlagColor = {
+  color: COLOR_PURPLE,
+  secondaryColor: COLOR_CYAN,
+};
+
 /**
  * -----------------
  * Layout Flags
