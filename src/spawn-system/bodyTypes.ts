@@ -112,6 +112,22 @@ const claimer: CreepRatio = {
 };
 creepBodyRatios[CLAIMER] = claimer;
 
+/**
+ * Scout
+ * Scouts can move 1 cell per tick when loaded even off roads
+ */
+export const SCOUT = 'scout';
+const scout: CreepRatio = {
+  attack: 0,
+  carry: 0,
+  claim: 0,
+  heal: 0,
+  move: 1,
+  tough: 0,
+  work: 0,
+};
+creepBodyRatios[SCOUT] = scout;
+
 export interface GenerateCreepBodyOptions {
   min?: CreepRatio;
   max?: {
