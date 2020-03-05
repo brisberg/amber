@@ -3,14 +3,13 @@ import {BASE_OPERATION_FLAG, BUILD_OPERATION_FLAG, COLONIZATION_OPERATION_FLAG, 
 
 import {BaseOperation} from './BaseOperation';
 import {BuildOperation} from './buildOperation';
-import {ConlonizationOperation} from './conlizationOperation';
+import {ColonizeOperation} from './colonizeOperation';
 import {MiningOperation} from './miningOperation';
 import {UpgradeOperation} from './upgradeOperation';
 
 export type AllOperations = MiningOperation|BaseOperation|BuildOperation|
-    UpgradeOperation|ConlonizationOperation;
+    UpgradeOperation|ColonizeOperation;
 
-// tslint:disable-next-line: max-line-length
 export type OperationMap = (flag: Flag) => AllOperations|null;
 
 /** Convenience mapping of operation flag colors to Operation class. */
@@ -24,7 +23,7 @@ global.operations = (flag: Flag) => {
   } else if (flagIsColor(flag, BASE_OPERATION_FLAG)) {
     return new BaseOperation(flag);
   } else if (flagIsColor(flag, COLONIZATION_OPERATION_FLAG)) {
-    return new ConlonizationOperation(flag);
+    return new ColonizeOperation(flag);
   }
 
   return null;

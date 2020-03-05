@@ -1,7 +1,8 @@
+import {BuildMission} from 'missions/build';
 import {ClaimMission} from 'missions/claim';
 import {getUsername} from 'utils/settings';
 
-import {CLAIM_MISSION_FLAG} from '../flagConstants';
+import {BUILD_TARGET_FLAG, CLAIM_MISSION_FLAG} from '../flagConstants';
 
 /**
  * Colonization Operation
@@ -10,19 +11,23 @@ import {CLAIM_MISSION_FLAG} from '../flagConstants';
  * controller, and transporting energy to the room to build the initial Spawn.
  */
 
-export interface ConlonizationOperationMemory {
+export interface ColonizeOperationMemory {
   claimMsn: string|null;  // Claim Mission
+  buildMsn: string|null;  // Build Mission
+  spawnSite: Id<ConstructionSite<STRUCTURE_SPAWN>>|null;
   roomname: string;
   host?: string;  // Room name of the spawngroup to use
 }
 
-export class ConlonizationOperation {
+export class ColonizeOperation {
   public readonly name: string;
 
   private readonly flag: Flag;
-  private readonly mem: ConlonizationOperationMemory;
+  private readonly mem: ColonizeOperationMemory;
 
+  private buildMsn: BuildMission|null = null;
   private claimMsn: ClaimMission|null = null;
+  private spawnSite: ConstructionSite<STRUCTURE_SPAWN>|null = null;
 
   constructor(flag: Flag) {
     this.name = flag.name;
@@ -30,13 +35,15 @@ export class ConlonizationOperation {
 
     // Init memory
     if (!Memory.operations[this.name]) {
-      const mem: ConlonizationOperationMemory = {
+      const mem: ColonizeOperationMemory = {
+        buildMsn: null,
         claimMsn: null,
         roomname: this.flag.pos.roomName,
+        spawnSite: null,
       };
       Memory.operations[this.name] = mem;
     }
-    this.mem = Memory.operations[this.name] as ConlonizationOperationMemory;
+    this.mem = Memory.operations[this.name] as ColonizeOperationMemory;
   }
 
   public init(): boolean {
@@ -49,11 +56,36 @@ export class ConlonizationOperation {
       }
     }
 
+    if (this.mem.buildMsn) {
+      if (!Game.flags[this.mem.buildMsn]) {
+        this.mem.buildMsn = null;
+      } else {
+        this.buildMsn = new BuildMission(Game.flags[this.mem.buildMsn]);
+      }
+    }
+
+    if (this.mem.spawnSite) {
+      if (!Game.getObjectById(this.mem.spawnSite)) {
+        this.mem.spawnSite = null;
+      } else {
+        this.spawnSite = Game.getObjectById(this.mem.spawnSite);
+      }
+    }
+
     return true;
   }
 
   public run() {
     const room = Game.rooms[this.mem.roomname];
+
+    if (room && room.controller && room.controller.my &&
+        room.find(FIND_MY_SPAWNS).length > 0) {
+      // Built a new spawn, operation complete!
+      console.log(`Colonization of ${room.name} complete! Retiring Operation.`);
+      this.retire();
+      return;
+    }
+
     if (room && room.controller && room.controller.owner &&
         room.controller.owner.username !== getUsername()) {
       console.log(`Retiring Colonization Operation for ${
@@ -63,16 +95,40 @@ export class ConlonizationOperation {
 
     if (room && room.controller && !room.controller.my && !this.claimMsn) {
       // Set up a Claim mission to supply spawn/extensions
-      const claimMsn = this.setUpClaimMission(this.name + '_dist');
+      const claimMsn = this.setUpClaimMission(this.name + '_claim');
       claimMsn.setRoomName(this.mem.roomname);
       claimMsn.setSpawnSource(this.spawnSource);
       claimMsn.init();
       this.mem.claimMsn = claimMsn.name;
     }
-    if (room && room.controller && room.controller.my && this.claimMsn) {
-      // Retire claim mission
-      this.claimMsn.retire();
-      this.mem.claimMsn = null;
+    if (room && room.controller && room.controller.my) {
+      if (this.claimMsn) {
+        // Retire claim mission
+        this.claimMsn.retire();
+        this.mem.claimMsn = null;
+      }
+
+      // Begin setting up the initial spawn
+      if (!this.mem.spawnSite && room.find(FIND_MY_SPAWNS).length === 0) {
+        const sites = room.find(FIND_MY_CONSTRUCTION_SITES, {
+          filter: {structureType: STRUCTURE_SPAWN},
+        }) as Array<ConstructionSite<STRUCTURE_SPAWN>>;
+        if (sites.length === 0) {
+          this.flag.pos.createConstructionSite(STRUCTURE_SPAWN);
+        } else {
+          this.spawnSite = sites[0];
+          this.mem.spawnSite = sites[0].id;
+        }
+      }
+    }
+
+    // Build the spawn
+    if (this.spawnSite && !this.buildMsn) {
+      const buildMsn = this.setUpBuildMission(this.name + '_build');
+      buildMsn.setSpawnSource(this.spawnSource);
+      buildMsn.setTargetSite(this.spawnSite);
+      buildMsn.useRawSource(room.find(FIND_SOURCES)[0]);
+      buildMsn.init();
     }
   }
 
@@ -107,14 +163,26 @@ export class ConlonizationOperation {
       return '';
     }
 
-    return closest.name;
+    // HACK for now
+    this.mem.host = 'E18N16';
+    return 'E18N16';
+
+    // this.mem.host = closest.name;
+    // return closest.name;
   }
 
-  private setUpClaimMission(name: string) {
+  private setUpClaimMission(name: string): ClaimMission {
     this.flag.pos.createFlag(
         name, CLAIM_MISSION_FLAG.color, CLAIM_MISSION_FLAG.secondaryColor);
     const flag = Game.flags[name];
     return new ClaimMission(flag);
+  }
+
+  private setUpBuildMission(name: string): BuildMission {
+    this.flag.pos.createFlag(
+        name, BUILD_TARGET_FLAG.color, BUILD_TARGET_FLAG.secondaryColor);
+    const flag = Game.flags[name];
+    return new BuildMission(flag);
   }
 
   public retire() {
