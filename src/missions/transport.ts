@@ -141,7 +141,7 @@ export class TransportMission extends Mission<TransportMissionMemory> {
         }
 
         if (creep.store.energy === 0) {
-          if (this.tooManyHaulers()) {
+          if ((creep.ticksToLive || 100) < 100) {
             // Decommission this hauler after it has delivered its payload
             console.log(
                 'Transport ' + this.name + ' decommissioning a hauler ' +
