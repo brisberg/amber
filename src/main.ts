@@ -224,7 +224,7 @@ export const loop = () => {
       if (Memory.auto.enetwork) {
         // Hack for now, initialize Core ENetwork at storage or temp container
         const storage = room.storage;
-        const corePos = spawn.room.getPositionAt(spawn.pos.x + 2, spawn.pos.y);
+        const corePos = spawn.room.getPositionAt(spawn.pos.x, spawn.pos.y - 2);
         if (storage) {  // We have storage, use it as the network core
           const existingFlag =
               room.find(FIND_FLAGS, {filter: CORE_ENERGY_NODE_FLAG});
