@@ -330,9 +330,9 @@ export const loop = () => {
         if (coreNodes.length > 0) {
           // Initialize the Upgrade Operation once the Energy Network is online
           if (controller) {
-            if (!Game.flags.upgrade_op) {
+            if (!Game.flags[`upgrade_op_${room.name}`]) {
               controller.pos.createFlag(
-                  'upgrade_op', UPGRADE_OPERATION_FLAG.color,
+                  `upgrade_op_${room.name}`, UPGRADE_OPERATION_FLAG.color,
                   UPGRADE_OPERATION_FLAG.secondaryColor);
             }
           }
@@ -342,9 +342,9 @@ export const loop = () => {
       if (Memory.auto.base) {
         // Initialize the Base Operation once the Energy Network is online
         const tsPos = room.getPositionAt(spawn.pos.x, spawn.pos.y - 2);
-        if (!Game.flags.base_op) {
+        if (!Game.flags[`base_op_${room.name}`]) {
           tsPos!.createFlag(
-              'base_op', BASE_OPERATION_FLAG.color,
+              `base_op_${room.name}`, BASE_OPERATION_FLAG.color,
               BASE_OPERATION_FLAG.secondaryColor);
         }
 
