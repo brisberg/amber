@@ -173,9 +173,7 @@ export class TransportMission extends Mission<TransportMissionMemory> {
     // TODO: Harcoding 66 for now, the static E/Tick/Cell for 4C2M Haulers
     // This should be dependant on the size of the Hauler creeps available.
     const byThroughput = (Math.abs(this.mem.throughput) * distance) / 17;
-    // Ceiling on the number of creeps per road
-    const maxCongestion = distance / 7;
-    return Math.floor(Math.min(maxCongestion, byThroughput));
+    return Math.floor(byThroughput);
   }
 
   /** Calculate max number of haulers for this lane */
