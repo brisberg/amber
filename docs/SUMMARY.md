@@ -9,3 +9,4 @@
 * [Base Layout](BaseLayout.md)
 * [Extension Layout](ExtensionLayout.md)
 * [Statistics Tracking](StatsTracking.md)
+* [Theme](Theming.md)
