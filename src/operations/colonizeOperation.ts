@@ -172,7 +172,8 @@ export class ColonizeOperation {
   }
 
   private setUpClaimMission(name: string): ClaimMission {
-    this.flag.pos.createFlag(
+    const room = this.flag.room!;
+    room.controller!.pos.createFlag(
         name, CLAIM_MISSION_FLAG.color, CLAIM_MISSION_FLAG.secondaryColor);
     const flag = Game.flags[name];
     return new ClaimMission(flag);
