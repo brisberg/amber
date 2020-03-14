@@ -20,7 +20,7 @@ export const PIONEER_MISSION_FLAG: FlagColor = {
   secondaryColor: COLOR_GREEN,
 };
 
-/** Reserving the Grey/Grey flag color for Manul Scouting Missions */
+/** Reserving the Grey/Grey flag color for Manual Scouting Missions */
 export const MANUAL_SCOUT_MISSION_FLAG: FlagColor = {
   color: COLOR_GREY,
   secondaryColor: COLOR_GREY,

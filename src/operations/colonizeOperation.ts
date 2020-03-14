@@ -94,7 +94,7 @@ export class ColonizeOperation {
     }
 
     if (room && room.controller && !room.controller.my && !this.claimMsn) {
-      // Set up a Claim mission to supply spawn/extensions
+      // Set up a Claim mission to claim the target room
       const claimMsn = this.setUpClaimMission(this.name + '_claim');
       claimMsn.setRoomName(this.mem.roomname);
       claimMsn.setSpawnSource(this.spawnSource);

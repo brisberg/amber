@@ -184,7 +184,7 @@ export const loop = () => {
 
       // HACK for now, Pioneer Mission if the colony is not healthy
       // Launch Pioneer Mission if room isn't healthy
-      if (Memory.auto.pioneer === true) {
+      if (Memory.auto.pioneer === true && spawn) {
         if (!roomHealthy) {
           const existingFlag =
               spawn.pos.lookFor(LOOK_FLAGS)
@@ -221,10 +221,10 @@ export const loop = () => {
         }
       }
 
-      if (Memory.auto.enetwork) {
+      if (Memory.auto.enetwork && spawn) {
         // Hack for now, initialize Core ENetwork at storage or temp container
         const storage = room.storage;
-        const corePos = spawn.room.getPositionAt(spawn.pos.x, spawn.pos.y - 2);
+        const corePos = spawn.room.getPositionAt(spawn.pos.x + 2, spawn.pos.y);
         if (storage) {  // We have storage, use it as the network core
           const existingFlag =
               room.find(FIND_FLAGS, {filter: CORE_ENERGY_NODE_FLAG});
@@ -285,7 +285,7 @@ export const loop = () => {
         }
       }
 
-      if (Memory.auto.sourceBuild === true) {
+      if (Memory.auto.sourceBuild === true && spawn) {
         // HACK for now, initialze Source Builder Operations
         const conts = room.find(
             FIND_CONSTRUCTION_SITES,
@@ -305,7 +305,7 @@ export const loop = () => {
         }
       }
 
-      if (Memory.auto.build === true) {
+      if (Memory.auto.build === true && spawn) {
         const eNodes = room.find(FIND_FLAGS, {filter: ENERGY_NODE_FLAG});
         if (eNodes.length > 0) {
           // Initialize Build Operation for other structures once EnergyNetwork
@@ -339,7 +339,7 @@ export const loop = () => {
         }
       }
 
-      if (Memory.auto.base) {
+      if (Memory.auto.base && spawn) {
         // Initialize the Base Operation once the Energy Network is online
         const tsPos = room.getPositionAt(spawn.pos.x, spawn.pos.y - 2);
         if (!Game.flags[`base_op_${room.name}`]) {
