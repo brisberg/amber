@@ -141,7 +141,7 @@ export class TransportMission extends Mission<TransportMissionMemory> {
         }
 
         if (creep.store.energy === 0) {
-          if (this.tooManyHaulers()) {
+          if ((creep.ticksToLive || 100) < 100) {
             // Decommission this hauler after it has delivered its payload
             console.log(
                 'Transport ' + this.name + ' decommissioning a hauler ' +
@@ -173,9 +173,7 @@ export class TransportMission extends Mission<TransportMissionMemory> {
     // TODO: Harcoding 66 for now, the static E/Tick/Cell for 4C2M Haulers
     // This should be dependant on the size of the Hauler creeps available.
     const byThroughput = (Math.abs(this.mem.throughput) * distance) / 17;
-    // Ceiling on the number of creeps per road
-    const maxCongestion = distance / 7;
-    return Math.floor(Math.min(maxCongestion, byThroughput));
+    return Math.floor(byThroughput);
   }
 
   /** Calculate max number of haulers for this lane */

@@ -38,8 +38,10 @@ declare namespace NodeJS {
     missions: import('./missions').MissionMap;
     // Global creep behavior registry
     operations: import('./operations').OperationMap;
-    // Global Spawn Queue instance
-    spawnQueue: import('./spawn-system/spawnQueue').SpawnQueue;
+    // Global Spawn Queue instances
+    spawnQueues: {
+      [roomname: string]: import('./spawn-system/spawnQueue').SpawnQueue,
+    };
     // Global Energy Network instance
     eNetwork: import('./energy-network/roomEnergyNetwork').RoomEnergyNetwork;
     // Console Commands

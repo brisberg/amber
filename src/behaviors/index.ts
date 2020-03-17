@@ -1,5 +1,6 @@
 import {Behavior} from './behavior';
 import {Builder, BUILDER} from './builder';
+import {Claimer, CLAIMER} from './claimer';
 import {CONTAINER_HARVESTER, ContainerHarvester} from './containerHarvester';
 import {CONTAINER_UPGRADER, ContainerUpgrader} from './containerUpgrader';
 import {Depositer, DEPOSITER} from './depositer';
@@ -13,14 +14,16 @@ import {Harvester, HARVESTER} from './harvester';
 import {Idler, IDLER} from './idler';
 import {Pioneer, PIONEER} from './pioneer';
 import {Repairer, REPAIRER} from './repairer';
+import {SENTRY, Sentry} from './sentry';
 import {SOURCE_BUILDER, SourceBuilder} from './sourceBuilder';
 import {Upgrader, UPGRADER} from './upgrader';
 
-export type BehaviorKey = typeof PIONEER|typeof REPAIRER|typeof FETCHER|
-    typeof DEPOSITER|typeof CONTAINER_HARVESTER|typeof EMERGENCY_MINER|
-    typeof BUILDER|typeof SOURCE_BUILDER|typeof ENET_BUILDER|
-    typeof ENET_FETCHER|typeof ENET_DEPOSITER|typeof UPGRADER|
-    typeof CONTAINER_UPGRADER|typeof DISTRIBUTOR|typeof IDLER;
+export type BehaviorKey =
+    typeof PIONEER|typeof REPAIRER|typeof FETCHER|typeof DEPOSITER|
+    typeof CONTAINER_HARVESTER|typeof EMERGENCY_MINER|typeof BUILDER|
+    typeof SOURCE_BUILDER|typeof ENET_BUILDER|typeof ENET_FETCHER|
+    typeof ENET_DEPOSITER|typeof UPGRADER|typeof CONTAINER_UPGRADER|
+    typeof DISTRIBUTOR|typeof CLAIMER|typeof SENTRY|typeof IDLER;
 
 export interface BehaviorMap {
   [name: string]: Behavior<any>;
@@ -43,5 +46,7 @@ global.behaviors = {
   [UPGRADER]: new Upgrader(),
   [CONTAINER_UPGRADER]: new ContainerUpgrader(),
   [DISTRIBUTOR]: new Distributor(),
+  [CLAIMER]: new Claimer(),
+  [SENTRY]: new Sentry(),
   [IDLER]: new Idler(),
 };

@@ -2,7 +2,7 @@ import {Behavior, BehaviorMemory} from './behavior';
 import {UnitWithStore} from './depositer';
 
 interface FetcherMemory extends BehaviorMemory {
-  targetID: Id<UnitWithStore>;
+  targetID: Id<UnitWithStore|Ruin>;
 }
 
 export const FETCHER = 'fetcher';
@@ -46,7 +46,7 @@ export class Fetcher extends Behavior<FetcherMemory> {
     return false;
   }
 
-  public static initMemory(target: UnitWithStore): FetcherMemory {
+  public static initMemory(target: UnitWithStore|Ruin): FetcherMemory {
     return {
       targetID: target.id,
     };

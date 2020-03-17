@@ -1,8 +1,9 @@
 import {setCreepBehavior} from 'behaviors/behavior';
 import {ENET_BUILDER, ENetBuilder} from 'behaviors/eNetBuilder';
+import {FETCHER, Fetcher} from 'behaviors/fetcher';
 import {SOURCE_BUILDER, SourceBuilder} from 'behaviors/sourceBuilder';
 import {EnergyNode} from 'energy-network/energyNode';
-import {WORKER, zeroRatio} from 'spawn-system/bodyTypes';
+import {CARRY_WORKER} from 'spawn-system/bodyTypes';
 
 import {Mission, MissionMemory} from './mission';
 
@@ -21,10 +22,9 @@ interface BuildMissionMemory extends MissionMemory {
  */
 export class BuildMission extends Mission<BuildMissionMemory> {
   protected readonly spawnPriority = 4;
-  protected readonly bodyType = WORKER;
+  protected readonly bodyType = CARRY_WORKER;
   protected readonly bodyOptions = {
     max: {work: 5},
-    min: {...zeroRatio, carry: 1},
   };
 
   public target: ConstructionSite|null = null;
@@ -102,12 +102,21 @@ export class BuildMission extends Mission<BuildMissionMemory> {
   /** @override */
   /** Executes one update tick for this mission */
   public run() {
+    const ruins =
+        this.room!.find(FIND_RUINS).filter((ruin) => ruin.store.energy > 0);
     // Direct each creep to mine or build
     this.creeps.forEach((creep) => {
+      if (creep.store.energy === 0 && ruins.length > 0) {
+        // If we have ruins, gather from them first
+        // WIP temp for hostil colonization
+        setCreepBehavior(creep, FETCHER, Fetcher.initMemory(ruins[0]));
+        return;
+      }
+
       if (this.rawSource) {
         // Harvest the energy ourselves right from the source
         if (creep.memory.behavior !== SOURCE_BUILDER) {
-          console.log('setting ' + creep.name + ' memory to SourceBuilder');
+          // console.log('setting ' + creep.name + ' memory to SourceBuilder');
           setCreepBehavior(
               creep,
               SOURCE_BUILDER,

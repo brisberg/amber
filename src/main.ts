@@ -36,26 +36,40 @@ export const loop = () => {
   Memory.operations = Memory.operations || {};
   Memory.rooms = Memory.rooms || {};
   Memory.flags = Memory.flags || {};
-
-  const roomName = Game.spawns.Spawn1.room.name;
-  if (!Memory.rooms[roomName]) {
-    Memory.rooms[roomName] = {network: null, damaged: []};
-  }
-
-  const queue = global.spawnQueue = new SpawnQueue(Game.spawns.Spawn1);
+  global.spawnQueues = global.spawnQueues || {};
 
   installConsoleCommands();
   garbageCollection();
 
-  // Run Tower Code
-  // TODO: Refactor this into a Defense Mission/Operation based on a flag
-  const towers = Game.rooms[roomName].find(FIND_MY_STRUCTURES, {
-    filter: {
-      structureType: STRUCTURE_TOWER,
-    },
-  }) as StructureTower[];
-  for (const tower of towers) {
-    global.tower.run(tower);
+  // Loop over all rooms
+  for (const roomName in Game.rooms) {
+    const room = Game.rooms[roomName];
+
+    if (!room.controller || !room.controller.my) {
+      // Skip rooms we don't own
+      continue;
+    }
+
+    if (!Memory.rooms[roomName]) {
+      Memory.rooms[roomName] = {network: null, damaged: []};
+    }
+
+    // TODO: Pass all spawns to the Spawn Queue
+    const spawns = room.find(FIND_MY_SPAWNS);
+    if (spawns.length > 0) {
+      global.spawnQueues[roomName] = new SpawnQueue(spawns[0]);
+    }
+
+    // Run Tower Code
+    // TODO: Refactor this into a Defense Mission/Operation based on a flag
+    const towers = Game.rooms[roomName].find(FIND_MY_STRUCTURES, {
+      filter: {
+        structureType: STRUCTURE_TOWER,
+      },
+    }) as StructureTower[];
+    for (const tower of towers) {
+      global.tower.run(tower);
+    }
   }
 
   // Aggregate status of Room Health checks
@@ -124,12 +138,6 @@ export const loop = () => {
     }
   }
 
-  // Hack, check for existance of network
-  if (Game.spawns.Spawn1.room.find(FIND_FLAGS, {filter: CORE_ENERGY_NODE_FLAG})
-          .length === 0) {
-    roomHealthy = false;
-  }
-
   /**
    * Initialize a mission and run it if successful, otherwise retire the
    * mission as it has been corrupted
@@ -154,190 +162,208 @@ export const loop = () => {
     }
   }
 
-  // If we are in autoMode, automatically place oprations/layout flags
-  if (Memory.auto !== undefined) {
-    const spawn = Game.spawns.Spawn1;
-    const room = spawn.room;
-    const controller = room.controller;
-    const sources = room.find(FIND_SOURCES);
+  // Loop over all rooms and execute auto actions
+  for (const roomName in Game.rooms) {
+    const room = Game.rooms[roomName];
 
-    // HACK for now, Pioneer Mission if the colony is not healthy
-    // Launch Pioneer Mission if room isn't healthy
-    if (Memory.auto.pioneer === true) {
-      if (!roomHealthy) {
-        const existingFlag =
-            spawn.pos.lookFor(LOOK_FLAGS)
-                .filter((flag) => flagIsColor(flag, PIONEER_MISSION_FLAG));
-        if (existingFlag.length === 0) {
-          // Launch the Pioneer Mission
-          const flagName = spawn.name + '_pioneer';
-          spawn.pos.createFlag(
-              flagName, PIONEER_MISSION_FLAG.color,
-              PIONEER_MISSION_FLAG.secondaryColor);
-          const flag = Game.flags[flagName];
-          const msn = new PioneerMission(flag);
-          msn.setController(controller!);
-          msn.setSources(sources);
-        }
-      } else {
-        const existingFlag =
-            spawn.pos.lookFor(LOOK_FLAGS)
-                .filter((flag) => flagIsColor(flag, PIONEER_MISSION_FLAG));
-        if (existingFlag.length > 0) {
-          console.log('Room Healthy: Retiring Pioneer Mission');
-          const msn = new PioneerMission(existingFlag[0]);
-          msn.retire();
-        }
-      }
+    if (!room.controller || !room.controller.my) {
+      // Skip rooms we don't own
+      continue;
     }
 
-    if (Memory.auto.mining === true) {
-      // HACK for now, Spawn a Mining operation for each source
-      for (const source of sources) {
-        source.pos.createFlag(
-            'mining-' + source.id, MINING_OPERATION_FLAG.color,
-            MINING_OPERATION_FLAG.secondaryColor);
-      }
+    // Hack, check for existance of network
+    if (room.find(FIND_FLAGS, {filter: CORE_ENERGY_NODE_FLAG}).length === 0) {
+      roomHealthy = false;
     }
 
-    if (Memory.auto.enetwork) {
-      // Hack for now, initialize Core ENetwork at storage or temp container
-      const storage = room.storage;
-      const corePos = spawn.room.getPositionAt(spawn.pos.x + 2, spawn.pos.y);
-      if (storage) {  // We have storage, use it as the network core
-        const existingFlag =
-            room.find(FIND_FLAGS, {filter: CORE_ENERGY_NODE_FLAG});
-        if (existingFlag.length === 0) {
-          // Initialize the network
-          const flagName = 'network_core_node';
-          registerEnergyNode(spawn.room, [storage.pos.x, storage.pos.y], {
-            color: CORE_ENERGY_NODE_FLAG,
-            coreBuffer: 0,
-            persistant: true,
-            polarity: 0,
-            type: 'structure',
-          });
-        } else {
-          const flag = existingFlag[0];
-          if (!flag.pos.isEqualTo(storage.pos)) {
-            // Remove old container, if it exists
-            const structs =
-                flag.pos.lookFor(LOOK_STRUCTURES).filter((struct) => {
-                  return struct.structureType === STRUCTURE_CONTAINER;
-                });
-            for (const cont of structs) {
-              cont.destroy();
-            }
-            flag.remove();
-          }
-        }
-      } else if (corePos) {  // No storage, look for temp container
-        // Look for Container/Storage
-        const structs = corePos.lookFor(LOOK_STRUCTURES);
-        if (structs.length === 0) {
-          // Look for Construction Site
-          const coreSites = corePos.lookFor(LOOK_CONSTRUCTION_SITES);
-          if (coreSites.length === 0 ||
-              coreSites[0].structureType !== STRUCTURE_CONTAINER) {
-            // Create Construction Site
-            corePos.createConstructionSite(STRUCTURE_CONTAINER);
-          }
-        } else if (
-            structs[0].structureType === STRUCTURE_CONTAINER ||
-            structs[0].structureType === STRUCTURE_STORAGE) {
-          // Core Store is build, initialize the ENetwork
+    // If we are in autoMode, automatically place oprations/layout flags
+    if (Memory.auto !== undefined) {
+      const spawn = room.find(FIND_MY_SPAWNS)[0];
+      const controller = room.controller;
+      const sources = room.find(FIND_SOURCES);
+
+      // HACK for now, Pioneer Mission if the colony is not healthy
+      // Launch Pioneer Mission if room isn't healthy
+      if (Memory.auto.pioneer === true && spawn) {
+        if (!roomHealthy) {
           const existingFlag =
-              corePos.lookFor(LOOK_FLAGS)
-                  .filter((flag) => flagIsColor(flag, CORE_ENERGY_NODE_FLAG));
+              spawn.pos.lookFor(LOOK_FLAGS)
+                  .filter((flag) => flagIsColor(flag, PIONEER_MISSION_FLAG));
+          if (existingFlag.length === 0) {
+            // Launch the Pioneer Mission
+            const flagName = spawn.name + '_pioneer';
+            spawn.pos.createFlag(
+                flagName, PIONEER_MISSION_FLAG.color,
+                PIONEER_MISSION_FLAG.secondaryColor);
+            const flag = Game.flags[flagName];
+            const msn = new PioneerMission(flag);
+            msn.setController(controller!);
+            msn.setSources(sources);
+          }
+        } else {
+          const existingFlag =
+              spawn.pos.lookFor(LOOK_FLAGS)
+                  .filter((flag) => flagIsColor(flag, PIONEER_MISSION_FLAG));
+          if (existingFlag.length > 0) {
+            console.log('Room Healthy: Retiring Pioneer Mission');
+            const msn = new PioneerMission(existingFlag[0]);
+            msn.retire();
+          }
+        }
+      }
+
+      if (Memory.auto.mining === true) {
+        // HACK for now, Spawn a Mining operation for each source
+        for (const source of sources) {
+          source.pos.createFlag(
+              'mining-' + source.id, MINING_OPERATION_FLAG.color,
+              MINING_OPERATION_FLAG.secondaryColor);
+        }
+      }
+
+      if (Memory.auto.enetwork && spawn) {
+        // Hack for now, initialize Core ENetwork at storage or temp container
+        const storage = room.storage;
+        const corePos = spawn.room.getPositionAt(spawn.pos.x + 2, spawn.pos.y);
+        if (storage) {  // We have storage, use it as the network core
+          const existingFlag =
+              room.find(FIND_FLAGS, {filter: CORE_ENERGY_NODE_FLAG});
           if (existingFlag.length === 0) {
             // Initialize the network
             const flagName = 'network_core_node';
-            registerEnergyNode(spawn.room, [corePos.x, corePos.y], {
+            registerEnergyNode(spawn.room, [storage.pos.x, storage.pos.y], {
               color: CORE_ENERGY_NODE_FLAG,
               coreBuffer: 0,
               persistant: true,
               polarity: 0,
               type: 'structure',
             });
+          } else {
+            const flag = existingFlag[0];
+            if (!flag.pos.isEqualTo(storage.pos)) {
+              // Remove old container, if it exists
+              const structs =
+                  flag.pos.lookFor(LOOK_STRUCTURES).filter((struct) => {
+                    return struct.structureType === STRUCTURE_CONTAINER;
+                  });
+              for (const cont of structs) {
+                cont.destroy();
+              }
+              flag.remove();
+            }
+          }
+        } else if (corePos) {  // No storage, look for temp container
+          // Look for Container/Storage
+          const structs = corePos.lookFor(LOOK_STRUCTURES);
+          if (structs.length === 0) {
+            // Look for Construction Site
+            const coreSites = corePos.lookFor(LOOK_CONSTRUCTION_SITES);
+            if (coreSites.length === 0 ||
+                coreSites[0].structureType !== STRUCTURE_CONTAINER) {
+              // Create Construction Site
+              corePos.createConstructionSite(STRUCTURE_CONTAINER);
+            }
+          } else if (
+              structs[0].structureType === STRUCTURE_CONTAINER ||
+              structs[0].structureType === STRUCTURE_STORAGE) {
+            // Core Store is build, initialize the ENetwork
+            const existingFlag =
+                corePos.lookFor(LOOK_FLAGS)
+                    .filter((flag) => flagIsColor(flag, CORE_ENERGY_NODE_FLAG));
+            if (existingFlag.length === 0) {
+              // Initialize the network
+              const flagName = 'network_core_node';
+              registerEnergyNode(spawn.room, [corePos.x, corePos.y], {
+                color: CORE_ENERGY_NODE_FLAG,
+                coreBuffer: 0,
+                persistant: true,
+                polarity: 0,
+                type: 'structure',
+              });
+            }
           }
         }
       }
-    }
 
-    if (Memory.auto.sourceBuild === true) {
-      // HACK for now, initialze Source Builder Operations
-      const conts = room.find(
-          FIND_CONSTRUCTION_SITES,
-          {filter: {structureType: STRUCTURE_CONTAINER}});
-      if (conts.length !== 0) {
-        for (const site of conts) {
-          // Always run Source Builder Operations
-          if (site.pos.findInRange(FIND_SOURCES, 1).length > 0) {
-            const opName = 'build-' + site.id;
-            if (!Game.flags[opName]) {
+      if (Memory.auto.sourceBuild === true && spawn) {
+        // HACK for now, initialze Source Builder Operations
+        const conts = room.find(
+            FIND_CONSTRUCTION_SITES,
+            {filter: {structureType: STRUCTURE_CONTAINER}});
+        if (conts.length !== 0) {
+          for (const site of conts) {
+            // Always run Source Builder Operations
+            if (site.pos.findInRange(FIND_SOURCES, 1).length > 0) {
+              const opName = 'build-' + site.id;
+              if (!Game.flags[opName]) {
+                site.pos.createFlag(
+                    opName, BUILD_OPERATION_FLAG.color,
+                    BUILD_OPERATION_FLAG.secondaryColor);
+              }
+            }
+          }
+        }
+      }
+
+      if (Memory.auto.build === true && spawn) {
+        const eNodes = room.find(FIND_FLAGS, {filter: ENERGY_NODE_FLAG});
+        if (eNodes.length > 0) {
+          // Initialize Build Operation for other structures once EnergyNetwork
+          // is online
+          const sites = room.find(FIND_MY_CONSTRUCTION_SITES);
+          for (const site of sites) {
+            // Check for existing source builder flag or global room build flag
+            if (!Game.flags['build-' + site.id] &&
+                !Game.flags['build-op-' + room.name]) {
               site.pos.createFlag(
-                  opName, BUILD_OPERATION_FLAG.color,
+                  'build-op-' + room.name, BUILD_OPERATION_FLAG.color,
                   BUILD_OPERATION_FLAG.secondaryColor);
             }
           }
         }
       }
-    }
 
-    if (Memory.auto.build === true) {
-      const eNodes = room.find(FIND_FLAGS, {filter: ENERGY_NODE_FLAG});
-      if (eNodes.length > 0) {
-        // Initialize Build Operation for other structures once EnergyNetwork is
-        // online
-        const sites = room.find(FIND_MY_CONSTRUCTION_SITES);
-        for (const site of sites) {
-          // Check for existing source builder flag or global room build flag
-          if (!Game.flags['build-' + site.id] &&
-              !Game.flags['build-op-' + room.name]) {
-            site.pos.createFlag(
-                'build-op-' + room.name, BUILD_OPERATION_FLAG.color,
-                BUILD_OPERATION_FLAG.secondaryColor);
+      if (Memory.auto.upgrade) {
+        // HACK for now
+        const coreNodes =
+            room.find(FIND_FLAGS, {filter: CORE_ENERGY_NODE_FLAG});
+        if (coreNodes.length > 0) {
+          // Initialize the Upgrade Operation once the Energy Network is online
+          if (controller) {
+            if (!Game.flags[`upgrade_op_${room.name}`]) {
+              controller.pos.createFlag(
+                  `upgrade_op_${room.name}`, UPGRADE_OPERATION_FLAG.color,
+                  UPGRADE_OPERATION_FLAG.secondaryColor);
+            }
           }
         }
       }
-    }
 
-    if (Memory.auto.upgrade) {
-      // HACK for now
-      const coreNodes = room.find(FIND_FLAGS, {filter: CORE_ENERGY_NODE_FLAG});
-      if (coreNodes.length > 0) {
-        // Initialize the Upgrade Operation once the Energy Network is online
-        if (controller) {
-          if (!Game.flags.upgrade_op) {
-            controller.pos.createFlag(
-                'upgrade_op', UPGRADE_OPERATION_FLAG.color,
-                UPGRADE_OPERATION_FLAG.secondaryColor);
-          }
+      if (Memory.auto.base && spawn) {
+        // Initialize the Base Operation once the Energy Network is online
+        const tsPos = room.getPositionAt(spawn.pos.x, spawn.pos.y - 2);
+        if (!Game.flags[`base_op_${room.name}`]) {
+          tsPos!.createFlag(
+              `base_op_${room.name}`, BASE_OPERATION_FLAG.color,
+              BASE_OPERATION_FLAG.secondaryColor);
         }
-      }
-    }
 
-    if (Memory.auto.base) {
-      // Initialize the Base Operation once the Energy Network is online
-      const tsPos = room.getPositionAt(spawn.pos.x, spawn.pos.y - 2);
-      if (!Game.flags.base_op) {
-        tsPos!.createFlag(
-            'base_op', BASE_OPERATION_FLAG.color,
-            BASE_OPERATION_FLAG.secondaryColor);
+        // Initialize Base Layout once Energy Network is online, at the base
+        // location.
+        // if (!Game.flags.town_square) {
+        //   tsPos!.createFlag(
+        //       'town_square', TOWN_SQUARE_FLAG.color,
+        //       TOWN_SQUARE_FLAG.secondaryColor);
+        // }
       }
-
-      // Initialize Base Layout once Energy Network is online, at the base
-      // location.
-      // if (!Game.flags.town_square) {
-      //   tsPos!.createFlag(
-      //       'town_square', TOWN_SQUARE_FLAG.color,
-      //       TOWN_SQUARE_FLAG.secondaryColor);
-      // }
     }
   }
 
   // SpawnQueue must execute after missions have a chance request creeps
-  queue.run();
+  for (const name in global.spawnQueues) {
+    const queue = global.spawnQueues[name];
+    queue.run();
+  }
 
   for (const name in Game.creeps) {
     const creep = Game.creeps[name];

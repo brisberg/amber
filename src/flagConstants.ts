@@ -20,6 +20,12 @@ export const PIONEER_MISSION_FLAG: FlagColor = {
   secondaryColor: COLOR_GREEN,
 };
 
+/** Reserving the Grey/Grey flag color for Manual Scouting Missions */
+export const MANUAL_SCOUT_MISSION_FLAG: FlagColor = {
+  color: COLOR_GREY,
+  secondaryColor: COLOR_GREY,
+};
+
 /** Reserving the Yellow/Yellow flag color for energy nodes */
 export const ENERGY_NODE_FLAG: FlagColor = {
   color: COLOR_YELLOW,
@@ -89,6 +95,17 @@ export const BASE_OPERATION_FLAG: FlagColor = {
 export const DISTRIBUTION_MISSION_FLAG: FlagColor = {
   color: COLOR_PURPLE,
   secondaryColor: COLOR_BLUE,
+};
+
+/** Reserve Purple/White flag color for Colonization Operation */
+export const COLONIZATION_OPERATION_FLAG: FlagColor = {
+  color: COLOR_PURPLE,
+  secondaryColor: COLOR_WHITE,
+};
+/** Reserve Purple/Cyan flag color for Claim Mission */
+export const CLAIM_MISSION_FLAG: FlagColor = {
+  color: COLOR_PURPLE,
+  secondaryColor: COLOR_CYAN,
 };
 
 /**

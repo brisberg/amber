@@ -72,7 +72,9 @@ export class SpawnQueue {
     this.requests.filter((request) => {
       const index = orphans.findIndex((orphan) => {
         // TODO: Expand this check to look for things like Min/Max parts
-        return orphan.memory.bodyRatio === request.bodyRatio;
+        return orphan.memory.bodyRatio === request.bodyRatio &&
+            orphan.pos.roomName === this.spawner.pos.roomName &&
+            (orphan.ticksToLive || 0) > 100;
       });
 
       if (index !== -1) {

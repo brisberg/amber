@@ -81,7 +81,7 @@ const hauler: CreepRatio = {
 creepBodyRatios[HAULER] = hauler;
 
 /**
- * Off-road Hauler
+ * Off-Road Hauler
  * Off-Road Haulers can move 1 cell per tick when loaded even off roads
  */
 export const OR_HAULER = 'orhauler';
@@ -95,6 +95,38 @@ const offRoadHauler: CreepRatio = {
   work: 0,
 };
 creepBodyRatios[OR_HAULER] = offRoadHauler;
+
+/**
+ * Claimer
+ * Claimers can move 1 cell per tick when loaded even off roads
+ */
+export const CLAIMER = 'claimer';
+const claimer: CreepRatio = {
+  attack: 0,
+  carry: 0,
+  claim: 1,
+  heal: 0,
+  move: 1,
+  tough: 0,
+  work: 0,
+};
+creepBodyRatios[CLAIMER] = claimer;
+
+/**
+ * Scout
+ * Scouts can move 1 cell per tick when loaded even off roads
+ */
+export const SCOUT = 'scout';
+const scout: CreepRatio = {
+  attack: 0,
+  carry: 0,
+  claim: 0,
+  heal: 0,
+  move: 1,
+  tough: 0,
+  work: 0,
+};
+creepBodyRatios[SCOUT] = scout;
 
 export interface GenerateCreepBodyOptions {
   min?: CreepRatio;
