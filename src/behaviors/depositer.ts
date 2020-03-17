@@ -1,9 +1,10 @@
 import {Behavior, BehaviorMemory} from './behavior';
 
-export type UnitWithStore = StructureContainer|StructureSpawn|
+export type UnitWithStore = StructureContainer|StructureStorage|StructureSpawn|
     StructureExtension|StructureLink|StructureTower|Creep;
 
 interface DepositerMemory extends BehaviorMemory {
+  resource: ResourceConstant;
   targetID: Id<UnitWithStore>;
 }
 
@@ -34,7 +35,7 @@ export class Depositer extends Behavior<DepositerMemory> {
       // We have arrived
 
       // Transfer to target
-      let amount = creep.store.energy;
+      let amount = creep.store[mem.resource];
 
       // Have to special case spawns and extensions for some reason
       // spawn.store.getFreeCapacity() always returns 0
@@ -47,16 +48,27 @@ export class Depositer extends Behavior<DepositerMemory> {
       }
 
       if (amount > 0) {
-        creep.transfer(target, RESOURCE_ENERGY, amount);
+        creep.transfer(target, mem.resource, amount);
         return false;
       }
     }
     return false;
   }
 
-  public static initMemory(target: UnitWithStore): DepositerMemory {
+  public static initMemory(
+      target: UnitWithStore,
+      resource: ResourceConstant = RESOURCE_ENERGY): DepositerMemory {
     return {
+      resource,
       targetID: target.id,
     };
+  }
+
+  public static getTarget(mem: DepositerMemory): Id<UnitWithStore>|null {
+    if (!mem) {
+      return null;
+    }
+
+    return mem.targetID;
   }
 }

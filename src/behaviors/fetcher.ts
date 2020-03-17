@@ -3,6 +3,7 @@ import {UnitWithStore} from './depositer';
 
 interface FetcherMemory extends BehaviorMemory {
   targetID: Id<UnitWithStore|Ruin>;
+  resource: ResourceConstant;
 }
 
 export const FETCHER = 'fetcher';
@@ -32,13 +33,13 @@ export class Fetcher extends Behavior<FetcherMemory> {
 
       // Withdraw from target
       const amount =
-          Math.min(creep.store.getFreeCapacity(), target.store.energy);
+          Math.min(creep.store.getFreeCapacity(), target.store[mem.resource]);
       if (amount > 0) {
         if (target instanceof Creep) {
           // You can't 'withdraw' from a creep
-          target.transfer(creep, RESOURCE_ENERGY, amount);
+          target.transfer(creep, mem.resource, amount);
         } else {
-          creep.withdraw(target, RESOURCE_ENERGY, amount);
+          creep.withdraw(target, mem.resource, amount);
         }
         return false;
       }
@@ -46,9 +47,20 @@ export class Fetcher extends Behavior<FetcherMemory> {
     return false;
   }
 
-  public static initMemory(target: UnitWithStore|Ruin): FetcherMemory {
+  public static initMemory(
+      target: UnitWithStore|Ruin,
+      resource: ResourceConstant = RESOURCE_ENERGY): FetcherMemory {
     return {
+      resource,
       targetID: target.id,
     };
+  }
+
+  public static getTarget(mem: FetcherMemory): Id<UnitWithStore|Ruin>|null {
+    if (!mem) {
+      return null;
+    }
+
+    return mem.targetID;
   }
 }

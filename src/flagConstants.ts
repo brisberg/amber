@@ -108,6 +108,12 @@ export const CLAIM_MISSION_FLAG: FlagColor = {
   secondaryColor: COLOR_CYAN,
 };
 
+/** Reserve Red/Yellow flag color for Raid Mission */
+export const RAID_MISSION_FLAG: FlagColor = {
+  color: COLOR_RED,
+  secondaryColor: COLOR_YELLOW,
+};
+
 /**
  * -----------------
  * Layout Flags
