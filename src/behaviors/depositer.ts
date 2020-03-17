@@ -1,6 +1,6 @@
 import {Behavior, BehaviorMemory} from './behavior';
 
-export type UnitWithStore = StructureContainer|StructureStorage|StructureSpawn|
+export type UnitWithStore =|StructureContainer|StructureStorage|StructureSpawn|
     StructureExtension|StructureLink|StructureTower|Creep;
 
 interface DepositerMemory extends BehaviorMemory {
@@ -58,10 +58,7 @@ export class Depositer extends Behavior<DepositerMemory> {
   public static initMemory(
       target: UnitWithStore,
       resource: ResourceConstant = RESOURCE_ENERGY): DepositerMemory {
-    return {
-      resource,
-      targetID: target.id,
-    };
+    return {resource, targetID: target.id};
   }
 
   public static getTarget(mem: DepositerMemory): Id<UnitWithStore>|null {

@@ -1,0 +1,16 @@
+---
+root: true
+extends:
+  - airbnb-typescript/base
+env:
+  es6: true
+  node: true
+parser: "@typescript-eslint/parser"
+parserOptions:
+  ecmaVersion: 2018
+  sourceType: module
+  ecmaFeatures:
+    impliedStrict: true
+  project: "./tsconfig.json"
+rules:
+  no-multi-spaces: off
