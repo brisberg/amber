@@ -12,12 +12,15 @@
   },
   "typescript.tsdk": "./node_modules/typescript/lib",
   "[json]": {
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "xaver.clang-format"
   },
   "[javascript]": {
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "xaver.clang-format"
   },
   "[typescript]": {
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "xaver.clang-format"
   }
 }
