@@ -9,7 +9,7 @@ import {isOrphan} from './orphans';
  *
  * For now this is a barebones implementation, we will need to expand on it to
  * incorporate specific activities/operations later. For now it will manage all
- * of the spawning for a single spawner.
+ * of the spawning for a single group of spawners.
  */
 
 /**
@@ -26,11 +26,13 @@ export interface SpawnRequest {
 }
 
 export class SpawnQueue {
-  private readonly spawner: StructureSpawn;
+  private readonly roomName: string;
+  private readonly spawners: StructureSpawn[];
   private readonly requests: SpawnRequest[] = [];
 
-  constructor(spawner: StructureSpawn) {
-    this.spawner = spawner;
+  constructor(room: string, spawners: StructureSpawn[]) {
+    this.roomName = room;
+    this.spawners = spawners;
   }
 
   /**
@@ -73,7 +75,7 @@ export class SpawnQueue {
       const index = orphans.findIndex((orphan) => {
         // TODO: Expand this check to look for things like Min/Max parts
         return orphan.memory.bodyRatio === request.bodyRatio &&
-            orphan.pos.roomName === this.spawner.pos.roomName &&
+            orphan.pos.roomName === this.roomName &&
             (orphan.ticksToLive || 0) > 100;
       });
 
@@ -85,7 +87,10 @@ export class SpawnQueue {
       return true;
     });
 
-    if (this.spawner.spawning) {
+    // Get the next idle spawner to use to handle requests
+    const spawner = this.spawners.find(spawn => !spawn.spawning)
+
+    if (!spawner) {
       return;
     }
 
@@ -98,10 +103,10 @@ export class SpawnQueue {
 
     // Generate the flex creep with the given body ratio and options.
     const body = generateFlexibleCreep(
-        this.spawner.room.energyCapacityAvailable,
-        creepBodyRatios[req.bodyRatio], req.bodyOptions);
+        spawner.room.energyCapacityAvailable, creepBodyRatios[req.bodyRatio],
+        req.bodyOptions);
 
-    if (this.spawner.room.energyAvailable >= totalCost(body)) {
+    if (spawner.room.energyAvailable >= totalCost(body)) {
       const defaultOptions: SpawnOptions = {
         memory: {
           behavior: IDLER,
@@ -123,7 +128,7 @@ export class SpawnQueue {
         };
       }
       // console.log(`Spawning new creeps: ${req.name} with ${body}`);
-      this.spawner.spawnCreep(body, req.name!, combinedOptions);
+      spawner.spawnCreep(body, req.name!, combinedOptions);
     }
   }
 

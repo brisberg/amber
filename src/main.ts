@@ -57,7 +57,7 @@ export const loop = () => {
     // TODO: Pass all spawns to the Spawn Queue
     const spawns = room.find(FIND_MY_SPAWNS);
     if (spawns.length > 0) {
-      global.spawnQueues[roomName] = new SpawnQueue(spawns[0]);
+      global.spawnQueues[roomName] = new SpawnQueue(room.name, spawns);
     }
 
     // Run Tower Code
