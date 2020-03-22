@@ -14,7 +14,7 @@ import {analyzeControllerForUpgrading, UpgradeControllerAnalysis} from './upgrad
  * It will perform Analysis on a Room Controller, designate where the
  * Container should be placed. It will run a Build missions to get this
  * container constructed. Once the Build is completed, it will scrap that
- * mission and start a new Harvest mission on the node, and connect up to the
+ * mission and start a new Upgrade mission on the node, and connect up to the
  * Energy Network.
  *
  * This will reassign all the worker from the build to the upgrade.
