@@ -1,6 +1,4 @@
-// example declaration file - remove these and add your own custom typings
-
-// memory extension samples
+// Memory Extensions for Amber
 interface CreepMemory {
   mission: string|null;
   bodyRatio: string;
@@ -11,11 +9,8 @@ interface CreepMemory {
 interface Memory {
   auto?: {[subsystem: string]: boolean};
   pauseUtil?: number;  // Script paused until this Game Tick
-  nextID: number;
   missions: {[name: string]: any};
   operations: {[name: string]: any};
-  uuid: number;
-  log: any;
 }
 
 interface RoomMemory {
@@ -34,16 +29,21 @@ declare namespace NodeJS {
     behaviors: import('./behaviors').BehaviorMap;
     // Global tower behavior registry
     tower: import('./towers/tower').TowerBehavior;
-    // Global creep behavior registry
+    // Global mission behavior registry
     missions: import('./missions').MissionMap;
-    // Global creep behavior registry
+    // Global operation behavior registry
     operations: import('./operations').OperationMap;
     // Global Spawn Queue instances
     spawnQueues: {
       [roomname: string]: import('./spawn-system/spawnQueue').SpawnQueue,
     };
+    // Global Colony instances cache
+    colonies: {
+      [roomname: string]: import('./colony/colony').default,
+    }
     // Global Energy Network instance
-    eNetwork: import('./energy-network/roomEnergyNetwork').RoomEnergyNetwork;
+    eNetwork: import('./energy-network/roomEnergyNetwork')
+        .RoomEnergyNetwork;
     // Console Commands
     cc: {[command: string]: (...args: any) => any};
   }
