@@ -88,7 +88,7 @@ export class SpawnQueue {
     });
 
     // Get the next idle spawner to use to handle requests
-    const spawner = this.spawners.find(spawn => !spawn.spawning)
+    const spawner = this.spawners.find((spawn) => !spawn.spawning);
 
     if (!spawner) {
       return;

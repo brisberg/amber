@@ -35,7 +35,7 @@ declare namespace NodeJS {
     operations: import('./operations').OperationMap;
     // Global Spawn Queue instances
     spawnQueues: {
-      [roomname: string]: import('./spawn-system/spawnQueue').SpawnQueue,
+      [roomname: string]: import('./spawn-system/spawnQueue').SpawnQueue;
     };
     // Global Energy Network instance
     eNetwork: import('./energy-network/roomEnergyNetwork').RoomEnergyNetwork;

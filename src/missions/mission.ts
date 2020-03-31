@@ -111,7 +111,7 @@ export abstract class Mission<M extends MissionMemory> {
   /** Requests another Creep from the SpawnQueue */
   protected requestCreep(
       bodyRatio: string, bodyOptions?: GenerateCreepBodyOptions,
-      critical: boolean = false): string {
+      critical = false): string {
     return global.spawnQueues[this.spawnSource].requestCreep({
       bodyOptions,
       bodyRatio,

@@ -8,7 +8,7 @@ export function installConsoleCommands() {
 
 const CONSOLE_COMMANDS = {
   /** Pause Script execution for a number of Game ticks */
-  pauseFor(ticks: number = 100) {
+  pauseFor(ticks = 100) {
     Memory.pauseUtil = Game.time + ticks;
     console.log('Script suspended until ' + Memory.pauseUtil);
   },
