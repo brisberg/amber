@@ -1,6 +1,14 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {setCreepBehavior} from 'behaviors/behavior';
-import {CONTAINER_UPGRADER, ContainerUpgrader} from 'behaviors/containerUpgrader';
-import {GenerateCreepBodyOptions, WORKER, zeroRatio} from 'spawn-system/bodyTypes';
+import {
+  CONTAINER_UPGRADER,
+  ContainerUpgrader,
+} from 'behaviors/containerUpgrader';
+import {
+  GenerateCreepBodyOptions,
+  WORKER,
+  zeroRatio,
+} from 'spawn-system/bodyTypes';
 
 import {Mission, MissionMemory} from './mission';
 
@@ -55,18 +63,18 @@ export class UpgradeMission extends Mission<UpgradeMissionMemory> {
     return true;
   }
 
-  public setController(controller: StructureController) {
+  public setController(controller: StructureController): void {
     this.controller = controller;
     this.mem.controllerID = controller.id;
   }
 
-  public setContainer(container: StructureContainer) {
+  public setContainer(container: StructureContainer): void {
     this.container = container;
     this.mem.containerID = container.id;
   }
 
   /** Executes one update tick for this mission */
-  public run() {
+  public run(): void {
     if (this.mem.controllerID && !Game.getObjectById(this.mem.controllerID)) {
       // Construction complete
       // Remove this mission and deallocate all of the creeps
@@ -91,7 +99,7 @@ export class UpgradeMission extends Mission<UpgradeMissionMemory> {
     }
   }
 
-  private get maxUpgraders() {
+  private get maxUpgraders(): number {
     return 6;
   }
 

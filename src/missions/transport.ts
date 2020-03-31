@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {setCreepBehavior} from 'behaviors/behavior';
 import {ENET_DEPOSITER, ENetDepositer} from 'behaviors/eNetDepositer';
 import {ENET_FETCHER, ENetFetcher} from 'behaviors/eNetFetcher';
@@ -72,26 +73,26 @@ export class TransportMission extends Mission<TransportMissionMemory> {
     return true;
   }
 
-  public setSource(source: EnergyNode) {
+  public setSource(source: EnergyNode): void {
     this.mem.source = source.mem;
     this.source = source;
   }
 
-  public setBuffer(buffer: number) {
+  public setBuffer(buffer: number): void {
     this.mem.buffer = buffer;
   }
 
-  public setDestination(dest: EnergyNode) {
+  public setDestination(dest: EnergyNode): void {
     this.mem.dest = dest.mem;
     this.dest = dest;
   }
 
-  public setThroughput(throughput: number) {
+  public setThroughput(throughput: number): void {
     this.mem.throughput = throughput;
   }
 
   /** Executes one update tick for this mission */
-  public run() {
+  public run(): void {
     if (!this.source || !this.dest) {
       return;
     }
@@ -167,7 +168,7 @@ export class TransportMission extends Mission<TransportMissionMemory> {
    * Calculates the number of CARRY parts required to maintain this transit
    * line
    */
-  private get maxCarryPartsForLane() {
+  private get maxCarryPartsForLane(): number {
     const path = this.mem._path;
     const distance = path ? path.length : 10;
     // TODO: Harcoding 66 for now, the static E/Tick/Cell for 4C2M Haulers
@@ -177,7 +178,7 @@ export class TransportMission extends Mission<TransportMissionMemory> {
   }
 
   /** Calculate max number of haulers for this lane */
-  private get maxCongestionForLane() {
+  private get maxCongestionForLane(): number {
     const path = this.mem._path;
     const distance = path ? path.length : 10;
     return Math.floor(distance / 7);

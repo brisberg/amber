@@ -24,7 +24,7 @@ export const ENET_BUILDER = 'enet-builder';
  */
 export class ENetBuilder extends Behavior<ENetBuilderMemory> {
   /* @override */
-  protected behaviorActions(creep: Creep, mem: ENetBuilderMemory) {
+  protected behaviorActions(creep: Creep, mem: ENetBuilderMemory): boolean {
     const target = Game.getObjectById(mem.targetSiteID);
     const eNode = new EnergyNode(Game.flags[mem.eNodeFlag]);
 
@@ -50,6 +50,7 @@ export class ENetBuilder extends Behavior<ENetBuilderMemory> {
               // node which must remain clear)
               continue;
             }
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const pos = creep.room.getPositionAt(i, j)!;
             if (pos.lookFor(LOOK_TERRAIN)[0] !== 'wall') {
               const occupied =

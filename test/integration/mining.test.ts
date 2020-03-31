@@ -78,6 +78,7 @@ describe('mining operation', () => {
     await helper.player.console(
         `Memory.auto = {sourceBuild: true, mining: true}`);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async function getContainer(roomname: string): Promise<any|null> {
       return db['rooms.objects'].findOne(
           {room: roomname, type: C.STRUCTURE_CONTAINER});

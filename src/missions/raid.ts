@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {setCreepBehavior} from 'behaviors/behavior';
 import {DEPOSITER, Depositer} from 'behaviors/Depositer';
 import {FETCHER, Fetcher} from 'behaviors/fetcher';
@@ -70,13 +71,13 @@ export class RaidMission extends Mission<RaidMissionMemory> {
     return true;
   }
 
-  public setDestination(dest: StructureStorage) {
+  public setDestination(dest: StructureStorage): void {
     this.mem.destID = dest.id;
     this.dest = dest;
   }
 
   /** Executes one update tick for this mission */
-  public run() {
+  public run(): void {
     if (!this.dest || this.ruins.length === 0) {
       return;
     }

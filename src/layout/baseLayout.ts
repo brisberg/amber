@@ -20,14 +20,16 @@ export class BaseLayoutController {
 
   constructor(flag: Flag) {
     this.flag = flag;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.room = flag.room!;
   }
 
-  public layoutFlags() {
+  public layoutFlags(): void {
     const aFlags = this.room.find(FIND_FLAGS, {filter: EXTENSION_GROUP_A_FLAG});
     const bFlags = this.room.find(FIND_FLAGS, {filter: EXTENSION_GROUP_B_FLAG});
 
     const maxExtensions =
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         CONTROLLER_STRUCTURES.extension[this.room.controller!.level];
     const maxGroups = Math.ceil(maxExtensions / 6);
 

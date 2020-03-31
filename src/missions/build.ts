@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {setCreepBehavior} from 'behaviors/behavior';
 import {ENET_BUILDER, ENetBuilder} from 'behaviors/eNetBuilder';
 import {FETCHER, Fetcher} from 'behaviors/fetcher';
@@ -81,28 +82,29 @@ export class BuildMission extends Mission<BuildMissionMemory> {
     };
   }
 
-  public setTargetSite(target: ConstructionSite) {
+  public setTargetSite(target: ConstructionSite): void {
     this.target = target;
     this.mem.targetSiteID = target.id;
   }
 
-  public useRawSource(source: Source) {
+  public useRawSource(source: Source): void {
     this.mem.rawSourceID = source.id;
   }
 
-  public setEnergyNode(node: EnergyNode) {
+  public setEnergyNode(node: EnergyNode): void {
     this.eNode = node;
     this.mem.eNodeFlag = node.flag.name;
   }
 
-  public setMaxBuilders(max: number) {
+  public setMaxBuilders(max: number): void {
     this.mem.maxBuilders = max;
   }
 
   /** @override */
   /** Executes one update tick for this mission */
-  public run() {
+  public run(): void {
     const ruins =
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.room!.find(FIND_RUINS).filter((ruin) => ruin.store.energy > 0);
     // Direct each creep to mine or build
     this.creeps.forEach((creep) => {
@@ -139,7 +141,7 @@ export class BuildMission extends Mission<BuildMissionMemory> {
     });
   }
 
-  private get maxBuilders() {
+  private get maxBuilders(): number {
     return this.mem.maxBuilders;
   }
 

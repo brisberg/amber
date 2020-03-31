@@ -103,7 +103,7 @@ export abstract class Mission<M extends MissionMemory> {
    * Returns the list of creeps for this mission with more than 100 ticks to
    * live. Use this list when requesting new creeps to prespawn replacements.
    */
-  protected getYoungCreeps() {
+  protected getYoungCreeps(): Creep[] {
     return this.creeps.filter(
         (creep) => (creep.ticksToLive || CREEP_LIFE_TIME) > 100);
   }
@@ -121,7 +121,7 @@ export abstract class Mission<M extends MissionMemory> {
   }
 
   /** Set the room this mission should use for spawning. */
-  public setSpawnSource(roomName: string) {
+  public setSpawnSource(roomName: string): void {
     this.mem.spawnSource = roomName;
   }
 
@@ -148,7 +148,7 @@ export abstract class Mission<M extends MissionMemory> {
    * Assignes the given creep to this mission. Assumes the creep is an
    * appropriate body ratio for this mission.
    */
-  public assignCreep(creep: Creep) {
+  public assignCreep(creep: Creep): void {
     this.creeps.push(creep);
     this.mem.creeps.push(creep.name);
 

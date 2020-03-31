@@ -1,5 +1,12 @@
-import {registerEnergyNode, unregisterEnergyNode} from 'energy-network/energyNode';
-import {ENERGY_NODE_FLAG, flagIsColor, HARVEST_SOURCE_FLAG} from 'flagConstants';
+import {
+  registerEnergyNode,
+  unregisterEnergyNode,
+} from 'energy-network/energyNode';
+import {
+  ENERGY_NODE_FLAG,
+  flagIsColor,
+  HARVEST_SOURCE_FLAG,
+} from 'flagConstants';
 
 import {HarvestingMission} from '../missions/harvesting';
 
@@ -43,6 +50,7 @@ export class MiningOperation {
   constructor(flag: Flag) {
     this.flag = flag;
     this.name = flag.name;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.room = flag.room!;
 
     // Init memory
@@ -63,7 +71,7 @@ export class MiningOperation {
     }
   }
 
-  public init() {
+  public init(): boolean {
     // Validate missions cache
     if (this.mem.harvestMission) {
       if (!Game.flags[this.mem.harvestMission]) {
@@ -117,7 +125,7 @@ export class MiningOperation {
     return true;
   }
 
-  public run() {
+  public run(): void {
     if (!this.source) {
       return;
     }
@@ -194,7 +202,7 @@ export class MiningOperation {
   }
 
   private setContainer(container: StructureContainer|
-                       ConstructionSite<STRUCTURE_CONTAINER>) {
+                       ConstructionSite<STRUCTURE_CONTAINER>): void {
     this.container = container;
     this.mem.containerID = container.id;
   }
@@ -215,7 +223,7 @@ export class MiningOperation {
     return true;
   }
 
-  public retire() {
+  public retire(): void {
     console.log('Retiring MiningOp: ' + this.name);
     if (this.harvestMns) {
       this.harvestMns.retire();

@@ -18,7 +18,7 @@ export const ENET_FETCHER = 'enet-fetcher';
  */
 export class ENetFetcher extends Behavior<ENetFetcherMemory> {
   /* @override */
-  protected behaviorActions(creep: Creep, mem: ENetFetcherMemory) {
+  protected behaviorActions(creep: Creep, mem: ENetFetcherMemory): boolean {
     const node = new EnergyNode(Game.flags[mem.eNodeFlag]);
 
     if (node && node.getStoredEnergy() >= mem.buffer) {

@@ -16,7 +16,7 @@ export const UPGRADER = 'upgrader';
  */
 export class Upgrader extends Behavior<UpgraderMemory> {
   /* @override */
-  protected behaviorActions(creep: Creep, mem: UpgraderMemory) {
+  protected behaviorActions(creep: Creep, mem: UpgraderMemory): boolean {
     const controller = Game.getObjectById(mem.controllerID);
 
     if (!controller) {

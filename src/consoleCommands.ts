@@ -1,25 +1,17 @@
-/**
- * Installs all Console Commands to the global scope. Can be accessed by:
- * `cc.command()`
- */
-export function installConsoleCommands() {
-  global.cc = CONSOLE_COMMANDS;
-}
-
 const CONSOLE_COMMANDS = {
   /** Pause Script execution for a number of Game ticks */
-  pauseFor(ticks = 100) {
+  pauseFor(ticks = 100): void {
     Memory.pauseUtil = Game.time + ticks;
     console.log('Script suspended until ' + Memory.pauseUtil);
   },
   /** Resume Script execution */
-  unpause() {
+  unpause(): void {
     delete Memory.pauseUtil;
     console.log('Script resumed.');
   },
 
   /** Manually reassign a creep to a particular Mission */
-  reassignCreep(creepName: string, mission: string) {
+  reassignCreep(creepName: string, mission: string): boolean {
     const creep = Game.creeps[creepName];
     const mem = Memory.creeps[creepName];
 
@@ -49,3 +41,11 @@ const CONSOLE_COMMANDS = {
     return true;
   },
 };
+
+/**
+ * Installs all Console Commands to the global scope. Can be accessed by:
+ * `cc.command()`
+ */
+export function installConsoleCommands(): void {
+  global.cc = CONSOLE_COMMANDS;
+}

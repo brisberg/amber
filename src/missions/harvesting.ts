@@ -1,5 +1,8 @@
 import {setCreepBehavior} from 'behaviors/behavior';
-import {CONTAINER_HARVESTER, ContainerHarvester} from 'behaviors/containerHarvester';
+import {
+  CONTAINER_HARVESTER,
+  ContainerHarvester,
+} from 'behaviors/containerHarvester';
 import {WORKER, zeroRatio} from 'spawn-system/bodyTypes';
 
 import {MAX_WORK_PER_SOURCE} from '../constants';
@@ -34,17 +37,17 @@ export class HarvestingMission extends Mission<HarvestingMemory> {
     super(flag);
   }
 
-  public setSource(source: Source) {
+  public setSource(source: Source): void {
     this.source = source;
     this.mem.sourceID = source.id;
   }
 
-  public setContainer(container: StructureContainer) {
+  public setContainer(container: StructureContainer): void {
     this.container = container;
     this.mem.containerID = container.id;
   }
 
-  public setMaxHarvesters(max: number) {
+  public setMaxHarvesters(max: number): void {
     this.mem.maxHarvesters = max;
   }
 
@@ -74,18 +77,19 @@ export class HarvestingMission extends Mission<HarvestingMemory> {
   }
 
   /** Executes one update tick for this mission */
-  public run() {
+  public run(): void {
     this.creeps.forEach((harvester) => {
       // Reassign the harvesters if they were given to us
       if (harvester.memory.behavior !== CONTAINER_HARVESTER) {
         setCreepBehavior(
             harvester, CONTAINER_HARVESTER,
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             ContainerHarvester.initMemory(this.source!, this.container!));
       }
     });
   }
 
-  private get maxHarvesters() {
+  private get maxHarvesters(): number {
     return this.mem.maxHarvesters || 0;
   }
 

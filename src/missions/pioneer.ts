@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {setCreepBehavior} from 'behaviors/behavior';
 import {PIONEER, Pioneer} from 'behaviors/pioneer';
 import {CARRY_WORKER} from 'spawn-system/bodyTypes';
@@ -86,18 +87,18 @@ export class PioneerMission extends Mission<PioneerMissionMemory> {
     return true;
   }
 
-  public setController(controller: StructureController) {
+  public setController(controller: StructureController): void {
     this.controller = controller;
     this.mem.controllerID = controller.id;
   }
 
-  public setSources(sources: Source[]) {
+  public setSources(sources: Source[]): void {
     this.sources = sources;
     this.mem.sourceIDs = sources.map((source) => source.id);
   }
 
   /** Executes one update tick for this mission */
-  public run() {
+  public run(): void {
     if (this.controller) {
       // Phase out at RCL2. Pioneers will survive long enough for
       // mining/transport to be up.
@@ -138,7 +139,7 @@ export class PioneerMission extends Mission<PioneerMissionMemory> {
     }
   }
 
-  private get maxPioneers() {
+  private get maxPioneers(): number {
     return this.sources.length * 2;
   }
 

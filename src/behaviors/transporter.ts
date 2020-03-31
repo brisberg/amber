@@ -14,7 +14,7 @@ export class Transporter {
     this.target = Game.getObjectById(this.mem.targetID);
   }
 
-  public run() {
+  public run(): void {
     if (this.mem.withdraw) {
       if (this.target) {
         // Target must be a container

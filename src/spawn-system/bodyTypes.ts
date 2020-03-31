@@ -141,6 +141,25 @@ export interface GenerateCreepBodyOptions {
   };
 }
 
+function addToRatio(base: CreepRatio, addition: CreepRatio): CreepRatio {
+  return {
+    attack: base.attack + addition.attack,
+    carry: base.carry + addition.carry,
+    claim: base.claim + addition.claim,
+    heal: base.heal + addition.heal,
+    move: base.move + addition.move,
+    tough: base.tough + addition.tough,
+    work: base.work + addition.work,
+  };
+}
+
+function costOfRatio(ratio: CreepRatio): number {
+  return ratio.attack * BODYPART_COST[ATTACK] +
+      ratio.carry * BODYPART_COST[CARRY] + ratio.claim * BODYPART_COST[CLAIM] +
+      ratio.heal * BODYPART_COST[HEAL] + ratio.move * BODYPART_COST[MOVE] +
+      ratio.tough * BODYPART_COST[TOUGH] + ratio.work * BODYPART_COST[WORK];
+}
+
 export function generateFlexibleCreep(
     maxEnergy: number, ratio: CreepRatio,
     opts?: GenerateCreepBodyOptions): BodyPartConstant[] {
@@ -178,23 +197,4 @@ export function generateFlexibleCreep(
   return createCreepBody(
       body.work, body.carry, body.move, body.attack, body.heal, body.tough,
       body.claim);
-}
-
-function addToRatio(base: CreepRatio, addition: CreepRatio): CreepRatio {
-  return {
-    attack: base.attack + addition.attack,
-    carry: base.carry + addition.carry,
-    claim: base.claim + addition.claim,
-    heal: base.heal + addition.heal,
-    move: base.move + addition.move,
-    tough: base.tough + addition.tough,
-    work: base.work + addition.work,
-  };
-}
-
-function costOfRatio(ratio: CreepRatio): number {
-  return ratio.attack * BODYPART_COST[ATTACK] +
-      ratio.carry * BODYPART_COST[CARRY] + ratio.claim * BODYPART_COST[CLAIM] +
-      ratio.heal * BODYPART_COST[HEAL] + ratio.move * BODYPART_COST[MOVE] +
-      ratio.tough * BODYPART_COST[TOUGH] + ratio.work * BODYPART_COST[WORK];
 }

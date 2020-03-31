@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Memory Extensions for Amber
 interface CreepMemory {
   mission: string|null;
@@ -34,9 +35,8 @@ declare namespace NodeJS {
     // Global operation behavior registry
     operations: import('./operations').OperationMap;
     // Global Spawn Queue instances
-    spawnQueues: {
-      [roomname: string]: import('./spawn-system/spawnQueue').SpawnQueue;
-    };
+    spawnQueues:
+        {[roomname: string]: import('./spawn-system/spawnQueue').SpawnQueue};
     // Global Energy Network instance
     eNetwork: import('./energy-network/roomEnergyNetwork').RoomEnergyNetwork;
     // Console Commands

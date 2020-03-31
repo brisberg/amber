@@ -77,18 +77,21 @@ export class TownSquare {
    * If any Structures are missing, place a Construction Site at the missing
    * coordinates.
    */
-  public replaceMissingStructures() {
+  public replaceMissingStructures(): void {
     if ((this.structs.length + this.sites.length) >= 42) {  // 6x7
       return;
     }
 
     let spawns = 0;
     const maxSpawns =
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         CONTROLLER_STRUCTURES.spawn[this.flag.room!.controller!.level];
     let towers = 0;
     const maxTowers =
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         CONTROLLER_STRUCTURES.tower[this.flag.room!.controller!.level];
 
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const terrain = this.flag.room!.getTerrain();
 
     for (let x = -3; x <= 3; x++) {
@@ -119,13 +122,14 @@ export class TownSquare {
           }
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.flag.room!.createConstructionSite(
             this.flag.pos.x + x, this.flag.pos.y + y, struct);
       }
     }
   }
 
-  public retire() {
+  public retire(): void {
     this.sites.forEach((site) => site.remove);
     this.flag.remove();
   }

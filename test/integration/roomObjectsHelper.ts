@@ -7,7 +7,18 @@ import {helper} from './helper';
  * to a ScreepsServer world.
  */
 
-export async function claimRoomForPlayer(room: string, player: any, level = 1) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function getController(room: string): Promise<any> {
+  const {db, C} = await helper.server.world.load();
+
+  return await db['rooms.objects'].findOne({
+    room,
+    type: C.STRUCTURE_CONTROLLER,
+  });
+}
+
+export async function claimRoomForPlayer(
+    room: string, player: User, level = 1): Promise<void> {
   const world = helper.server.world;
   const {db} = await world.load();
 
@@ -25,7 +36,7 @@ export async function claimRoomForPlayer(room: string, player: any, level = 1) {
         downgradeTime: null,
         level,
         progress: 0,
-        user: player._id,
+        user: player.id,
       },
     }),
   ]);
@@ -42,7 +53,7 @@ export async function claimRoomForPlayer(room: string, player: any, level = 1) {
  */
 export async function setFlag(
     player: User, room: string, name: string, x: number, y: number,
-    color: number, scolor: number) {
+    color: number, scolor: number): Promise<void> {
   const world = helper.server.world;
   const {db} = await world.load();
 
@@ -56,7 +67,8 @@ export async function setFlag(
 }
 
 export async function addContainer(
-    room: string, x: number, y: number, amount = 0, decayDelay?: number) {
+    room: string, x: number, y: number, amount = 0,
+    decayDelay?: number): Promise<void> {
   const world = helper.server.world;
   const {C} = await world.load();
   const decay = decayDelay ? decayDelay : C.CONTAINER_DECAY_TIME_OWNED;
@@ -73,7 +85,7 @@ export async function addContainer(
 
 export async function addSpawn(
     player: User, room: string, x: number, y: number, name = 'Spawn2',
-    amount?: number) {
+    amount?: number): Promise<void> {
   const world = helper.server.world;
   const {C} = await world.load();
   const energy = amount ? amount : C.SPAWN_ENERGY_START;
@@ -87,14 +99,5 @@ export async function addSpawn(
     store: {energy},
     storeCapacityResource: {energy: C.SPAWN_ENERGY_CAPACITY},
     user: player.id,
-  });
-}
-
-export async function getController(room: string) {
-  const {db, C} = await helper.server.world.load();
-
-  return await db['rooms.objects'].findOne({
-    room,
-    type: C.STRUCTURE_CONTROLLER,
   });
 }

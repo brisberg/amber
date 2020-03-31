@@ -38,6 +38,7 @@ export class RoomEnergyNetwork {
   constructor(flag: Flag) {
     this.name = flag.name;
     this.flag = flag;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.room = flag.room!;
 
     if (!Memory.rooms[this.room.name].network) {
@@ -98,17 +99,17 @@ export class RoomEnergyNetwork {
     return true;
   }
 
-  public get nodes() {
+  public get nodes(): EnergyNode[] {
     return this._nodes;
   }
 
-  public run() {
+  public run(): void {
     for (const edge of this.edges) {
       edge.run();
     }
   }
 
-  public retire() {
+  public retire(): void {
     this.edges.forEach((edge) => edge.retire());
     delete Memory.rooms[this.room.name].network;
     this.flag.remove();
@@ -119,6 +120,7 @@ export class RoomEnergyNetwork {
       case 'structure': {
         // Initialize edge from target -> core
         return new WalkEdge(
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             this.coreNode!, node, this.mem.edges[node.flag.name]);
       }
       default: { throw Error('Unknown Network Edge Type'); }

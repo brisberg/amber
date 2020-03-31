@@ -13,7 +13,7 @@ export const SENTRY = 'sentry';
  */
 export class Sentry extends Behavior<SentryMemory> {
   /* @override */
-  protected behaviorActions(creep: Creep, mem: SentryMemory) {
+  protected behaviorActions(creep: Creep, mem: SentryMemory): boolean {
     if (!Game.flags[mem.flagName]) {
       return false;
     }

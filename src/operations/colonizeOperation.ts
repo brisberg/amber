@@ -75,7 +75,7 @@ export class ColonizeOperation {
     return true;
   }
 
-  public run() {
+  public run(): void {
     const room = Game.rooms[this.mem.roomname];
 
     if (room && room.controller && room.controller.my &&
@@ -144,16 +144,18 @@ export class ColonizeOperation {
 
     let closest = {name: '', dist: 99};
     for (const name in Game.rooms) {
-      const room = Game.rooms[name];
-      if (room.controller && room.controller.owner &&
-          room.controller.owner.username === getUsername()) {
-        const dist = Game.map.findRoute(room, this.mem.roomname);
-        if (dist === ERR_NO_PATH) {
-          continue;
-        }
+      if ({}.hasOwnProperty.call(Game.rooms, name)) {
+        const room = Game.rooms[name];
+        if (room.controller && room.controller.owner &&
+            room.controller.owner.username === getUsername()) {
+          const dist = Game.map.findRoute(room, this.mem.roomname);
+          if (dist === ERR_NO_PATH) {
+            continue;
+          }
 
-        if (dist.length < closest.dist) {
-          closest = {name, dist: dist.length};
+          if (dist.length < closest.dist) {
+            closest = {name, dist: dist.length};
+          }
         }
       }
     }
@@ -172,7 +174,9 @@ export class ColonizeOperation {
   }
 
   private setUpClaimMission(name: string): ClaimMission {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const room = this.flag.room!;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     room.controller!.pos.createFlag(
         name, CLAIM_MISSION_FLAG.color, CLAIM_MISSION_FLAG.secondaryColor);
     const flag = Game.flags[name];
@@ -186,7 +190,7 @@ export class ColonizeOperation {
     return new BuildMission(flag);
   }
 
-  public retire() {
+  public retire(): void {
     console.log('Retiring Colonization Operation: ' + this.name);
     if (this.claimMsn) {
       this.claimMsn.retire();

@@ -1,6 +1,9 @@
 import {setCreepBehavior} from 'behaviors/behavior';
 import {Claimer, CLAIMER} from 'behaviors/claimer';
-import {CLAIMER as CLAIMER_BODY, GenerateCreepBodyOptions} from 'spawn-system/bodyTypes';
+import {
+  CLAIMER as CLAIMER_BODY,
+  GenerateCreepBodyOptions,
+} from 'spawn-system/bodyTypes';
 
 import {Mission, MissionMemory} from './mission';
 
@@ -55,12 +58,12 @@ export class ClaimMission extends Mission<ClaimMissionMemory> {
     return true;
   }
 
-  public setRoomName(roomName: string) {
+  public setRoomName(roomName: string): void {
     this.mem.roomName = roomName;
   }
 
   /** Executes one update tick for this mission */
-  public run() {
+  public run(): void {
     if (!this.mem.roomName) {
       return;
     }
@@ -72,6 +75,7 @@ export class ClaimMission extends Mission<ClaimMissionMemory> {
         setCreepBehavior(
             creep,
             CLAIMER,
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             Claimer.initMemory(this.mem.roomName!),
         );
         creep.memory.mission = this.name;
@@ -79,7 +83,7 @@ export class ClaimMission extends Mission<ClaimMissionMemory> {
     });
   }
 
-  private get maxClaimers() {
+  private get maxClaimers(): number {
     return 1;
   }
 

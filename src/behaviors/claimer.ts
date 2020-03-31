@@ -16,7 +16,7 @@ export const CLAIMER = 'claimer';
  */
 export class Claimer extends Behavior<ClaimerMemory> {
   /* @override */
-  protected behaviorActions(creep: Creep, mem: ClaimerMemory) {
+  protected behaviorActions(creep: Creep, mem: ClaimerMemory): boolean {
     const room = Game.rooms[mem.roomname];
 
     if (room) {  // We can see the target room

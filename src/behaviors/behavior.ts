@@ -18,10 +18,11 @@ export type BehaviorUpdateFunction<M extends BehaviorMemory> =
  */
 export interface BehaviorMemory {
   subBehavior?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   mem?: any;
 }
 
-export function clearSubBehavior(mem: BehaviorMemory) {
+export function clearSubBehavior(mem: BehaviorMemory): void {
   delete mem.subBehavior;
   delete mem.mem;
 }
@@ -55,7 +56,7 @@ export abstract class Behavior<M extends BehaviorMemory> implements
  * Cleanly modifies the given creep's memory to change its behavior class.
  */
 export function setCreepBehavior<M>(
-    creep: Creep, behavior: BehaviorKey, memory: M) {
+    creep: Creep, behavior: BehaviorKey, memory: M): void {
   const mem = creep.memory;
   mem.behavior = behavior;
   mem.mem = memory;

@@ -31,12 +31,13 @@ export function createCreepBody(
  * Convenience function for createing a Worker Creep Body definition (a creep
  * with only work, carry, or move parts)
  */
-export function createWorkerBody(work: number, carry: number, move: number) {
+export function createWorkerBody(
+    work: number, carry: number, move: number): BodyPartConstant[] {
   return createCreepBody(work, carry, move, 0, 0, 0, 0);
 }
 
 /** Utility to return the total cost of a creep Body */
-export function totalCost(body: BodyPartConstant[]) {
+export function totalCost(body: BodyPartConstant[]): number {
   return body.reduce((total, part) => {
     return total + BODYPART_COST[part];
   }, 0);

@@ -1,6 +1,16 @@
-import {EnergyNode, registerEnergyNode, unregisterEnergyNode} from '../energy-network/energyNode';
-// tslint:disable-next-line: max-line-length
-import {CORE_ENERGY_NODE_FLAG, ENERGY_NODE_FLAG, SOURCE_BUILD_TARGET_FLAG, TEMP_ENERGY_NODE_FLAG, TRANSPORT_MISSION_FLAG} from '../flagConstants';
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import {
+  EnergyNode,
+  registerEnergyNode,
+  unregisterEnergyNode,
+} from '../energy-network/energyNode';
+import {
+  CORE_ENERGY_NODE_FLAG,
+  ENERGY_NODE_FLAG,
+  SOURCE_BUILD_TARGET_FLAG,
+  TEMP_ENERGY_NODE_FLAG,
+  TRANSPORT_MISSION_FLAG,
+} from '../flagConstants';
 import {BuildMission} from '../missions/build';
 import {TransportMission} from '../missions/transport';
 
@@ -132,7 +142,8 @@ export class BuildOperation {
 
           if (!eNode) {
             console.log(
-                'Build Operation could not find an Energy Node or Source to draw from');
+                'Build Operation could not find an Energy Node' +
+                ' or Source to draw from');
             return false;
           } else {
             // Drawing from Fringe Node
@@ -168,7 +179,8 @@ export class BuildOperation {
     const sites = this.flag.pos.lookFor(LOOK_CONSTRUCTION_SITES);
     if (sites.length === 0) {
       console.log(
-          'Build Operation: No construction sites at target location. Retiring');
+          'Build Operation: No construction sites at ' +
+          'target location. Retiring');
       return false;
     }
 
@@ -177,7 +189,7 @@ export class BuildOperation {
     return true;
   }
 
-  public run() {
+  public run(): void {
     if (!this.target) {
       return;
     }
@@ -247,7 +259,7 @@ export class BuildOperation {
     }
   }
 
-  private setUpBuildMission(name: string) {
+  private setUpBuildMission(name: string): BuildMission {
     this.target!.pos.createFlag(
         name, SOURCE_BUILD_TARGET_FLAG.color,
         SOURCE_BUILD_TARGET_FLAG.secondaryColor);
@@ -255,7 +267,7 @@ export class BuildOperation {
     return new BuildMission(flag);
   }
 
-  private setUpTransportMission(name: string) {
+  private setUpTransportMission(name: string): TransportMission {
     this.target!.pos.createFlag(
         name, TRANSPORT_MISSION_FLAG.color,
         TRANSPORT_MISSION_FLAG.secondaryColor);
@@ -263,12 +275,12 @@ export class BuildOperation {
     return new TransportMission(flag);
   }
 
-  public setTargetSite(site: ConstructionSite) {
+  public setTargetSite(site: ConstructionSite): void {
     this.target = site;
     this.mem.targetSiteID = site.id;
   }
 
-  public retire() {
+  public retire(): void {
     console.log('Retiring buildOp: ' + this.name);
     if (this.buildMsn) {
       this.buildMsn.retire();
