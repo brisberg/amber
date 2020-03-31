@@ -37,13 +37,8 @@ declare namespace NodeJS {
     spawnQueues: {
       [roomname: string]: import('./spawn-system/spawnQueue').SpawnQueue,
     };
-    // Global Colony instances cache
-    colonies: {
-      [roomname: string]: import('./colony/colony').default,
-    }
     // Global Energy Network instance
-    eNetwork: import('./energy-network/roomEnergyNetwork')
-        .RoomEnergyNetwork;
+    eNetwork: import('./energy-network/roomEnergyNetwork').RoomEnergyNetwork;
     // Console Commands
     cc: {[command: string]: (...args: any) => any};
   }
