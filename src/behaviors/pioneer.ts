@@ -28,7 +28,7 @@ export const PIONEER = 'pioneer';
  */
 export class Pioneer extends Behavior<PioneerMemory> {
   /* @override */
-  protected behaviorActions(creep: Creep, mem: PioneerMemory) {
+  protected behaviorActions(creep: Creep, mem: PioneerMemory): boolean {
     const controller = Game.getObjectById(mem.controllerID);
     const source = Game.getObjectById(mem.sourceID);
 

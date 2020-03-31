@@ -1,7 +1,11 @@
 import {IDLER, Idler} from '../behaviors/idler';
 import {totalCost} from '../utils/creepBodyUtils';
 
-import {creepBodyRatios, GenerateCreepBodyOptions, generateFlexibleCreep} from './bodyTypes';
+import {
+  creepBodyRatios,
+  GenerateCreepBodyOptions,
+  generateFlexibleCreep,
+} from './bodyTypes';
 import {isOrphan} from './orphans';
 
 /**
@@ -52,7 +56,7 @@ export class SpawnQueue {
   }
 
   /** Executes one update tick of the spawner */
-  public run() {
+  public run(): void {
     if (this.requests.length === 0) {
       return;
     }
@@ -62,10 +66,12 @@ export class SpawnQueue {
     // Look for Orphaned creeps
     const orphans: Creep[] = [];
     for (const name in Game.creeps) {
-      const creep = Game.creeps[name];
+      if ({}.hasOwnProperty.call(Game.creeps, name)) {
+        const creep = Game.creeps[name];
 
-      if (isOrphan(creep)) {
-        orphans.push(creep);
+        if (isOrphan(creep)) {
+          orphans.push(creep);
+        }
       }
     }
 
@@ -94,12 +100,14 @@ export class SpawnQueue {
       return;
     }
 
-    if (this.requests.length === 0) {
-      return;
-    }
 
     // Attempt to spawn the highest priority remaining request
-    const req = this.requests.shift()!;
+    const req = this.requests.shift();
+
+    if (!req) {
+      // No requests were made
+      return;
+    }
 
     // Generate the flex creep with the given body ratio and options.
     const body = generateFlexibleCreep(
@@ -128,11 +136,12 @@ export class SpawnQueue {
         };
       }
       // console.log(`Spawning new creeps: ${req.name} with ${body}`);
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       spawner.spawnCreep(body, req.name!, combinedOptions);
     }
   }
 
-  private assignToMission(creep: Creep, mission: string) {
+  private assignToMission(creep: Creep, mission: string): void {
     console.log('Assigned orhpan ' + creep.name + ' to ' + mission);
     creep.memory.mission = mission;
     const missMem = Memory.missions[mission];
@@ -147,7 +156,7 @@ export class SpawnQueue {
    *
    * (Priority 1 is the highest priority)
    */
-  private sortQueueByPriority() {
+  private sortQueueByPriority(): void {
     this.requests.sort((a, b) => a.priority - b.priority);
   }
 }

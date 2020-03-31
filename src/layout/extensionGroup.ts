@@ -1,6 +1,6 @@
 import {EXTENSION_GROUP_A_FLAG, flagIsColor} from 'flagConstants';
 
-enum ExtensionGroupConfig {
+export enum ExtensionGroupConfig {
   ALPHA = 1,
   BETA,
 }
@@ -87,7 +87,7 @@ export class ExtensionGroup {
     }
   }
 
-  public setMaxExtensions(max: number) {
+  public setMaxExtensions(max: number): void {
     this.maxExtensions = max;
   }
 
@@ -120,19 +120,20 @@ export class ExtensionGroup {
    * If any Extensions are missing, place a Construction Site at the missing
    * coordinates.
    */
-  public replaceMissingExtension() {
+  public replaceMissingExtension(): void {
     if ((this.extensions.length + this.sites.length) >= this.maxExtensions) {
       return;
     }
 
     this.config.forEach((offset) => {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       this.flag.room!.createConstructionSite(
           this.flag.pos.x + offset[0], this.flag.pos.y + offset[1],
           STRUCTURE_EXTENSION);
     });
   }
 
-  public retire() {
+  public retire(): void {
     this.sites.forEach((site) => site.remove);
     this.flag.remove();
   }

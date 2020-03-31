@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {setCreepBehavior} from 'behaviors/behavior';
 import {DISTRIBUTOR, Distributor} from 'behaviors/distributor';
 import {EnergyNode} from 'energy-network/energyNode';
@@ -35,22 +36,22 @@ export class DistributionMission extends Mission<DistributionMemory> {
     super(flag);
   }
 
-  public setSource(source: EnergyNode) {
+  public setSource(source: EnergyNode): void {
     this.eNode = source;
     this.mem.eNodeFlag = source.flag.name;
   }
 
-  public setSpawns(spawns: StructureSpawn[]) {
+  public setSpawns(spawns: StructureSpawn[]): void {
     this.spawns = spawns;
     this.mem.spawnIDs = spawns.map((spawn) => spawn.id);
   }
 
-  public setExtensionGroups(groups: ExtensionGroup[]) {
+  public setExtensionGroups(groups: ExtensionGroup[]): void {
     this.extensinGroups = groups;
     this.mem.extensionGroups = groups.map((group) => group.flag.name);
   }
 
-  public setTowers(towers: StructureTower[]) {
+  public setTowers(towers: StructureTower[]): void {
     this.towers = towers;
     this.mem.towerIDs = towers.map((tower) => tower.id);
   }
@@ -91,7 +92,7 @@ export class DistributionMission extends Mission<DistributionMemory> {
   }
 
   /** Executes one update tick for this mission */
-  public run() {
+  public run(): void {
     if (this.spawns.length === 0 || !this.eNode) {
       return;
     }
@@ -141,7 +142,7 @@ export class DistributionMission extends Mission<DistributionMemory> {
     });
   }
 
-  private get maxDistributors() {
+  private get maxDistributors(): number {
     return 1;
   }
 

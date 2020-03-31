@@ -21,7 +21,7 @@ export class WalkEdge extends NetworkEdge<WalkEdgeMemory> {
     super(core, node, mem);
   }
 
-  public init() {
+  public init(): void {
     if (this.mem.state.transportMsn) {
       if (Game.flags[this.mem.state.transportMsn]) {
         this.transportMission =
@@ -32,7 +32,7 @@ export class WalkEdge extends NetworkEdge<WalkEdgeMemory> {
     }
   }
 
-  public run() {
+  public run(): void {
     if (this.core && this.node) {
       if (!this.transportMission) {
         // Start a new transport mission
@@ -59,7 +59,7 @@ export class WalkEdge extends NetworkEdge<WalkEdgeMemory> {
     return;
   }
 
-  private setUpTransportMission(name: string) {
+  private setUpTransportMission(name: string): TransportMission {
     this.node.flag.pos.createFlag(
         name, TRANSPORT_MISSION_FLAG.color,
         TRANSPORT_MISSION_FLAG.secondaryColor);
@@ -67,7 +67,7 @@ export class WalkEdge extends NetworkEdge<WalkEdgeMemory> {
     return new TransportMission(flag);
   }
 
-  public retire() {
+  public retire(): void {
     if (this.transportMission) {
       this.transportMission.retire();
     }

@@ -25,7 +25,7 @@ export const SOURCE_BUILDER = 'source-builder';
  */
 export class SourceBuilder extends Behavior<SourceBuilderMemory> {
   /* @override */
-  protected behaviorActions(creep: Creep, mem: SourceBuilderMemory) {
+  protected behaviorActions(creep: Creep, mem: SourceBuilderMemory): boolean {
     const target = Game.getObjectById(mem.targetSiteID);
     const source = Game.getObjectById(mem.sourceID);
     // const buildPower = creep.getActiveBodyparts(WORK) * BUILD_POWER;

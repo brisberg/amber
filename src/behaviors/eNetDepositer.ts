@@ -17,7 +17,7 @@ export const ENET_DEPOSITER = 'enet-depositer';
  */
 export class ENetDepositer extends Behavior<ENetDepositerMemory> {
   /* @override */
-  protected behaviorActions(creep: Creep, mem: ENetDepositerMemory) {
+  protected behaviorActions(creep: Creep, mem: ENetDepositerMemory): boolean {
     const node = new EnergyNode(Game.flags[mem.eNodeFlag]);
 
     if (node) {

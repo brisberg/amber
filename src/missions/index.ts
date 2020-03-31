@@ -1,5 +1,16 @@
-// tslint:disable-next-line: max-line-length
-import {BUILD_TARGET_FLAG, CLAIM_MISSION_FLAG, DISTRIBUTION_MISSION_FLAG, flagIsColor, HARVEST_SOURCE_FLAG, MANUAL_SCOUT_MISSION_FLAG, PIONEER_MISSION_FLAG, RAID_MISSION_FLAG, SOURCE_BUILD_TARGET_FLAG, TRANSPORT_MISSION_FLAG, UPGRADE_MISSION_FLAG} from 'flagConstants';
+import {
+  BUILD_TARGET_FLAG,
+  CLAIM_MISSION_FLAG,
+  DISTRIBUTION_MISSION_FLAG,
+  flagIsColor,
+  HARVEST_SOURCE_FLAG,
+  MANUAL_SCOUT_MISSION_FLAG,
+  PIONEER_MISSION_FLAG,
+  RAID_MISSION_FLAG,
+  SOURCE_BUILD_TARGET_FLAG,
+  TRANSPORT_MISSION_FLAG,
+  UPGRADE_MISSION_FLAG,
+} from 'flagConstants';
 
 import {BuildMission} from './build';
 import {ClaimMission} from './claim';
@@ -12,10 +23,12 @@ import {RaidMission} from './raid';
 import {TransportMission} from './transport';
 import {UpgradeMission} from './upgrade';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type MissionMap = (flag: Flag) => Mission<any>|null;
 
 /** Convenience mapping of mission flag color to Mission class. */
-global.missions = (flag: Flag) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+global.missions = (flag: Flag): Mission<any>|null => {
   if (flagIsColor(flag, PIONEER_MISSION_FLAG)) {
     return new PioneerMission(flag);
   } else if (flagIsColor(flag, HARVEST_SOURCE_FLAG)) {

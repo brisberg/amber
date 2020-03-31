@@ -17,7 +17,7 @@ export class Hauler {
     this.energyNode = new EnergyNode(Game.flags[this.mem.energyNode]);
   }
 
-  public run() {
+  public run(): void {
     const tarX = this.energyNode.flag.pos.x;
     const tarY = this.energyNode.flag.pos.y;
 

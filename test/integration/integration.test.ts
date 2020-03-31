@@ -18,11 +18,14 @@ describe('main', () => {
         {username: 'player', room: 'W0N1', x: 17, y: 45, modules});
 
     // Subscribe to player's console output
-    helper.player.on('console', (log: string[], results, userid, username) => {
-      for (const line of log) {
-        console.log(`\t[${username}]: ${line}`);
-      }
-    });
+    helper.player.on(
+        'console',
+        (log: string[], results: Array<{}>, userid: string,
+         username: string) => {
+          for (const line of log) {
+            console.log(`\t[${username}]: ${line}`);
+          }
+        });
 
     // Start server
     await helper.server.start();

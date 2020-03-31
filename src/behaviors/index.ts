@@ -26,6 +26,7 @@ export type BehaviorKey =
     typeof DISTRIBUTOR|typeof CLAIMER|typeof SENTRY|typeof IDLER;
 
 export interface BehaviorMap {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [name: string]: Behavior<any>;
 }
 

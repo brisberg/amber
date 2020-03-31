@@ -10,7 +10,7 @@
  * repairing them in order.
  */
 export class TowerBehavior {
-  public run(tower: StructureTower) {
+  public run(tower: StructureTower): void {
     if (!Memory.rooms[tower.room.name].damaged) {
       Memory.rooms[tower.room.name].damaged = [];
     }

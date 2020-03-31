@@ -38,7 +38,7 @@ export class EmergencyMining {
   }
 
   /** Executes one update tick for this mission */
-  public run() {
+  public run(): void {
     // Claim reserved creep if it exists
     if (this.mem.nextCreep && Game.creeps[this.mem.nextCreep]) {
       const creep = Game.creeps[this.mem.nextCreep];
@@ -55,13 +55,14 @@ export class EmergencyMining {
       // Request another miner
       const spawn = this.room.find(FIND_MY_SPAWNS)[0];
       const source = spawn.pos.findClosestByPath(FIND_SOURCES);
-      this.mem.nextCreep = global.spawnQueue.requestCreep({
+      this.mem.nextCreep = global.spawnQueues[this.room.name].requestCreep({
         bodyRatio: CARRY_WORKER,
         mission: this.name,
         options: {
           memory: {
             behavior: EMERGENCY_MINER,
             bodyRatio: CARRY_WORKER,  // not needed
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             mem: EmergencyMiner.initMemory(spawn, source!),
             mission: this.name,  // not needed
           },

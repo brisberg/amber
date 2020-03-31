@@ -20,7 +20,7 @@ export const FETCHER = 'fetcher';
  */
 export class Fetcher extends Behavior<FetcherMemory> {
   /* @override */
-  protected behaviorActions(creep: Creep, mem: FetcherMemory) {
+  protected behaviorActions(creep: Creep, mem: FetcherMemory): boolean {
     const target = Game.getObjectById(mem.targetID);
 
     if (target) {

@@ -20,7 +20,8 @@ export const CONTAINER_HARVESTER = 'cont-harvester';
  */
 export class ContainerHarvester extends Behavior<ContainerHarvesterMemory> {
   /* @override */
-  protected behaviorActions(creep: Creep, mem: ContainerHarvesterMemory) {
+  protected behaviorActions(creep: Creep, mem: ContainerHarvesterMemory):
+      boolean {
     const maxRepair = creep.getActiveBodyparts(WORK) * REPAIR_POWER;
     const source = Game.getObjectById(mem.sourceID);
     const container = Game.getObjectById(mem.containerID);

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {FlagColor} from 'flagConstants';
 
 /**
@@ -85,6 +86,7 @@ export class EnergyNode {
               LOOK_STRUCTURES, this.flag.pos.x, this.flag.pos.y);
           for (const struct of structs) {
             // This may not be a safe assumption
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             if ((struct as any).store !== undefined) {
               cache.structureID = struct.id as Id<StructureStore>;
               return true;
@@ -162,7 +164,7 @@ export class EnergyNode {
     return this.mem.polarity;
   }
 
-  public transferFrom(creep: Creep, amount?: number) {
+  public transferFrom(creep: Creep, amount?: number): void {
     if (this.structure) {
       const amt = amount ||
           Math.min(creep.store.energy, this.structure.store.getFreeCapacity());
@@ -174,7 +176,7 @@ export class EnergyNode {
     }
   }
 
-  public transferTo(creep: Creep, amount?: number) {
+  public transferTo(creep: Creep, amount?: number): void {
     if (this.structure) {
       const amt = amount ||
           Math.min(creep.store.getFreeCapacity(), this.structure.store.energy);
@@ -219,6 +221,7 @@ export class EnergyNode {
         const structs = flag.pos.lookFor(LOOK_STRUCTURES);
         for (const struct of structs) {
           // This may not be a safe assumption
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           if ((struct as any).store !== undefined) {
             cache.structureID = struct.id as Id<StructureStore>;
             return true;
@@ -245,6 +248,17 @@ interface RegisterEnergyNodeOptions {
   color: FlagColor;
 }
 
+/** Finds a flag with a given name. */
+function findFlag(name: string): Flag|null {
+  const flag = Game.flags[name];
+
+  if (!flag) {
+    return null;
+  }
+
+  return flag;
+}
+
 export function registerEnergyNode(
     room: Room, pos: [number, number], opts: RegisterEnergyNodeOptions): Flag {
   const flagName = ['enode', room.name, pos[0], pos[1]].join('_');
@@ -266,7 +280,7 @@ export function registerEnergyNode(
   return flag;
 }
 
-export function unregisterEnergyNode(flag: Flag|string) {
+export function unregisterEnergyNode(flag: Flag|string): void {
   const name = (typeof flag === 'string' ? flag : flag.name);
   console.log('Unregistering enode ' + name);
 
@@ -275,15 +289,4 @@ export function unregisterEnergyNode(flag: Flag|string) {
     flagInst.remove();
   }
   delete Memory.flags[name];
-}
-
-/** Finds a flag with a given name. */
-function findFlag(name: string): Flag|null {
-  const flag = Game.flags[name];
-
-  if (!flag) {
-    return null;
-  }
-
-  return flag;
 }

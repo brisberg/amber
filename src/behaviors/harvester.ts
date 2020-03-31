@@ -17,7 +17,7 @@ export const HARVESTER = 'harvester';
  */
 export class Harvester extends Behavior<HarvesterMemory> {
   /* @override */
-  protected behaviorActions(creep: Creep, mem: HarvesterMemory) {
+  protected behaviorActions(creep: Creep, mem: HarvesterMemory): boolean {
     const source = Game.getObjectById(mem.sourceID);
 
     if (source) {

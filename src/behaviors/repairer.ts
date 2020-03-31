@@ -17,7 +17,7 @@ export const REPAIRER = 'repairer';
  */
 export class Repairer extends Behavior<RepairerMemory> {
   /* @override */
-  protected behaviorActions(creep: Creep, mem: RepairerMemory) {
+  protected behaviorActions(creep: Creep, mem: RepairerMemory): boolean {
     const structure = Game.getObjectById(mem.structureID);
     const repairPower = creep.getActiveBodyparts(WORK) * REPAIR_POWER;
 

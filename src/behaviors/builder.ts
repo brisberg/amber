@@ -17,7 +17,7 @@ export const BUILDER = 'builder';
  */
 export class Builder extends Behavior<BuilderMemory> {
   /* @override */
-  protected behaviorActions(creep: Creep, mem: BuilderMemory) {
+  protected behaviorActions(creep: Creep, mem: BuilderMemory): boolean {
     const target = Game.getObjectById(mem.targetSiteID);
 
     if (target) {

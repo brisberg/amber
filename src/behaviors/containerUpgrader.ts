@@ -1,5 +1,3 @@
-import {findMidPoint} from 'utils/midpoint';
-
 import {Behavior, BehaviorMemory} from './behavior';
 import {Repairer, REPAIRER} from './repairer';
 import {Upgrader, UPGRADER} from './upgrader';
@@ -22,7 +20,8 @@ export const CONTAINER_UPGRADER = 'cont-upgrader';
  */
 export class ContainerUpgrader extends Behavior<ContainerUpgraderMemory> {
   /* @override */
-  protected behaviorActions(creep: Creep, mem: ContainerUpgraderMemory) {
+  protected behaviorActions(creep: Creep, mem: ContainerUpgraderMemory):
+      boolean {
     const maxRepair = creep.getActiveBodyparts(WORK) * REPAIR_POWER;
     const controller = Game.getObjectById(mem.controllerID);
     const container = Game.getObjectById(mem.containerID);
@@ -45,6 +44,7 @@ export class ContainerUpgrader extends Behavior<ContainerUpgraderMemory> {
       for (let i: number = container.pos.x - 1; i <= container.pos.x + 1; i++) {
         for (let j: number = container.pos.y - 1; j <= container.pos.y + 1;
              j++) {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const pos = creep.room.getPositionAt(i, j)!;
           if (pos.lookFor(LOOK_TERRAIN)[0] !== 'wall') {
             const occupied =

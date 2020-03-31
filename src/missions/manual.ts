@@ -36,7 +36,7 @@ export class ManualMission extends Mission<ManualMissionMemory> {
   }
 
   /** Executes one update tick for this mission */
-  public run() {
+  public run(): void {
     // Direct each creep to move to mission flag
     this.creeps.forEach((creep) => {
       if (creep.memory.behavior !== SENTRY) {
@@ -51,7 +51,7 @@ export class ManualMission extends Mission<ManualMissionMemory> {
     });
   }
 
-  private get maxClaimers() {
+  private get maxClaimers(): number {
     return 1;
   }
 

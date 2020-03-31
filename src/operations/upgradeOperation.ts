@@ -1,9 +1,16 @@
-import {EnergyNode, registerEnergyNode, unregisterEnergyNode} from 'energy-network/energyNode';
+import {
+  EnergyNode,
+  registerEnergyNode,
+  unregisterEnergyNode,
+} from 'energy-network/energyNode';
 import {ENERGY_NODE_FLAG, UPGRADE_MISSION_FLAG} from 'flagConstants';
 
 import {UpgradeMission} from '../missions/upgrade';
 
-import {analyzeControllerForUpgrading, UpgradeControllerAnalysis} from './upgradeAnalysis';
+import {
+  analyzeControllerForUpgrading,
+  UpgradeControllerAnalysis,
+} from './upgradeAnalysis';
 
 /**
  * Upgrade Operation
@@ -125,13 +132,14 @@ export class UpgradeOperation {
     return true;
   }
 
-  public run() {
+  public run(): void {
     if (!this.controller) {
       return;
     }
 
     // Run upgrade analysis if we don't have one
     if (!this.mem.analysis) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       this.mem.analysis = analyzeControllerForUpgrading(this.controller!);
     }
 
@@ -190,7 +198,8 @@ export class UpgradeOperation {
     }
   }
 
-  private setUpUpgradeMission(name: string) {
+  private setUpUpgradeMission(name: string): UpgradeMission {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.controller!.pos.createFlag(
         name, UPGRADE_MISSION_FLAG.color, UPGRADE_MISSION_FLAG.secondaryColor);
     const flag = Game.flags[name];
@@ -198,12 +207,12 @@ export class UpgradeOperation {
   }
 
   private setContainer(container: StructureContainer|
-                       ConstructionSite<STRUCTURE_CONTAINER>) {
+                       ConstructionSite<STRUCTURE_CONTAINER>): void {
     this.container = container;
     this.mem.containerID = container.id;
   }
 
-  public retire() {
+  public retire(): void {
     console.log('Retiring upgradeOp: ' + this.name);
     if (this.upgradeMsn) {
       this.upgradeMsn.retire();

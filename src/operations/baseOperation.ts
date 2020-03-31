@@ -2,7 +2,12 @@ import {ExtensionGroup} from 'layout/extensionGroup';
 import {DistributionMission} from 'missions/distribution';
 
 import {EnergyNode} from '../energy-network/energyNode';
-import {CORE_ENERGY_NODE_FLAG, DISTRIBUTION_MISSION_FLAG, EXTENSION_GROUP_A_FLAG, EXTENSION_GROUP_B_FLAG} from '../flagConstants';
+import {
+  CORE_ENERGY_NODE_FLAG,
+  DISTRIBUTION_MISSION_FLAG,
+  EXTENSION_GROUP_A_FLAG,
+  EXTENSION_GROUP_B_FLAG,
+} from '../flagConstants';
 
 /**
  * Base Operation
@@ -74,11 +79,13 @@ export class BaseOperation {
     });
     this.mem.spawnIDs = spawnNames;
     this.spawns = spawnNames.map((spawn) => {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return Game.getObjectById(spawn)!;
     });
 
     if (this.spawns.length === 0) {
       // Check for spawns in our room
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const spawns = this.flag.room!.find(FIND_MY_SPAWNS);
       if (spawns.length > 0) {
         this.spawns = spawns;
@@ -101,6 +108,7 @@ export class BaseOperation {
       }
     } else {
       const coreNodes =
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           this.flag.room!.find(FIND_FLAGS, {filter: CORE_ENERGY_NODE_FLAG});
       if (coreNodes.length > 0) {
         this.eNode = new EnergyNode(coreNodes[0]);
@@ -121,21 +129,24 @@ export class BaseOperation {
       return Game.getObjectById(id) !== null;
     });
     this.towers = towerIds.map((id) => {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return Game.getObjectById(id)!;
     });
 
     return true;
   }
 
-  public run() {
+  public run(): void {
     if (this.spawns.length === 0 || !this.eNode) {
       return;
     }
 
     // Aquire new ExtenionGroups as they appear
     const groupAFlags =
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.flag.room!.find(FIND_FLAGS, {filter: EXTENSION_GROUP_A_FLAG});
     const groupBFlags =
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.flag.room!.find(FIND_FLAGS, {filter: EXTENSION_GROUP_B_FLAG});
     const groupNames = groupAFlags.concat(groupBFlags).map((flag) => flag.name);
     this.mem.extensionFlags = groupNames;
@@ -144,6 +155,7 @@ export class BaseOperation {
     });
 
     // Aquire new Towers as they appear
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const towers = this.flag.room!.find(
         FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_TOWER}});
     const towerIDs = towers.map((tower) => tower.id as Id<StructureTower>);
@@ -167,7 +179,7 @@ export class BaseOperation {
     }
   }
 
-  private setUpDistributionMission(name: string) {
+  private setUpDistributionMission(name: string): DistributionMission {
     this.flag.pos.createFlag(
         name, DISTRIBUTION_MISSION_FLAG.color,
         DISTRIBUTION_MISSION_FLAG.secondaryColor);
@@ -175,17 +187,17 @@ export class BaseOperation {
     return new DistributionMission(flag);
   }
 
-  public setSpawns(spawns: StructureSpawn[]) {
+  public setSpawns(spawns: StructureSpawn[]): void {
     this.spawns = spawns;
     this.mem.spawnIDs = spawns.map((spawn) => spawn.id);
   }
 
-  public setSource(node: EnergyNode) {
+  public setSource(node: EnergyNode): void {
     this.eNode = node;
     this.mem.eNodeFlag = node.flag.name;
   }
 
-  public retire() {
+  public retire(): void {
     console.log('Retiring Base Operation: ' + this.name);
     if (this.distMsn) {
       this.distMsn.retire();

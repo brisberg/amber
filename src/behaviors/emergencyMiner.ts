@@ -21,7 +21,7 @@ export const EMERGENCY_MINER = 'emg-miner';
  */
 export class EmergencyMiner extends Behavior<EmergencyMinerMemory> {
   /* @override */
-  protected behaviorActions(creep: Creep, mem: EmergencyMinerMemory) {
+  protected behaviorActions(creep: Creep, mem: EmergencyMinerMemory): boolean {
     const source = Game.getObjectById(mem.sourceID);
     const spawn = Game.getObjectById(mem.spawnID);
 

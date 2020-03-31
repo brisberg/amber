@@ -16,7 +16,7 @@ export class OrphanList {
 }
 
 /** Utility function which will declare a creep Orphaned */
-export function declareOrphan(creep: Creep) {
+export function declareOrphan(creep: Creep): void {
   const mem = Memory.creeps[creep.name];
   delete mem.mission;
   mem.behavior = IDLER;
@@ -24,6 +24,6 @@ export function declareOrphan(creep: Creep) {
 }
 
 /** Returns true if the creep is an Orphan */
-export function isOrphan(creep: Creep) {
+export function isOrphan(creep: Creep): boolean {
   return creep.memory.mission === null || creep.memory.mission === undefined;
 }

@@ -30,7 +30,7 @@ function randomDirection(): DirectionConstant {
  */
 export class Idler extends Behavior<IdlerMemory> {
   /* @override */
-  protected behaviorActions(creep: Creep, mem: IdlerMemory) {
+  protected behaviorActions(creep: Creep, mem: IdlerMemory): boolean {
     if (!mem.destPos) {
       const struct = creep.pos.findClosestByRange(FIND_STRUCTURES);
       if (!struct || struct.pos.getRangeTo(creep) >= 3) {
@@ -42,6 +42,7 @@ export class Idler extends Behavior<IdlerMemory> {
     }
 
     if (mem.destPos) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const destPos = creep.room.getPositionAt(mem.destPos[0], mem.destPos[1])!;
       if (!creep.pos.isEqualTo(destPos)) {
         creep.moveTo(destPos);

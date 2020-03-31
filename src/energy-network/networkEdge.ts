@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {EnergyNode} from './energyNode';
 
 export interface NetworkEdgeMemory<T = any> {
@@ -24,7 +25,7 @@ export abstract class NetworkEdge<T = any> {
   /** Returns true if this edge has valid connections and at least one Hauler */
   public abstract isHealthy(): boolean;
 
-  public get mem() {
+  public get mem(): NetworkEdgeMemory<T> {
     return this._mem;
   }
 }

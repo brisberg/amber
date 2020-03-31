@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-ignore */
 import {assert} from 'chai';
 import {loop} from '../../src/main';
 import {Game, Memory} from './mock';
@@ -13,10 +14,10 @@ describe('main', () => {
     // @ts-ignore : allow adding Game to global
     global.Game = _.clone(Game);
     // @ts-ignore: allow modifying Game on global
-    global.Game.spawns.Spawn1 = {room: {name: 'W1N1', find: () => []}};
+    global.Game.spawns.Spawn1 = {room: {name: 'W1N1', find: (): [] => []}};
     // @ts-ignore: allow modifying Rooms on global
     global.Game.rooms.W1N1 = {
-      find: () => [],
+      find: (): [] => [],
       name: 'W1N1',
     };
     // @ts-ignore : allow adding Memory to global

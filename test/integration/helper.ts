@@ -10,11 +10,13 @@ class IntegrationTestHelper {
   private _server: ScreepsServer|null = null;
   private _player: User|null = null;
 
-  get server() {
+  get server(): ScreepsServer {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return this._server!;
   }
 
-  get player() {
+  get player(): User {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return this._player!;
   }
 
@@ -22,19 +24,21 @@ class IntegrationTestHelper {
     this._player = player;
   }
 
-  public async beforeEach() {
+  public async beforeEach(): Promise<void> {
     this._server = new ScreepsServer();
 
     // reset world but add invaders and source keepers bots
     await this._server.world.reset();
   }
 
-  public afterEach() {
+  public afterEach(): void {
     if (this._server) {
       this._server.stop();
     }
   }
 }
+
+export const helper = new IntegrationTestHelper();
 
 beforeEach(async () => {
   await helper.beforeEach();
@@ -47,5 +51,3 @@ afterEach(() => {
 before(() => {
   stdHooks.hookWrite();
 });
-
-export const helper = new IntegrationTestHelper();

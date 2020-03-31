@@ -23,7 +23,7 @@ export const DEPOSITER = 'depositer';
  */
 export class Depositer extends Behavior<DepositerMemory> {
   /* @override */
-  protected behaviorActions(creep: Creep, mem: DepositerMemory) {
+  protected behaviorActions(creep: Creep, mem: DepositerMemory): boolean {
     const target = Game.getObjectById(mem.targetID);
 
     if (target) {

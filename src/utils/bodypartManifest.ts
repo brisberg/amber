@@ -14,10 +14,10 @@ export type BodyPartManifest = number[];
 /** Lookup table from BodyPartConstant to Manifest array index */
 export const BODY_MANIFEST_INDEX = {
   work: 0,
-  // tslint:disable-next-line: object-literal-sort-keys
   carry: 1,
   move: 2,
   attack: 3,
+  // eslint-disable-next-line @typescript-eslint/camelcase
   ranged_attack: 4,
   heal: 5,
   tough: 6,
@@ -25,7 +25,8 @@ export const BODY_MANIFEST_INDEX = {
 };
 
 /** Generates a BodyPartManifest from a Creep Body array */
-export function generateManifestFromBody(body: BodyPartConstant[]) {
+export function generateManifestFromBody(body: BodyPartConstant[]):
+    BodyPartManifest {
   const manifest: BodyPartManifest = Array<number>(8).fill(0);
 
   body.forEach((part) => {

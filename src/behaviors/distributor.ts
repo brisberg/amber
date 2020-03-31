@@ -1,4 +1,3 @@
-import {emit} from 'cluster';
 import {EnergyNode} from 'energy-network/energyNode';
 import {ExtensionGroup} from 'layout/extensionGroup';
 
@@ -26,7 +25,7 @@ export const DISTRIBUTOR = 'distributor';
  */
 export class Distributor extends Behavior<DistributorMemory> {
   /* @override */
-  protected behaviorActions(creep: Creep, mem: DistributorMemory) {
+  protected behaviorActions(creep: Creep, mem: DistributorMemory): boolean {
     const node = new EnergyNode(Game.flags[mem.eNodeFlag]);
     let spawn: StructureSpawn|null = null;
     if (mem.spawnID) {
