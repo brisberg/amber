@@ -26,5 +26,5 @@ export default {
         commonjs(),
         typescript({tsconfig: './tsconfig.json'}),
         screeps({config: cfg, dryRun: cfg == null}),
-      ]
-}
+      ],
+};

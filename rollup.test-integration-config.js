@@ -17,7 +17,7 @@ export default {
       chai: 'chai',
       it: 'it',
       describe: 'describe',
-    }
+    },
   },
   external: ['chai', 'fs', 'screeps-server-mockup'],
   plugins:
@@ -27,5 +27,5 @@ export default {
         commonjs(),
         typescript({tsconfig: './tsconfig.json'}),
         multiEntry(),
-      ]
-}
+      ],
+};

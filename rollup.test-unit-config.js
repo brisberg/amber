@@ -17,7 +17,7 @@ export default {
       chai: 'chai',
       it: 'it',
       describe: 'describe',
-    }
+    },
   },
   external: ['chai', 'it', 'describe'],
   plugins:
@@ -28,4 +28,4 @@ export default {
         typescript({tsconfig: './tsconfig.json'}),
         multiEntry(),
       ],
-}
+};
