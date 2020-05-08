@@ -13,7 +13,7 @@ export function setCreepBehavior<M>(creep: Creep, memory: M): void {
 }
 
 /** Utility function to fetch the current behavior memory from a creep */
-function getBehaviorMemory(creep: Creep): BehaviorMemory {
+export function getBehaviorMemory(creep: Creep): BehaviorMemory {
   return creep.memory.mem as BehaviorMemory;
 }
 
@@ -29,6 +29,17 @@ export abstract class Behavior {
   protected abstract settings: BehaviorSettings;
   /** Unique name for this behavior */
   protected abstract name: string;
+
+  // Abstract methods for sub-behaviors to implement
+
+  /** Check if the work has been completed */
+  protected abstract isValidTask(creep: Creep): boolean;
+
+  /** Check if the target is still valid for this behavior */
+  protected abstract isValidTarget(creep: Creep): boolean;
+
+  /** Perform the behavior. Implemented in sub-behaviors */
+  protected abstract work(creep: Creep): number;
 
   /** Returns a new behavior memory */
   public new(target: RoomObject&{id: string}, options: BehaviorOptions = {}):
@@ -48,18 +59,6 @@ export abstract class Behavior {
       data: {},
     };
   }
-
-  // Abstract methods for sub-behaviors to implement
-
-  /** Check if the work has been completed */
-  protected abstract isValidTask(creep: Creep): boolean;
-
-  /** Check if the target is still valid for this behavior */
-  protected abstract isValidTarget(creep: Creep): boolean;
-
-  /** Perform the behavior. Implemented in sub-behaviors */
-  protected abstract work(creep: Creep): number;
-
 
   /** Returns the Target object */
   getTarget(mem: BehaviorMemory): RoomObject|null {
@@ -104,7 +103,7 @@ export abstract class Behavior {
       return true;
     } else {
       // Switch to parent task if there is one
-      // this.finish();
+      this.finish();
       const isValid = mem.parent ? this.isValid(creep) : false;
       return isValid;
     }
@@ -141,5 +140,18 @@ export abstract class Behavior {
       this.moveToTarget(creep);
       return;
     }
+  }
+
+  /**
+   * Finalize the task and switch to parent task (or null if there is none)
+   */
+  finish(): void {
+    // this.moveToNextPos();
+    // if (creep) {
+    //  creep.task = this.parent;
+    // } else {
+    //  log.debug(`No creep executing ${this.name}! Proto:
+    // ${JSON.stringify(this.proto)}`);
+    // }
   }
 }

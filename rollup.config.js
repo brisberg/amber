@@ -21,7 +21,7 @@ if (!dest) {
 }
 
 export default {
-  input: 'src/main.ts',
+  input: 'src/behaviors_v2/main.ts',
   output: {file: 'dist/main.js', format: 'cjs', sourcemap: true},
 
   plugins:
