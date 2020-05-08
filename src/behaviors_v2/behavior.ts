@@ -49,12 +49,6 @@ export abstract class Behavior {
     };
   }
 
-  /** Returns the Target object */
-  getTarget(mem: BehaviorMemory): RoomObject|null {
-    return Game.getObjectById(mem.target.id);
-  }
-
-
   // Abstract methods for sub-behaviors to implement
 
   /** Check if the work has been completed */
@@ -65,6 +59,23 @@ export abstract class Behavior {
 
   /** Perform the behavior. Implemented in sub-behaviors */
   protected abstract work(creep: Creep): number;
+
+
+  /** Returns the Target object */
+  getTarget(mem: BehaviorMemory): RoomObject|null {
+    return Game.getObjectById(mem.target.id);
+  }
+
+  /**
+   * Move to within range of the target
+   */
+  moveToTarget(creep: Creep, range = this.settings.range): number {
+    const tar = this.getTarget(getBehaviorMemory(creep));
+    if (tar) {
+      return creep.moveTo(tar.pos.x, tar.pos.y, {range: range});
+    }
+    return ERR_INVALID_TARGET;
+  }
 
   /**
    * Test if the task is valid; if it is not, automatically remove task and
@@ -111,25 +122,24 @@ export abstract class Behavior {
   }
 
   /**
-   * Takes a Creep and a Memory object and executes one update tick
-   * modifying the Memory object and optionally triggering a Creep game
-   * action.
-   *
-   * Returns true if this update queued a movement command.
-   *
-   * TODO: Maybe this should return a result enum? (Success, error, tired,
-   * etc)
+   * Execute this behavior returns work() result or nothing if no work was done.
    */
-  protected abstract behaviorActions(creep: Creep, mem: BehaviorMemory):
-      boolean;
-
-  /** Execute this behavior and optionally chain to sub behavior */
-  public run(creep: Creep): boolean {
-    const mem = getBehaviorMemory(creep);
-    const moved = this.behaviorActions(creep, mem);
-
-    // if behavior is finished, switch to parent
-
-    return moved;
+  public run(creep: Creep): number|undefined {
+    if (this.isWorking(creep)) {
+      // delete this.creep.memory._go;
+      // if (this.settings.workOffRoad) { // this is disabled as movement
+      // priorities makes it unnecessary
+      //  // Move to somewhere nearby that isn't on a road
+      //  this.creep.park(this.targetPos, true);
+      // }
+      const result = this.work(creep);
+      // if (this.settings.oneShot && result === OK) {
+      //  this.finish();
+      // }
+      return result;
+    } else {
+      this.moveToTarget(creep);
+      return;
+    }
   }
 }
