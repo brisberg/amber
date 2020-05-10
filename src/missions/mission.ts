@@ -171,7 +171,9 @@ export abstract class Mission<M extends MissionMemory> {
    * Return true if this mission needs to request a new Creep with critical
    * priority
    */
-  protected abstract needMoreCreepsCritical(): boolean;
+  protected needMoreCreepsCritical(): boolean {
+    return false;
+  }
   /** Return true if this mission needs to request a new Creep */
   protected abstract needMoreCreeps(): boolean;
 

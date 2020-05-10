@@ -24,19 +24,14 @@ export default class DropMiningBehavior extends Behavior {
   protected isValidTarget(creep: Creep): boolean {
     const mem = getBehaviorMemory(creep);
     const target = Game.getObjectById(mem.target.id) as Source | null;
-    if (target) {
+    if (target && target.energy > 0) {
       return true;
     }
     return false;
   }
 
-  /** Determines if the source has energy left to harvest. */
+  /** Determines if the creep can perform this task. */
   protected isValidTask(creep: Creep): boolean {
-    const mem = getBehaviorMemory(creep);
-    const target = Game.getObjectById(mem.target.id) as Source | null;
-    if (target && target.energy > 0) {
-      return true;
-    }
-    return false;
+    return (creep.getActiveBodyparts(WORK) > 0);
   }
 }

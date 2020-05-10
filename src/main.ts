@@ -74,7 +74,6 @@ export const loop = (): void => {
         Memory.rooms[roomName] = {network: null, damaged: []};
       }
 
-      // TODO: Pass all spawns to the Spawn Queue
       const spawns = room.find(FIND_MY_SPAWNS);
       if (spawns.length > 0) {
         global.spawnQueues[roomName] = new SpawnQueue(room.name, spawns);
