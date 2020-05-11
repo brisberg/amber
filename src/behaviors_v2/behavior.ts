@@ -44,7 +44,6 @@ export abstract class Behavior {
   /** Returns a new behavior memory */
   public new(target: RoomObject&{id: string}, options: BehaviorOptions = {}):
       BehaviorMemory {
-    console.log(`Behavior new, name:${this.name}`);
     return {
       name: this.name,
       target: {
