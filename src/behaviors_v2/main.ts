@@ -70,8 +70,11 @@ export const loop = (): void => {
       }
 
       const mem = getBehaviorMemory(creep);
-      if (mem.name) {
-        behaviors[mem.name].run(creep);
+      if (mem && mem.name) {
+        const behavior = behaviors[mem.name];
+        if (behavior) {
+          behavior.run(creep);
+        }
       }
     }
   }
