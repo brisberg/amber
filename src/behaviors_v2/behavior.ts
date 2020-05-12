@@ -61,14 +61,14 @@ export abstract class Behavior {
   }
 
   /** Returns the Target object */
-  getTarget(mem: BehaviorMemory): RoomObject|null {
+  protected getTarget(mem: BehaviorMemory): RoomObject|null {
     return Game.getObjectById(mem.target.id);
   }
 
   /**
    * Move to within range of the target
    */
-  moveToTarget(creep: Creep, range = this.settings.range): number {
+  protected moveToTarget(creep: Creep, range = this.settings.range): number {
     const tar = this.getTarget(getBehaviorMemory(creep));
     if (tar) {
       return creep.moveTo(tar.pos.x, tar.pos.y, {range: range});
@@ -80,7 +80,7 @@ export abstract class Behavior {
    * Test if the task is valid; if it is not, automatically remove task and
    * transition to parent
    */
-  isValid(creep: Creep): boolean {
+  public isValid(creep: Creep): boolean {
     const mem = getBehaviorMemory(creep);
     let validTask = false;
     if (creep) {
