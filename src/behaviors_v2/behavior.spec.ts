@@ -3,6 +3,7 @@ import {mockGlobal, mockInstanceOf} from 'screeps-jest';
 import {Behavior, getBehaviorMemory, setCreepBehavior} from './behavior';
 import {BehaviorSettings} from './types';
 
+// Mock Variables
 let validTask: boolean;
 let validTarget: boolean;
 const work = jest.fn((): number => OK);
@@ -10,7 +11,7 @@ const work = jest.fn((): number => OK);
 class MockBehavior extends Behavior {
   protected name = 'mock';
   protected settings: BehaviorSettings = {
-    timeout: Infinity,
+    timeout: 100,
     range: 1,
     blind: false,
   };
@@ -110,13 +111,11 @@ describe('Abstract Behavior', () => {
     expect(mockBehavior.isValid(creep)).toEqual(true);
   });
 
-  it('should call work if target is within range', () => {
+  it('should be invalid if the task has timedout', () => {
     setCreepBehavior(creep, mockBehavior.new(target));
-    creep.pos.inRangeTo = (): boolean => true;
+    Game.time = 201;  // 100 (base) + 101 (timeout)
 
-    mockBehavior.run(creep);
-
-    expect(work).toHaveBeenCalled();
+    expect(mockBehavior.isValid(creep)).toEqual(false);
   });
 
   it('should move towards target if not within range', () => {
@@ -127,6 +126,25 @@ describe('Abstract Behavior', () => {
 
     expect(creep.moveTo).toHaveBeenCalledWith(5, 10, {range: 1});
     expect(work).not.toHaveBeenCalled();
+  });
+
+  it('should call work if target is within range', () => {
+    setCreepBehavior(creep, mockBehavior.new(target));
+    creep.pos.inRangeTo = (): boolean => true;
+
+    mockBehavior.run(creep);
+
+    expect(work).toHaveBeenCalled();
+  });
+
+  it('should return the response code of work()', () => {
+    setCreepBehavior(creep, mockBehavior.new(target));
+    creep.pos.inRangeTo = (): boolean => true;
+    work.mockReturnValue(ERR_BUSY);
+
+    const result = mockBehavior.run(creep);
+
+    expect(result).toBe(ERR_BUSY);
   });
 });
 

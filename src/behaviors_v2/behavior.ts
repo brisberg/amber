@@ -104,7 +104,7 @@ export abstract class Behavior {
     } else {
       // Switch to parent task if there is one
       this.finish();
-      const isValid = mem.parent ? this.isValid(creep) : false;
+      const isValid = mem.parent ? this.isValid(creep) : false;  // WIP
       return isValid;
     }
   }
