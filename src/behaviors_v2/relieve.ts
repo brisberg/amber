@@ -40,11 +40,9 @@ export default class RelieveBehavior extends Behavior {
   }
 
   /**
-   *
-   * Determines if the creep can perform this task.
-   * Always true, as the task will end when the target doesn't exist
+   * Creeps must be able to move to perform this task.
    */
-  protected isValidTask(): boolean {
-    return true;
+  protected isValidTask(creep: Creep): boolean {
+    return creep.getActiveBodyparts(MOVE) > 0;
   }
 }
