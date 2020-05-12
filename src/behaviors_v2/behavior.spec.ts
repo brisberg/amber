@@ -39,14 +39,8 @@ describe('Abstract Behavior', () => {
 
     creep = mockInstanceOf<Creep>({
       id: 'creep' as Id<Creep>,
-      memory: {mem: {target: {id: '', pos: {x: 0, y: 0}}}},
-      // pos: new RoomPosition(5, 12, 'N1W1'),
-      pos: {
-        x: 5,
-        y: 12,
-        roomName: 'N1W1',
-        inRangeTo: (): boolean => true,
-      },
+      memory: {},
+      pos: new RoomPosition(5, 12, 'N1W1'),
       moveTo: (): void => {
         return;
       },
@@ -117,10 +111,8 @@ describe('Abstract Behavior', () => {
   });
 
   it('should call work if target is within range', () => {
-    // Range = 2
-    // creep.pos = new RoomPosition(5, 12, 'N1W1');
+    setCreepBehavior(creep, mockBehavior.new(target));
     creep.pos.inRangeTo = (): boolean => true;
-    target.pos = new RoomPosition(5, 10, 'N1W1');
 
     mockBehavior.run(creep);
 
@@ -128,12 +120,8 @@ describe('Abstract Behavior', () => {
   });
 
   it('should move towards target if not within range', () => {
-    // Range = 2
-    // creep.pos = new RoomPosition(5, 13, 'N1W1');
-    creep.pos.x = 5;
-    creep.pos.y = 13;
+    setCreepBehavior(creep, mockBehavior.new(target));
     creep.pos.inRangeTo = (): boolean => false;
-    target.pos = new RoomPosition(5, 10, 'N1W1');
 
     mockBehavior.run(creep);
 
