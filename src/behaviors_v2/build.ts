@@ -2,7 +2,7 @@ import {Behavior, getBehaviorMemory} from './behavior';
 import {BehaviorSettings} from './types';
 
 export default class BuildBehavior extends Behavior {
-  protected name = 'dropMining';
+  protected name = 'build';
 
   protected settings: BehaviorSettings = {
     timeout: Infinity,
@@ -10,18 +10,30 @@ export default class BuildBehavior extends Behavior {
     blind: false,
   }
 
-  /** Build the target site if we have energy */
+  /** Build the target site if creep has energy. */
   protected work(creep: Creep): number {
-    return ERR_INVALID_ARGS;
+    if (creep.store.energy === 0) {
+      return ERR_NOT_ENOUGH_ENERGY;
+    }
+
+    const mem = getBehaviorMemory(creep);
+    const target = Game.getObjectById(mem.target.id) as ConstructionSite | null;
+    if (target) {
+      return creep.build(target);
+    }
+    return ERR_INVALID_TARGET;
   }
 
-  /** Determines if the source is a valid target. */
+  /** Valid if the construction site exists. */
   protected isValidTarget(creep: Creep): boolean {
-    return false;
+    const mem = getBehaviorMemory(creep);
+    return !!Game.getObjectById(mem.target.id);
   }
 
-  /** Determines if the creep can perform this task. */
+  /** Creeps must have WORK and CARRY to build. */
   protected isValidTask(creep: Creep): boolean {
-    return false;
+    return (
+        creep.getActiveBodyparts(WORK) > 0 &&
+        creep.getActiveBodyparts(CARRY) > 0);
   }
 }

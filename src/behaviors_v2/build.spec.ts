@@ -20,6 +20,9 @@ describe('Build behavior', () => {
       getActiveBodyparts: (part: BodyPartConstant) => {
         return body[part] || 0;
       },
+      store: {
+        energy: 50,
+      },
       pos: {},
       memory: {},
     });
@@ -84,11 +87,22 @@ describe('Build behavior', () => {
     expect(build.isValid(creep)).toBe(true);
   });
 
-  it('should call build on a valid site if in range', () => {
+  it('should not build if creep has no energy', () => {
+    creep.pos.inRangeTo = (): boolean => true;
+    creep.store.energy = 0;
+
+    const result = build.run(creep);
+
+    expect(creep.build).not.toHaveBeenCalled();
+    expect(result).toBe(ERR_NOT_ENOUGH_ENERGY);
+  });
+
+  it('should call build on a valid site if in range with energy', () => {
     creep.pos.inRangeTo = (): boolean => true;
 
-    build.run(creep);
+    const result = build.run(creep);
 
     expect(creep.build).toHaveBeenCalledWith(site);
+    expect(result).toBe(OK);
   });
 });

@@ -80,18 +80,20 @@ describe('Relieve behavior', () => {
     creep.pos.inRangeTo = (): boolean => true;
     creep.fatigue = 1;
 
-    relieve.run(creep);
+    const result = relieve.run(creep);
 
     expect(target.suicide).not.toHaveBeenCalled();
+    expect(result).toBe(ERR_TIRED);
   });
 
   it('should suicide the target and step into it\'s place', () => {
     creep.pos.inRangeTo = (): boolean => true;
     creep.pos.getDirectionTo = (): DirectionConstant => RIGHT;
 
-    relieve.run(creep);
+    const result = relieve.run(creep);
 
     expect(target.suicide).toHaveBeenCalled();
     expect(creep.move).toHaveBeenCalledWith(RIGHT);
+    expect(result).toBe(OK);
   });
 });
