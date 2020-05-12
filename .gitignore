@@ -1,5 +1,5 @@
 # Temp
-src/behaviors_v2/builder.test.ts
+src/behaviors_v2/behaviors/builder.test.ts
 
 # Ignore basic folders
 /lib

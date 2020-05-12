@@ -2,7 +2,7 @@ import {
   BehaviorMemory,
   BehaviorOptions,
   BehaviorSettings,
-} from './types';
+} from '../types';
 
 
 /**

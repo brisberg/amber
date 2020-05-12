@@ -1,7 +1,8 @@
 import {mockGlobal, mockInstanceOf} from 'screeps-jest';
 
+import {BehaviorSettings} from '../types';
+
 import {Behavior, getBehaviorMemory, setCreepBehavior} from './behavior';
-import {BehaviorSettings} from './types';
 
 // Mock Variables
 let validTask: boolean;

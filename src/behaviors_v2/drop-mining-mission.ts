@@ -2,8 +2,8 @@ import {WORKER, zeroRatio} from 'spawn-system/bodyTypes';
 
 import {Mission, MissionMemory} from '../missions/mission';
 
-import DropMiningBehavior from './drop-mining';
-import RelieveBehavior from './relieve';
+import DropMiningBehavior from './behaviors/drop-mining';
+import RelieveBehavior from './behaviors/relieve';
 
 interface DropMiningMemory extends MissionMemory {
   sourceID: Id<Source>|null;

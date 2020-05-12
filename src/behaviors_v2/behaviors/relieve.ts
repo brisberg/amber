@@ -1,5 +1,6 @@
+import {BehaviorSettings} from '../types';
+
 import {Behavior, getBehaviorMemory} from './behavior';
-import {BehaviorSettings} from './types';
 
 /**
  * Behavior class for a fresh creep to replace their predecessor. Causes the

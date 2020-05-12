@@ -1,9 +1,9 @@
 import {SpawnQueue} from 'spawn-system/spawnQueue';
 
-import {Behavior, getBehaviorMemory} from './behavior';
-import DropMiningBehavior from './drop-mining';
+import {Behavior, getBehaviorMemory} from './behaviors/behavior';
+import DropMiningBehavior from './behaviors/drop-mining';
+import RelieveBehavior from './behaviors/relieve';
 import {DropMiningMission} from './drop-mining-mission';
-import RelieveBehavior from './relieve';
 
 const dropMining = new DropMiningBehavior();
 const relieve = new RelieveBehavior();

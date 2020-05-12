@@ -1,5 +1,6 @@
+import {BehaviorSettings} from '../types';
+
 import {Behavior, getBehaviorMemory} from './behavior';
-import {BehaviorSettings} from './types';
 
 export default class DropMiningBehavior extends Behavior {
   protected name = 'dropMining';
