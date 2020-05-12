@@ -145,7 +145,7 @@ export abstract class Behavior {
   /**
    * Finalize the task and switch to parent task (or null if there is none)
    */
-  finish(): void {
+  private finish(): void {
     // this.moveToNextPos();
     // if (creep) {
     //  creep.task = this.parent;
