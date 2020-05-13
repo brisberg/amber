@@ -2,8 +2,11 @@ import {BehaviorSettings} from '../types';
 
 import {Behavior, getBehaviorMemory} from './behavior';
 
-export default class DropMiningBehavior extends Behavior {
-  protected name = 'dropMining';
+/**
+ * Simple harvesting behavior which will drop the resulting resources in place.
+ */
+export default class HarvestBehavior extends Behavior {
+  protected name = 'harvest';
 
   protected settings: BehaviorSettings = {
     timeout: Infinity,

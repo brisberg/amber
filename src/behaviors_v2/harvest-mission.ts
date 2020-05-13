@@ -2,10 +2,10 @@ import {WORKER, zeroRatio} from 'spawn-system/bodyTypes';
 
 import {Mission, MissionMemory} from '../missions/mission';
 
-import DropMiningBehavior from './behaviors/drop-mining';
+import HarvestBehavior from './behaviors/harvest';
 import RelieveBehavior from './behaviors/relieve';
 
-interface DropMiningMemory extends MissionMemory {
+interface HarvestMemory extends MissionMemory {
   sourceID: Id<Source>|null;
 }
 
@@ -15,7 +15,7 @@ interface DropMiningMemory extends MissionMemory {
  * This mission will maintain a single creep (up to 6 work in size) harvesting a
  * source. It will request new ones and relieve the older creep when it arrives.
  */
-export class DropMiningMission extends Mission<DropMiningMemory> {
+export class HarvestMission extends Mission<HarvestMemory> {
   public source: Source|null = null;
 
   protected readonly bodyType: string = WORKER;
@@ -35,7 +35,7 @@ export class DropMiningMission extends Mission<DropMiningMemory> {
   }
 
   /** @override */
-  protected initialMemory(): DropMiningMemory {
+  protected initialMemory(): HarvestMemory {
     return {
       creeps: [],
       sourceID: null,
@@ -61,8 +61,8 @@ export class DropMiningMission extends Mission<DropMiningMemory> {
     this.creeps.forEach((harvester, index) => {
       if (index === 0) {
         // Reassign the harvesters if they were given to us
-        if (harvester.memory.mem.name !== 'dropMining') {
-          harvester.memory.mem = new DropMiningBehavior().new(source);
+        if (harvester.memory.mem.name !== 'harvest') {
+          harvester.memory.mem = new HarvestBehavior().new(source);
         }
       }
 

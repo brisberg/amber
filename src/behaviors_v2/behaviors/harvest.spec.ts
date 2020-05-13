@@ -1,11 +1,11 @@
 import {mockGlobal, mockInstanceOf} from 'screeps-jest';
 
 import {getBehaviorMemory} from './behavior';
-import DropMiningBehavior from './drop-mining';
+import HarvestBehavior from './harvest';
 
-const dropMining = new DropMiningBehavior();
+const harvest = new HarvestBehavior();
 
-describe('DropMining behavior', () => {
+describe('Harvest behavior', () => {
   let source: Source;
   let creep: Creep;
 
@@ -35,12 +35,12 @@ describe('DropMining behavior', () => {
   });
 
   beforeEach(() => {
-    creep.memory.mem = dropMining.new(source);
+    creep.memory.mem = harvest.new(source);
   });
 
   it('should set up creep memory with name and target', () => {
     const mem = getBehaviorMemory(creep);
-    expect(mem.name).toBe('dropMining');
+    expect(mem.name).toBe('harvest');
     expect(mem.target).toEqual({
       id: 'source',
       pos: {
@@ -54,13 +54,13 @@ describe('DropMining behavior', () => {
   it('should be invalid for creeps without enough work parts', () => {
     creep.getActiveBodyparts = (): number => 0;
 
-    expect(dropMining.isValid(creep)).toBe(false);
+    expect(harvest.isValid(creep)).toBe(false);
   });
 
   it('should be invalid for exhausted sources', () => {
     source.energy = 0;
 
-    expect(dropMining.isValid(creep)).toBe(false);
+    expect(harvest.isValid(creep)).toBe(false);
   });
 
   it('should be valid for active sources and worker creeps', () => {
@@ -69,13 +69,13 @@ describe('DropMining behavior', () => {
       return part === WORK ? 6 : 0;
     };
 
-    expect(dropMining.isValid(creep)).toBe(true);
+    expect(harvest.isValid(creep)).toBe(true);
   });
 
   it('should call harvest on a valid source if in range', () => {
     creep.pos.inRangeTo = (): boolean => true;
 
-    dropMining.run(creep);
+    harvest.run(creep);
 
     expect(creep.harvest).toHaveBeenCalledWith(source);
   });
