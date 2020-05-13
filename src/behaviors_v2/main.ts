@@ -2,15 +2,19 @@ import {SpawnQueue} from 'spawn-system/spawnQueue';
 
 import {Behavior, getBehaviorMemory} from './behaviors/behavior';
 import HarvestBehavior from './behaviors/harvest';
+import PickupBehavior from './behaviors/pickup';
 import RelieveBehavior from './behaviors/relieve';
 import {HarvestMission} from './harvest-mission';
+import {PickupMission} from './pickup-mission';
 
 const harvest = new HarvestBehavior();
 const relieve = new RelieveBehavior();
+const pickup = new PickupBehavior();
 
 const behaviors: {[name: string]: Behavior} = {
   'harvest': harvest,
   'relieve': relieve,
+  'pickup': pickup,
 };
 
 if (!global.cc) {
@@ -44,9 +48,18 @@ export const loop = (): void => {
   }
 
   // Init and run drop mining mission
-  const miningFlag = Game.flags['drop-mining'];
+  const miningFlag = Game.flags['mining'];
   if (miningFlag) {
     const msn = new HarvestMission(miningFlag);
+    msn.init();
+    msn.roleCall();
+    msn.run();
+  }
+
+  // Init and run drop mining mission
+  const pickupFlag = Game.flags['pickup'];
+  if (pickupFlag) {
+    const msn = new PickupMission(pickupFlag);
     msn.init();
     msn.roleCall();
     msn.run();
