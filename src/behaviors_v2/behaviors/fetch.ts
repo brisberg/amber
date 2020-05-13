@@ -25,14 +25,14 @@ export default class FetchBehavior extends Behavior {
     return ERR_INVALID_TARGET;
   }
 
-  /** Valid if the construction site exists. */
+  /** Valid if the storage structure exists. */
   protected isValidTarget(creep: Creep): boolean {
     const mem = getBehaviorMemory(creep);
     const target = Game.getObjectById(mem.target.id) as StorageStructure | null;
     return !!target && !!target.store;
   }
 
-  /** Creeps must have CARRY to transfer. */
+  /** Creeps must have CARRY to withdraw. */
   protected isValidTask(creep: Creep): boolean {
     return creep.getActiveBodyparts(CARRY) > 0;
   }

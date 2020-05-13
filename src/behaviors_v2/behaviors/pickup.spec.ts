@@ -1,30 +1,27 @@
 import {mockGlobal, mockInstanceOf} from 'screeps-jest';
 
 import {getBehaviorMemory} from './behavior';
-import FetchBehavior, {StorageStructure} from './fetch';
+import PickupBehavior from './pickup';
 
-const fetch = new FetchBehavior();
+const pickup = new PickupBehavior();
 
-describe('Fetch behavior', () => {
-  let store: StorageStructure;
+describe('Pickup behavior', () => {
+  let resource: Resource<RESOURCE_ENERGY>;
   let creep: Creep;
   let body: {[part: string]: number};
 
   beforeEach(() => {
-    store = mockInstanceOf<StructureContainer>({
-      id: 'store' as Id<StructureContainer>,
+    resource = mockInstanceOf<Resource<RESOURCE_ENERGY>>({
+      id: 'res' as Id<Resource<RESOURCE_ENERGY>>,
       pos: new RoomPosition(5, 10, 'N1W1'),
-      store: {
-        energy: 1000,
-      },
-      storeCapacity: 2000,
+      amount: 200,
+      resourceType: RESOURCE_ENERGY,
     });
     creep = mockInstanceOf<Creep>({
-      withdraw: () => OK,
+      pickup: () => OK,
       getActiveBodyparts: (part: BodyPartConstant) => {
         return body[part] || 0;
       },
-      store: {},
       pos: {},
       memory: {},
     });
@@ -33,8 +30,8 @@ describe('Fetch behavior', () => {
       time: 100,
       getObjectById: (id: string) => {
         switch (id) {
-          case 'store':
-            return store;
+          case 'res':
+            return resource;
           default:
             return null;
         }
@@ -43,14 +40,14 @@ describe('Fetch behavior', () => {
   });
 
   beforeEach(() => {
-    creep.memory.mem = fetch.new(store);
+    creep.memory.mem = pickup.new(resource);
   });
 
   it('should set up creep memory with name and target', () => {
     const mem = getBehaviorMemory(creep);
-    expect(mem.name).toBe('fetch');
+    expect(mem.name).toBe('pickup');
     expect(mem.target).toEqual({
-      id: 'store',
+      id: 'res',
       pos: {
         room: 'N1W1',
         x: 5,
@@ -62,27 +59,27 @@ describe('Fetch behavior', () => {
   it('should be invalid for creeps without enough carry parts', () => {
     body[CARRY] = 0;
 
-    expect(fetch.isValid(creep)).toBe(false);
+    expect(pickup.isValid(creep)).toBe(false);
   });
 
-  it('should be invalid for missing target storage structure', () => {
+  it('should be invalid for missing target resource pile', () => {
     Game.getObjectById = (): null => null;
 
-    expect(fetch.isValid(creep)).toBe(false);
+    expect(pickup.isValid(creep)).toBe(false);
   });
 
-  it('should be valid for active storage structure and carry creeps', () => {
+  it('should be valid for resource pile and carry creeps', () => {
     body = {[CARRY]: 1};
 
-    expect(fetch.isValid(creep)).toBe(true);
+    expect(pickup.isValid(creep)).toBe(true);
   });
 
-  it('should call withdraw on a valid store if in range with energy', () => {
+  it('should call pickup on a valid resource pile in range', () => {
     creep.pos.inRangeTo = (): boolean => true;
 
-    const result = fetch.run(creep);
+    const result = pickup.run(creep);
 
-    expect(creep.withdraw).toHaveBeenCalledWith(store, RESOURCE_ENERGY);
+    expect(creep.pickup).toHaveBeenCalledWith(resource);
     expect(result).toBe(OK);
   });
 });
