@@ -4,8 +4,8 @@ import {Behavior, getBehaviorMemory} from './behaviors/behavior';
 import HarvestBehavior from './behaviors/harvest';
 import PickupBehavior from './behaviors/pickup';
 import RelieveBehavior from './behaviors/relieve';
-import {HarvestMission} from './harvest-mission';
-import {PickupMission} from './pickup-mission';
+import {HarvestMission} from './missions/harvest-mission';
+import {PickupMission} from './missions/pickup-mission';
 
 const harvest = new HarvestBehavior();
 const relieve = new RelieveBehavior();
