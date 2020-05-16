@@ -63,6 +63,11 @@ export const BUILD_TARGET_FLAG: FlagColor = {
   color: COLOR_ORANGE,
   secondaryColor: COLOR_ORANGE,
 };
+/** Reserve Orange/Red flag color for Dismantle Mission Targets */
+export const DISMANTLE_MISSION_FLAG: FlagColor = {
+  color: COLOR_ORANGE,
+  secondaryColor: COLOR_RED,
+};
 /** Reserve Orange/Yellow flag color for Source Build Mission Targets */
 export const SOURCE_BUILD_TARGET_FLAG: FlagColor = {
   color: COLOR_ORANGE,
@@ -106,6 +111,11 @@ export const COLONIZATION_OPERATION_FLAG: FlagColor = {
 export const CLAIM_MISSION_FLAG: FlagColor = {
   color: COLOR_PURPLE,
   secondaryColor: COLOR_CYAN,
+};
+/** Reserve Purple/Red flag color for Attack Controller Mission */
+export const ATTACK_CONTROLLER_MISSION_FLAG: FlagColor = {
+  color: COLOR_PURPLE,
+  secondaryColor: COLOR_RED,
 };
 
 /** Reserve Red/Yellow flag color for Raid Mission */

@@ -1,6 +1,8 @@
 import {
+  ATTACK_CONTROLLER_MISSION_FLAG,
   BUILD_TARGET_FLAG,
   CLAIM_MISSION_FLAG,
+  DISMANTLE_MISSION_FLAG,
   DISTRIBUTION_MISSION_FLAG,
   flagIsColor,
   HARVEST_SOURCE_FLAG,
@@ -12,8 +14,10 @@ import {
   UPGRADE_MISSION_FLAG,
 } from 'flagConstants';
 
+import {AttackControllerMission} from './attackController';
 import {BuildMission} from './build';
 import {ClaimMission} from './claim';
+import {DemolishMission} from './demolish';
 import {DistributionMission} from './distribution';
 import {HarvestingMission} from './harvesting';
 import {ManualMission} from './manual';
@@ -37,6 +41,8 @@ global.missions = (flag: Flag): Mission<any>|null => {
     return new BuildMission(flag);
   } else if (flagIsColor(flag, SOURCE_BUILD_TARGET_FLAG)) {
     return new BuildMission(flag);
+  } else if (flagIsColor(flag, DISMANTLE_MISSION_FLAG)) {
+    return new DemolishMission(flag);
   } else if (flagIsColor(flag, TRANSPORT_MISSION_FLAG)) {
     return new TransportMission(flag);
   } else if (flagIsColor(flag, UPGRADE_MISSION_FLAG)) {
@@ -45,6 +51,8 @@ global.missions = (flag: Flag): Mission<any>|null => {
     return new DistributionMission(flag);
   } else if (flagIsColor(flag, CLAIM_MISSION_FLAG)) {
     return new ClaimMission(flag);
+  } else if (flagIsColor(flag, ATTACK_CONTROLLER_MISSION_FLAG)) {
+    return new AttackControllerMission(flag);
   } else if (flagIsColor(flag, MANUAL_SCOUT_MISSION_FLAG)) {
     return new ManualMission(flag);
   } else if (flagIsColor(flag, RAID_MISSION_FLAG)) {

@@ -1,8 +1,10 @@
 import {Behavior} from './behavior';
 import {Builder, BUILDER} from './builder';
+import {CLAIM_ATTTACK, ClaimAttacker} from './claimAttack';
 import {Claimer, CLAIMER} from './claimer';
 import {CONTAINER_HARVESTER, ContainerHarvester} from './containerHarvester';
 import {CONTAINER_UPGRADER, ContainerUpgrader} from './containerUpgrader';
+import {Demolisher, DEMOLISHER} from './demolish';
 import {Depositer, DEPOSITER} from './depositer';
 import {Distributor, DISTRIBUTOR} from './distributor';
 import {EMERGENCY_MINER, EmergencyMiner} from './emergencyMiner';
@@ -18,12 +20,12 @@ import {SENTRY, Sentry} from './sentry';
 import {SOURCE_BUILDER, SourceBuilder} from './sourceBuilder';
 import {Upgrader, UPGRADER} from './upgrader';
 
-export type BehaviorKey =
-    typeof PIONEER|typeof REPAIRER|typeof FETCHER|typeof DEPOSITER|
-    typeof CONTAINER_HARVESTER|typeof EMERGENCY_MINER|typeof BUILDER|
-    typeof SOURCE_BUILDER|typeof ENET_BUILDER|typeof ENET_FETCHER|
-    typeof ENET_DEPOSITER|typeof UPGRADER|typeof CONTAINER_UPGRADER|
-    typeof DISTRIBUTOR|typeof CLAIMER|typeof SENTRY|typeof IDLER;
+export type BehaviorKey = typeof PIONEER|typeof REPAIRER|typeof FETCHER|
+    typeof DEPOSITER|typeof CONTAINER_HARVESTER|typeof EMERGENCY_MINER|
+    typeof BUILDER|typeof SOURCE_BUILDER|typeof ENET_BUILDER|
+    typeof ENET_FETCHER|typeof ENET_DEPOSITER|typeof UPGRADER|
+    typeof CONTAINER_UPGRADER|typeof DISTRIBUTOR|typeof DEMOLISHER|
+    typeof CLAIMER|typeof CLAIM_ATTTACK|typeof SENTRY|typeof IDLER;
 
 export interface BehaviorMap {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -47,7 +49,9 @@ global.behaviors = {
   [UPGRADER]: new Upgrader(),
   [CONTAINER_UPGRADER]: new ContainerUpgrader(),
   [DISTRIBUTOR]: new Distributor(),
+  [DEMOLISHER]: new Demolisher(),
   [CLAIMER]: new Claimer(),
+  [CLAIM_ATTTACK]: new ClaimAttacker(),
   [SENTRY]: new Sentry(),
   [IDLER]: new Idler(),
 };
