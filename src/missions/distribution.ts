@@ -73,8 +73,8 @@ export class DistributionMission extends Mission<DistributionMemory> {
       return false;
     }
 
-    this.spawns = this.mem.spawnIDs.map((id) => Game.getObjectById(id))
-                      .filter((spawn) => !!spawn) as StructureSpawn[];
+    this.spawns = this.room!.find(FIND_MY_SPAWNS);
+    this.mem.spawnIDs = this.spawns.map((spawn) => spawn.id);
     this.eNode = new EnergyNode(Game.flags[this.mem.eNodeFlag]);
     this.extensinGroups = this.mem.extensionGroups.map((name) => {
       const group = new ExtensionGroup(Game.flags[name]);

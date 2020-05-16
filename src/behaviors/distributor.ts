@@ -53,7 +53,8 @@ export class Distributor extends Behavior<DistributorMemory> {
       }
     } else if (mem.phase === 'deliver') {  // Deliver State
       if (spawn) {
-        if ((spawn.energyCapacity - spawn.energy) > creep.store.energy) {
+        if ((spawn.energyCapacity - spawn.energy) > creep.store.energy &&
+            creep.store.getFreeCapacity() > 0) {
           // Not enough energy for the task, go to fetch phase
           mem.phase = 'fetch';
           return false;
@@ -91,7 +92,8 @@ export class Distributor extends Behavior<DistributorMemory> {
 
       if (extendGroup) {
         const missingEnergy = extendGroup.getFreeCapacity();
-        if (missingEnergy > creep.store.energy) {
+        if (missingEnergy > creep.store.energy &&
+            creep.store.getFreeCapacity() > 0) {
           // Not enough energy for the task, go to fetch phase
           mem.phase = 'fetch';
           return false;
