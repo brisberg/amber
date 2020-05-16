@@ -166,8 +166,8 @@ export class ColonizeOperation {
     }
 
     // HACK for now
-    this.mem.host = 'E18N16';
-    return 'E18N16';
+    this.mem.host = 'E16N18';
+    return 'E16N18';
 
     // this.mem.host = closest.name;
     // return closest.name;

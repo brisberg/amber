@@ -22,7 +22,11 @@ interface DemolishMissionMemory extends MissionMemory {
 export class DemolishMission extends Mission<DemolishMissionMemory> {
   protected readonly spawnPriority = 3;
   protected readonly bodyType = WORKER;
-  protected readonly bodyOptions: GenerateCreepBodyOptions = {};
+  protected readonly bodyOptions: GenerateCreepBodyOptions = {
+    max: {
+      work: 6,
+    },
+  };
 
   public structs: Structure[] = [];
 
@@ -41,13 +45,16 @@ export class DemolishMission extends Mission<DemolishMissionMemory> {
 
   /** @override */
   public init(): boolean {
+    // Hacl
+    if (!this.room) return true;
+
     if (this.mem.all) {
       // Find all structures in the room
-      this.structs = this.room!.find(FIND_HOSTILE_STRUCTURES);
+      this.structs = this.room.find(FIND_HOSTILE_STRUCTURES);
 
       // Target InvaderCore
       const core = this.structs.find((struct) => {
-        return struct.structureType = 'invaderCore';
+        return struct.structureType === 'invaderCore';
       });
       if (core) {
         this.structs = [core];
