@@ -62,10 +62,10 @@ export class AttackMission extends Mission<AttackMissionMemory> {
       }
 
       // Hack to only break InvaderCores
-      this.targets = this.targets.filter((target: Structure|Creep) => {
-        return target instanceof Structure &&
-            target.structureType === 'invaderCore';
-      });
+      // this.targets = this.targets.filter((target: Structure|Creep) => {
+      //   return target instanceof Structure &&
+      //       target.structureType === 'invaderCore';
+      // });
 
       if (this.targets.length === 0) {
         console.log(`Attack Mission ${
