@@ -6,7 +6,7 @@ import {SOURCE_BUILDER, SourceBuilder} from 'behaviors/sourceBuilder';
 import {EnergyNode} from 'energy-network/energyNode';
 import {CARRY_WORKER} from 'spawn-system/bodyTypes';
 
-import {Mission, MissionMemory} from './mission';
+import {Mission, MissionMemory} from '../mission';
 
 interface BuildMissionMemory extends MissionMemory {
   maxBuilders: number;

@@ -6,7 +6,7 @@ import {IDLER} from 'behaviors/idler';
 import {GenerateCreepBodyOptions, HAULER} from 'spawn-system/bodyTypes';
 import {declareOrphan} from 'spawn-system/orphans';
 
-import {Mission, MissionMemory} from './mission';
+import {Mission, MissionMemory} from '../mission';
 
 interface RaidMissionMemory extends MissionMemory {
   destID: Id<StructureStorage>|null;

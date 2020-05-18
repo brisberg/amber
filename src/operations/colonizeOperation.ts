@@ -1,5 +1,5 @@
-import {BuildMission} from 'missions/build';
-import {ClaimMission} from 'missions/claim';
+import {ClaimMission} from 'missions/colonization/claim';
+import {BuildMission} from 'missions/core/build';
 import {getUsername} from 'utils/settings';
 
 import {BUILD_TARGET_FLAG, CLAIM_MISSION_FLAG} from '../flagConstants';

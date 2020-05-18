@@ -10,7 +10,7 @@ import {
   zeroRatio,
 } from 'spawn-system/bodyTypes';
 
-import {Mission, MissionMemory} from './mission';
+import {Mission, MissionMemory} from '../mission';
 
 interface UpgradeMissionMemory extends MissionMemory {
   containerID: Id<StructureContainer>|null;

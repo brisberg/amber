@@ -1,40 +1,41 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import {ATTACKER, Attacker} from 'behaviors/attack';
 import {setCreepBehavior} from 'behaviors/behavior';
-import {FIGHTER, GenerateCreepBodyOptions} from 'spawn-system/bodyTypes';
+import {DEMOLISHER, Demolisher} from 'behaviors/demolish';
+import {GenerateCreepBodyOptions, WORKER} from 'spawn-system/bodyTypes';
 
-import {Mission, MissionMemory} from './mission';
+import {Mission, MissionMemory} from '../mission';
 
-interface AttackMissionMemory extends MissionMemory {
-  tarID: Id<Structure|Creep>|null;
+interface DemolishMissionMemory extends MissionMemory {
+  tarID: Id<Structure>|null;
   all: boolean;  // Should mission clear all structures
 }
 
 /**
- * Attack Missions use fighter creeps to attack a hostile structure or creep.
+ * Demolish Missions use worker creeps to dismantle friendly or hostile
+ * structures in the target room.
  *
  * Use it to clear a recently conqured room, NPC stronghold, or salvage your own
  * room.
  *
- * This mission will coordinate requesting fighter creeps.
+ * This mission will coordinate requesting hauler creeps.
  */
-export class AttackMission extends Mission<AttackMissionMemory> {
+export class DemolishMission extends Mission<DemolishMissionMemory> {
   protected readonly spawnPriority = 3;
-  protected readonly bodyType = FIGHTER;
+  protected readonly bodyType = WORKER;
   protected readonly bodyOptions: GenerateCreepBodyOptions = {
     max: {
-      attack: 10,
+      work: 6,
     },
   };
 
-  public targets: Array<Structure|Creep> = [];
+  public structs: Structure[] = [];
 
   constructor(flag: Flag) {
     super(flag);
   }
 
   /** @override */
-  protected initialMemory(): AttackMissionMemory {
+  protected initialMemory(): DemolishMissionMemory {
     return {
       creeps: [],
       tarID: null,
@@ -44,32 +45,24 @@ export class AttackMission extends Mission<AttackMissionMemory> {
 
   /** @override */
   public init(): boolean {
-    // Hack
-    this.mem.all = true;
+    // Hacl
     if (!this.room) return true;
 
     if (this.mem.all) {
       // Find all structures in the room
-      this.targets = this.room.find(FIND_HOSTILE_STRUCTURES);
+      this.structs = this.room.find(FIND_HOSTILE_STRUCTURES);
 
       // Target InvaderCore
-      const core = this.targets.find((target) => {
-        return target instanceof Structure &&
-            target.structureType === 'invaderCore';
+      const core = this.structs.find((struct) => {
+        return struct.structureType === 'invaderCore';
       });
       if (core) {
-        this.targets = [core];
+        this.structs = [core];
       }
 
-      // Hack to only break InvaderCores
-      this.targets = this.targets.filter((target: Structure|Creep) => {
-        return target instanceof Structure &&
-            target.structureType === 'invaderCore';
-      });
-
-      if (this.targets.length === 0) {
-        console.log(`Attack Mission ${
-            this.name} has no remaining targets to attack. Retiring`);
+      if (this.structs.length === 0) {
+        console.log(`Demolish Mission ${
+            this.name} has no remaining structures to dismantle. Retiring`);
         return false;
       }
 
@@ -78,10 +71,10 @@ export class AttackMission extends Mission<AttackMissionMemory> {
 
     if (this.mem.tarID) {
       if (Game.getObjectById(this.mem.tarID)) {
-        this.targets = [Game.getObjectById(this.mem.tarID)!];
+        this.structs = [Game.getObjectById(this.mem.tarID)!];
       } else {
-        console.log(
-            `Attack Mission ${this.name}: Could not find Target. Retiring`);
+        console.log(`Demolish Mission ${
+            this.name}: Could not find Target Structure. Retiring`);
         return false;
       }
     }
@@ -91,7 +84,7 @@ export class AttackMission extends Mission<AttackMissionMemory> {
 
   public setTarget(tar: Structure): void {
     this.mem.tarID = tar.id;
-    this.targets = [tar];
+    this.structs = [tar];
   }
 
   public setAllFlag(all: boolean): void {
@@ -100,25 +93,22 @@ export class AttackMission extends Mission<AttackMissionMemory> {
 
   /** Executes one update tick for this mission */
   public run(): void {
-    this.mem.all = true;  // Hack
-
-    if (this.targets.length === 0) {
+    if (this.structs.length === 0) {
       return;
     }
 
-    const struct = this.targets[0];
+    const struct = this.structs[0];
 
     // Direct each creep to pick up or dropoff
     this.creeps.forEach((creep) => {
-      if (creep.memory.behavior !== ATTACKER ||
-          creep.memory.mem.targetID !== struct.id) {
+      if (creep.memory.behavior !== DEMOLISHER) {
         // Pickup newly spawned idle creeps
         creep.memory.mission = this.name;
         // Update demoplishss target
         setCreepBehavior(
             creep,
-            ATTACKER,
-            Attacker.initMemory(struct),
+            DEMOLISHER,
+            Demolisher.initMemory(this.room!.name, struct),
         );
       }
     });

@@ -8,7 +8,7 @@ import {
   HARVEST_SOURCE_FLAG,
 } from 'flagConstants';
 
-import {HarvestingMission} from '../missions/harvesting';
+import {HarvestingMission} from '../missions/mining/harvesting';
 
 import {analyzeSourceForHarvesting, SourceAnalysis} from './sourceAnalysis';
 

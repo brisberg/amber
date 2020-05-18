@@ -5,7 +5,7 @@ import {EnergyNode} from 'energy-network/energyNode';
 import {ExtensionGroup} from 'layout/extensionGroup';
 import {GenerateCreepBodyOptions, HAULER} from 'spawn-system/bodyTypes';
 
-import {Mission, MissionMemory} from './mission';
+import {Mission, MissionMemory} from '../mission';
 
 interface DistributionMemory extends MissionMemory {
   spawnIDs: Array<Id<StructureSpawn>>;

@@ -15,19 +15,19 @@ import {
   UPGRADE_MISSION_FLAG,
 } from 'flagConstants';
 
-import {AttackMission} from './attack';
-import {AttackControllerMission} from './attackController';
-import {BuildMission} from './build';
-import {ClaimMission} from './claim';
-import {DemolishMission} from './demolish';
-import {DistributionMission} from './distribution';
-import {HarvestingMission} from './harvesting';
-import {ManualMission} from './manual';
+import {ClaimMission} from './colonization/claim';
+import {PioneerMission} from './colonization/pioneer';
+import {AttackMission} from './combat/attack';
+import {AttackControllerMission} from './combat/attackController';
+import {DemolishMission} from './combat/demolish';
+import {RaidMission} from './combat/raid';
+import {BuildMission} from './core/build';
+import {DistributionMission} from './core/distribution';
+import {ManualMission} from './core/manual';
+import {UpgradeMission} from './core/upgrade';
+import {TransportMission} from './logistics/transport';
+import {HarvestingMission} from './mining/harvesting';
 import {Mission} from './mission';
-import {PioneerMission} from './pioneer';
-import {RaidMission} from './raid';
-import {TransportMission} from './transport';
-import {UpgradeMission} from './upgrade';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type MissionMap = (flag: Flag) => Mission<any>|null;

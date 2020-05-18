@@ -5,9 +5,9 @@ import {
 } from 'behaviors/containerHarvester';
 import {WORKER, zeroRatio} from 'spawn-system/bodyTypes';
 
-import {MAX_WORK_PER_SOURCE} from '../constants';
+import {MAX_WORK_PER_SOURCE} from '../../constants';
 
-import {Mission, MissionMemory} from './mission';
+import {Mission, MissionMemory} from '../mission';
 
 interface HarvestingMemory extends MissionMemory {
   maxHarvesters: number;

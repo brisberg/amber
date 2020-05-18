@@ -5,7 +5,7 @@ import {
 } from 'energy-network/energyNode';
 import {ENERGY_NODE_FLAG, UPGRADE_MISSION_FLAG} from 'flagConstants';
 
-import {UpgradeMission} from '../missions/upgrade';
+import {UpgradeMission} from '../missions/core/upgrade';
 
 import {
   analyzeControllerForUpgrading,

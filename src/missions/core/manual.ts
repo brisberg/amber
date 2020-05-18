@@ -2,7 +2,7 @@ import {setCreepBehavior} from 'behaviors/behavior';
 import {SENTRY, Sentry} from 'behaviors/sentry';
 import {GenerateCreepBodyOptions, SCOUT} from 'spawn-system/bodyTypes';
 
-import {Mission, MissionMemory} from './mission';
+import {Mission, MissionMemory} from '../mission';
 
 type ManualMissionMemory = MissionMemory;
 

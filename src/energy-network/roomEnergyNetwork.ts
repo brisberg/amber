@@ -1,5 +1,5 @@
 import {ENERGY_NODE_FLAG} from 'flagConstants';
-import {TransportMission} from 'missions/transport';
+import {TransportMission} from 'missions/logistics/transport';
 
 import {EnergyNode} from './energyNode';
 import {NetworkEdge, NetworkEdgeMemory} from './networkEdge';

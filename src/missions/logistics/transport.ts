@@ -7,7 +7,7 @@ import {EnergyNode, EnergyNodeMemory} from 'energy-network/energyNode';
 import {GenerateCreepBodyOptions, HAULER} from 'spawn-system/bodyTypes';
 import {declareOrphan} from 'spawn-system/orphans';
 
-import {Mission, MissionMemory} from './mission';
+import {Mission, MissionMemory} from '../mission';
 
 interface TransportMissionMemory extends MissionMemory {
   source: EnergyNodeMemory|null;

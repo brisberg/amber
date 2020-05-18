@@ -22,8 +22,8 @@ import {
 } from 'flagConstants';
 import {ExtensionGroup} from 'layout/extensionGroup';
 import {TownSquare} from 'layout/townSquare';
+import {PioneerMission} from 'missions/colonization/pioneer';
 import {Mission} from 'missions/mission';
-import {PioneerMission} from 'missions/pioneer';
 import {AllOperations} from 'operations';
 import {BaseOperation} from 'operations/BaseOperation';
 import {MiningOperation} from 'operations/miningOperation';

@@ -3,7 +3,7 @@ import {setCreepBehavior} from 'behaviors/behavior';
 import {PIONEER, Pioneer} from 'behaviors/pioneer';
 import {CARRY_WORKER} from 'spawn-system/bodyTypes';
 
-import {Mission, MissionMemory} from './mission';
+import {Mission, MissionMemory} from '../mission';
 
 interface PioneerMissionMemory extends MissionMemory {
   sourceIDs: Array<Id<Source>>;

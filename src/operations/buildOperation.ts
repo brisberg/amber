@@ -11,8 +11,8 @@ import {
   TEMP_ENERGY_NODE_FLAG,
   TRANSPORT_MISSION_FLAG,
 } from '../flagConstants';
-import {BuildMission} from '../missions/build';
-import {TransportMission} from '../missions/transport';
+import {BuildMission} from '../missions/core/build';
+import {TransportMission} from '../missions/logistics/transport';
 
 /**
  * Building Operation

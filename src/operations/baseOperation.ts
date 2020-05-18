@@ -1,5 +1,5 @@
 import {ExtensionGroup} from 'layout/extensionGroup';
-import {DistributionMission} from 'missions/distribution';
+import {DistributionMission} from 'missions/core/distribution';
 
 import {EnergyNode} from '../energy-network/energyNode';
 import {

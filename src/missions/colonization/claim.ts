@@ -5,7 +5,7 @@ import {
   GenerateCreepBodyOptions,
 } from 'spawn-system/bodyTypes';
 
-import {Mission, MissionMemory} from './mission';
+import {Mission, MissionMemory} from '../mission';
 
 interface ClaimMissionMemory extends MissionMemory {
   roomName: string|null;
