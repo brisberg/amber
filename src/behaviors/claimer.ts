@@ -28,14 +28,20 @@ export class Claimer extends Behavior<ClaimerMemory> {
       }
 
       if (!creep.pos.inRangeTo(ctrl, 1)) {
-        creep.moveTo(ctrl);
+        creep.moveTo(ctrl, {
+          swampCost: 1,  // SwampCost Hack to avoid stronghold
+        });
         return true;
       }
 
       // We have arrived
 
       // Claim the controller
-      creep.claimController(ctrl);
+      if (!ctrl.my && ctrl.reservation && ctrl.reservation.ticksToEnd > 0) {
+        creep.attackController(ctrl);
+      } else {
+        creep.claimController(ctrl);
+      }
       return false;
     }
     return false;

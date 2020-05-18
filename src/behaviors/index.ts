@@ -1,3 +1,4 @@
+import {ATTACKER, Attacker} from './attack';
 import {Behavior} from './behavior';
 import {Builder, BUILDER} from './builder';
 import {CLAIM_ATTTACK, ClaimAttacker} from './claimAttack';
@@ -20,7 +21,8 @@ import {SENTRY, Sentry} from './sentry';
 import {SOURCE_BUILDER, SourceBuilder} from './sourceBuilder';
 import {Upgrader, UPGRADER} from './upgrader';
 
-export type BehaviorKey = typeof PIONEER|typeof REPAIRER|typeof FETCHER|
+export type BehaviorKey =
+    typeof ATTACKER|typeof PIONEER|typeof REPAIRER|typeof FETCHER|
     typeof DEPOSITER|typeof CONTAINER_HARVESTER|typeof EMERGENCY_MINER|
     typeof BUILDER|typeof SOURCE_BUILDER|typeof ENET_BUILDER|
     typeof ENET_FETCHER|typeof ENET_DEPOSITER|typeof UPGRADER|
@@ -34,6 +36,7 @@ export interface BehaviorMap {
 
 /** Convenience mapping of behavior key to behavior update function. */
 global.behaviors = {
+  [ATTACKER]: new Attacker(),
   [PIONEER]: new Pioneer(),
   [HARVESTER]: new Harvester(),
   [REPAIRER]: new Repairer(),

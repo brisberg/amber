@@ -123,6 +123,11 @@ export const RAID_MISSION_FLAG: FlagColor = {
   color: COLOR_RED,
   secondaryColor: COLOR_YELLOW,
 };
+/** Reserve Red/Red flag color for Attack Mission */
+export const ATTACK_MISSION_FLAG: FlagColor = {
+  color: COLOR_RED,
+  secondaryColor: COLOR_RED,
+};
 
 /**
  * -----------------

@@ -48,7 +48,9 @@ export class SourceBuilder extends Behavior<SourceBuilderMemory> {
           mem.mem = Harvester.initMemory(source);
           return false;
         } else {
-          creep.moveTo(source);
+          creep.moveTo(source, {
+            swampCost: 1,  // SwampCost Hack to avoid stronghold
+          });
           return true;
         }
       } else if (mem.state === 'build') {
@@ -62,7 +64,9 @@ export class SourceBuilder extends Behavior<SourceBuilderMemory> {
           mem.mem = Builder.initMemory(target);
           return false;
         } else {
-          creep.moveTo(target);
+          creep.moveTo(target, {
+            swampCost: 1,  // SwampCost Hack to avoid stronghold
+          });
           return true;
         }
       }

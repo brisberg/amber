@@ -1,5 +1,6 @@
 import {
   ATTACK_CONTROLLER_MISSION_FLAG,
+  ATTACK_MISSION_FLAG,
   BUILD_TARGET_FLAG,
   CLAIM_MISSION_FLAG,
   DISMANTLE_MISSION_FLAG,
@@ -14,6 +15,7 @@ import {
   UPGRADE_MISSION_FLAG,
 } from 'flagConstants';
 
+import {AttackMission} from './attack';
 import {AttackControllerMission} from './attackController';
 import {BuildMission} from './build';
 import {ClaimMission} from './claim';
@@ -57,6 +59,8 @@ global.missions = (flag: Flag): Mission<any>|null => {
     return new ManualMission(flag);
   } else if (flagIsColor(flag, RAID_MISSION_FLAG)) {
     return new RaidMission(flag);
+  } else if (flagIsColor(flag, ATTACK_MISSION_FLAG)) {
+    return new AttackMission(flag);
   }
 
   return null;
