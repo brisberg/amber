@@ -28,9 +28,7 @@ export class Claimer extends Behavior<ClaimerMemory> {
       }
 
       if (!creep.pos.inRangeTo(ctrl, 1)) {
-        creep.moveTo(ctrl, {
-          swampCost: 1,  // SwampCost Hack to avoid stronghold
-        });
+        creep.moveTo(ctrl);
         return true;
       }
 

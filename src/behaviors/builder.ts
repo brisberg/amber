@@ -22,9 +22,7 @@ export class Builder extends Behavior<BuilderMemory> {
 
     if (target) {
       if (!creep.pos.inRangeTo(target, 3)) {
-        creep.moveTo(target, {
-          swampCost: 1,  // SwampCost Hack to avoid stronghold
-        });
+        creep.moveTo(target);
         return true;
       }
 

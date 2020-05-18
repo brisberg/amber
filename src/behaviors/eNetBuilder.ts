@@ -76,9 +76,7 @@ export class ENetBuilder extends Behavior<ENetBuilderMemory> {
       if (mem.destPos) {
         const destPos = mem.destPos;
         if (!creep.pos.inRangeTo(destPos[0], destPos[1], 0)) {
-          creep.moveTo(destPos[0], destPos[1], {
-            swampCost: 1,  // SwampCost Hack to avoid stronghold
-          });
+          creep.moveTo(destPos[0], destPos[1]);
           return true;
         }
       }
