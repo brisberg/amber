@@ -31,7 +31,7 @@ export class ManualMission extends Mission<ManualMissionMemory> {
   }
 
   public init(): boolean {
-    this.mem.spawnSource = 'E16N18';  // HACK: Hardcoding north base
+    this.mem.spawnSource = 'E17N16';  // HACK: Hardcoding middle base
     return true;
   }
 

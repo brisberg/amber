@@ -46,11 +46,13 @@ export class AttackMission extends Mission<AttackMissionMemory> {
   public init(): boolean {
     // Hack
     this.mem.all = true;
+    this.mem.spawnSource = 'E17N16';
+
     if (!this.room) return true;
 
     if (this.mem.all) {
       // Find all structures in the room
-      this.targets = this.room.find(FIND_HOSTILE_STRUCTURES);
+      this.targets = this.room.find(FIND_HOSTILE_CREEPS);
 
       // Target InvaderCore
       const core = this.targets.find((target) => {
