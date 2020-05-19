@@ -52,7 +52,7 @@ export class AttackMission extends Mission<AttackMissionMemory> {
 
     if (this.mem.all) {
       // Find all structures in the room
-      this.targets = this.room.find(FIND_HOSTILE_CREEPS);
+      this.targets = this.room.find(FIND_HOSTILE_STRUCTURES);
 
       // Target InvaderCore
       const core = this.targets.find((target) => {
