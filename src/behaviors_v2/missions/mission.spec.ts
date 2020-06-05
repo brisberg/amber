@@ -31,12 +31,14 @@ describe('Abstract Mission', () => {
       'N1W1': mockInstanceOf<SpawnQueue>(),
     });
     mockGlobal<Memory>('Memory', {
-      missions: {},
+      missions: {
+        [MISSION_NAME]: undefined,
+      },
     });
 
     // Initialize test variables
     mockData = {};
-    mission = new MockMission(MISSION_NAME, 'N1W1');
+    // mission = new MockMission(MISSION_NAME, 'N1W1');
   });
 
   describe('Initialization', () => {
@@ -66,9 +68,7 @@ describe('Abstract Mission', () => {
         colony: 'Wisteria',
         data: {missionData: 'Hyacinth'},
       };
-      Memory.missions = {
-        MISSION_NAME: existingMemory,
-      };
+      Memory.missions[MISSION_NAME] = existingMemory;
       const msn = new MockMission(MISSION_NAME, 'N1W1');
 
       expect(getMemory(msn)).toEqual(existingMemory);
