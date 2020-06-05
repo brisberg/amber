@@ -39,6 +39,9 @@ describe('Abstract Mission', () => {
     public mockCreepActionsFn = jest.fn((): void => {
       return;
     });
+    public mockFinalizeFn = jest.fn((): void => {
+      return;
+    });
 
 
     // Abstract Overrides
@@ -52,6 +55,10 @@ describe('Abstract Mission', () => {
 
     protected creepActions(): void {
       this.mockCreepActionsFn();
+    }
+
+    protected finalize(): void {
+      this.mockFinalizeFn();
     }
   }
 
@@ -196,6 +203,16 @@ describe('Abstract Mission', () => {
       msn.run();
 
       expect(msn.mockCreepActionsFn).toHaveBeenCalled();
+    });
+  });
+
+  describe('Retire', () => {
+    it('should call sub-class finalize when retired', () => {
+      const msn = new MockMission(MISSION_NAME, 'N1W1');
+
+      msn.retire();
+
+      expect(msn.mockFinalizeFn).toHaveBeenCalled();
     });
   });
 });

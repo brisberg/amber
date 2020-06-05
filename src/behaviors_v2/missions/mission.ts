@@ -79,6 +79,11 @@ export default abstract class Mission<M> {
    * Mission specific creep actions to be executed when mission is executed.
    */
   protected abstract creepActions(): void;
+
+  /**
+   * Mission specific cleanup when the mission is retired.
+   */
+  protected abstract finalize(): void;
   // #### End Abstract Fields #### //
 
 
@@ -109,6 +114,14 @@ export default abstract class Mission<M> {
   /** Execute one update tick for this mission */
   public run(): void {
     this.creepActions();
+  }
+
+  /**
+   * Remove and cleanup the mission. Creep up creeps, flags, and memory
+   * resources.
+   */
+  public retire(): void {
+    this.finalize();
   }
 
   /**
