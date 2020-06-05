@@ -74,6 +74,11 @@ export default abstract class Mission<M> {
    * Mission specific calculation for the maximum number of creeps to hold.
    */
   protected abstract get maxCreeps(): number;
+
+  /**
+   * Mission specific creep actions to be executed when mission is executed.
+   */
+  protected abstract creepActions(): void;
   // #### End Abstract Fields #### //
 
 
@@ -101,8 +106,9 @@ export default abstract class Mission<M> {
     });
   }
 
+  /** Execute one update tick for this mission */
   public run(): void {
-    throw new Error('Not Implemented');
+    this.creepActions();
   }
 
   /**

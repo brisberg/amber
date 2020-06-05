@@ -36,6 +36,9 @@ describe('Abstract Mission', () => {
 
     // Overwrite these values to mock internal state
     public mockMaxCreepsFn = (): number => 1;
+    public mockCreepActionsFn = jest.fn((): void => {
+      return;
+    });
 
 
     // Abstract Overrides
@@ -45,6 +48,10 @@ describe('Abstract Mission', () => {
 
     protected get maxCreeps(): number {
       return this.mockMaxCreepsFn();
+    }
+
+    protected creepActions(): void {
+      this.mockCreepActionsFn();
     }
   }
 
@@ -179,6 +186,16 @@ describe('Abstract Mission', () => {
 
       expect(mission.mockMemory.creeps).toEqual([]);
       expect(mission.mockMemory.nextCreep).toEqual('nextCreep');
+    });
+  });
+
+  describe('Run', () => {
+    it('should call sub-class actions when run', () => {
+      const msn = new MockMission(MISSION_NAME, 'N1W1');
+
+      msn.run();
+
+      expect(msn.mockCreepActionsFn).toHaveBeenCalled();
     });
   });
 });
