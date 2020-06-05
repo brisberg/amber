@@ -5,6 +5,8 @@ import {SpawnQueue} from 'spawn-system/spawnQueue';
 import Mission, {MissionMemory} from './mission';
 import {getMemory} from './utils';
 
+const MISSION_NAME = 'mission-name';
+
 describe('Abstract Mission', () => {
   let mission: MockMission;
   let mockData: MockMissionData;  // Initial mock mission data
@@ -34,23 +36,23 @@ describe('Abstract Mission', () => {
 
     // Initialize test variables
     mockData = {};
-    mission = new MockMission('mission-name', 'N1W1');
+    mission = new MockMission(MISSION_NAME, 'N1W1');
   });
 
   describe('Initialization', () => {
     // Memory initialization
     it('should store mission memory in Memory.missions[name]', () => {
-      const msn = new MockMission('mission-name', 'N1W1');
+      const msn = new MockMission(MISSION_NAME, 'N1W1');
 
       // Using 'toBe' to ensure they are the same object
-      expect(Memory.missions['mission-name']).toBe(getMemory(msn));
+      expect(Memory.missions[MISSION_NAME]).toBe(getMemory(msn));
     });
 
     it('should initialize default mission memory if none exists', () => {
       Memory.missions = {};
-      const msn = new MockMission('mission-name', 'N1W1');
+      const msn = new MockMission(MISSION_NAME, 'N1W1');
 
-      expect(msn.name).toBe('mission-name');
+      expect(msn.name).toBe(MISSION_NAME);
       const mem: MissionMemory<MockMissionData> = getMemory(msn);
       expect(mem.creeps).toEqual([]);
       expect(mem.colony).toEqual('N1W1');
@@ -65,16 +67,16 @@ describe('Abstract Mission', () => {
         data: {missionData: 'Hyacinth'},
       };
       Memory.missions = {
-        'mission-name': existingMemory,
+        MISSION_NAME: existingMemory,
       };
-      const msn = new MockMission('mission-name', 'N1W1');
+      const msn = new MockMission(MISSION_NAME, 'N1W1');
 
       expect(getMemory(msn)).toEqual(existingMemory);
     });
 
     it('should initialize custom mission data on initialization', () => {
       mockData = {missionData: 'foobar'};
-      const msn = new MockMission('mockMission', 'N1W1');
+      const msn = new MockMission(MISSION_NAME, 'N1W1');
 
       const mem: MissionMemory<MockMissionData> = getMemory(msn);
       expect(mem.data).toEqual(mockData);
