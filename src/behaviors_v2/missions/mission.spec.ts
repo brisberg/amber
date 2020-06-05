@@ -2,7 +2,9 @@ import {mockGlobal, mockInstanceOf} from 'screeps-jest';
 import {WORKER} from 'spawn-system/bodyTypes';
 import {SpawnQueue, SpawnRequest} from 'spawn-system/spawnQueue';
 
-import Mission, {MissionMemory} from './mission';
+import {MissionMemory} from './mission';
+import MockMission,
+{MockMissionConfig, MockMissionData} from './mission-mock.spec';
 import {getMemory} from './utils';
 
 const MISSION_NAME = 'mission-name';
@@ -21,70 +23,6 @@ describe('Abstract Mission', () => {
   const defaultConfig: MockMissionConfig = {
     mockDataField: 'foobar',
   };
-
-  // Fake Implementation Class for Abstract Mission
-  interface MockMissionData {
-    mockDataField?: string;  // Arbitrary data pretaining to the mission
-  }
-
-  interface MockMissionConfig {
-    mockDataField: string;
-  }
-
-  class MockMission extends Mission<MockMissionData, MockMissionConfig> {
-    protected bodyType = WORKER;
-
-    // Expose internal state TODO: remove this?
-    public get mockMemory(): MissionMemory<MockMissionData> {
-      return this.mem;
-    }
-
-
-    // Overwrite these values to mock internal state
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    public mockInitializeFn = (config: {}): void => {
-      return;
-    };
-    public mockReconcileFn = (): void => {
-      return;
-    };
-    public mockMaxCreepsFn = (): number => 1;
-    public mockCreepActionsFn = (): void => {
-      return;
-    };
-    public mockFinalizeFn = (): void => {
-      return;
-    };
-
-
-    // Abstract Overrides
-    protected initialize(config: {}): this {
-      this.mockInitializeFn(config);
-      return this;
-    }
-
-    protected reconcile(): void {
-      this.mockReconcileFn();
-    }
-
-    protected initMemory(config: MockMissionConfig): MockMissionData {
-      return {
-        mockDataField: config.mockDataField,
-      };
-    }
-
-    protected get maxCreeps(): number {
-      return this.mockMaxCreepsFn();
-    }
-
-    protected creepActions(): void {
-      this.mockCreepActionsFn();
-    }
-
-    protected finalize(): void {
-      this.mockFinalizeFn();
-    }
-  }
 
   beforeEach(() => {
     // Set up Globals
