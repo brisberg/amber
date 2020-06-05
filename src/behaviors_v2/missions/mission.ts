@@ -34,6 +34,8 @@
  * of each creep in the mission.
  */
 
+import {getMemory, setMemory} from './utils';
+
 
 export interface MissionMemory<M> {
   creeps: string[];      // Names of owned creeps
@@ -55,7 +57,7 @@ export default abstract class Mission<M> {
       colony: roomName,
       data: this.initMemory(),
     };
-    Memory.missions[name] = this.mem;
+    setMemory(this, this.mem);
   }
 
   /**
@@ -63,16 +65,6 @@ export default abstract class Mission<M> {
    * specific data fields.
    */
   protected abstract initMemory(): M;
-
-  /**
-   * Fetch the missions memory from global Memory.
-   *
-   * Warning: Do not modify this object outside mission class. May have
-   * unintended side effects.
-   */
-  public getMemory(): MissionMemory<M> {
-    return Memory.missions[this.name];
-  }
 
   public init(): void {
     throw new Error('Not Implemented');

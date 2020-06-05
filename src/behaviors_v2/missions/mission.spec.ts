@@ -3,6 +3,7 @@ import {WORKER} from 'spawn-system/bodyTypes';
 import {SpawnQueue} from 'spawn-system/spawnQueue';
 
 import Mission, {MissionMemory} from './mission';
+import {getMemory} from './utils';
 
 describe('Abstract Mission', () => {
   let mission: MockMission;
@@ -42,7 +43,7 @@ describe('Abstract Mission', () => {
       const msn = new MockMission('mission-name', 'N1W1');
 
       // Using 'toBe' to ensure they are the same object
-      expect(Memory.missions['mission-name']).toBe(msn.getMemory());
+      expect(Memory.missions['mission-name']).toBe(getMemory(msn));
     });
 
     it('should initialize default mission memory if none exists', () => {
@@ -50,7 +51,7 @@ describe('Abstract Mission', () => {
       const msn = new MockMission('mission-name', 'N1W1');
 
       expect(msn.name).toBe('mission-name');
-      const mem: MissionMemory<MockMissionData> = msn.getMemory();
+      const mem: MissionMemory<MockMissionData> = getMemory(msn);
       expect(mem.creeps).toEqual([]);
       expect(mem.colony).toEqual('N1W1');
       expect(mem.data).toBeDefined();
@@ -68,14 +69,14 @@ describe('Abstract Mission', () => {
       };
       const msn = new MockMission('mission-name', 'N1W1');
 
-      expect(msn.getMemory()).toEqual(existingMemory);
+      expect(getMemory(msn)).toEqual(existingMemory);
     });
 
     it('should initialize custom mission data on initialization', () => {
       mockData = {missionData: 'foobar'};
       const msn = new MockMission('mockMission', 'N1W1');
 
-      const mem: MissionMemory<MockMissionData> = msn.getMemory();
+      const mem: MissionMemory<MockMissionData> = getMemory(msn);
       expect(mem.data).toEqual(mockData);
     });
   });
