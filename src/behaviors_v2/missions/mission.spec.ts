@@ -156,5 +156,29 @@ describe('Abstract Mission', () => {
       expect(global.spawnQueues['N1W1'].requestCreep).not.toHaveBeenCalled();
       expect(global.spawnQueues['Narnia'].requestCreep).toHaveBeenCalled();
     });
+
+    it('should aquire the nextCreep if it exists', () => {
+      const creep = mockInstanceOf<Creep>({name: 'creep1'});
+      spyOn(global.spawnQueues['N1W1'], 'requestCreep')
+          .and.returnValue(creep.name);
+      mockGlobal<Game>('Game', {creeps: {[creep.name]: creep}});
+      mission.rollCall();  // Request a new creep
+
+      mission.rollCall();  // Aquire creep requested last tick
+
+      expect(mission.mockMemory.creeps).toEqual([creep.name]);
+    });
+
+    it('should ignore a nextCreep if it was not spawned', () => {
+      spyOn(global.spawnQueues['N1W1'], 'requestCreep')
+          .and.returnValues('notSpawnedCreep', 'nextCreep');
+      mockGlobal<Game>('Game', {creeps: {}}, true);
+      mission.rollCall();  // Request a new creep
+
+      mission.rollCall();  // Fail to aquire the creep
+
+      expect(mission.mockMemory.creeps).toEqual([]);
+      expect(mission.mockMemory.nextCreep).toEqual('nextCreep');
+    });
   });
 });

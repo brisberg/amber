@@ -83,9 +83,18 @@ export default abstract class Mission<M> {
   }
 
   public rollCall(): void {
+    // Aquire next creep from last tick if it exists
+    if (this.mem.nextCreep && Game.creeps[this.mem.nextCreep]) {
+      // Creep exists, grab it!
+      this.mem.creeps.push(this.mem.nextCreep);
+    } else {
+      // Oh well, remove flag so we can re-request
+      delete this.mem.nextCreep;
+    }
+
     if (this.mem.creeps.length >= this.maxCreeps) return;
 
-    global.spawnQueues[this.SpawnSource].requestCreep({
+    this.mem.nextCreep = global.spawnQueues[this.SpawnSource].requestCreep({
       bodyRatio: this.bodyType,
       priority: 1,
       mission: this.name,
