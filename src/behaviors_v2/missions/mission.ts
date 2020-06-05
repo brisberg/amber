@@ -45,10 +45,7 @@ export interface MissionMemory<M> {
  * of each creep in the mission.
  */
 export default abstract class Mission<M> {
-  private mem: MissionMemory<M>;
-
-  protected abstract maxCreeps: number;
-  protected abstract bodyType: string;
+  protected mem: MissionMemory<M>;
 
   constructor(readonly name: string, roomName: string) {
     this.mem = getMemory(this);
@@ -64,12 +61,23 @@ export default abstract class Mission<M> {
     }
   }
 
+  // ### Abstract Fields #### //
+  protected abstract bodyType: string;
+
   /**
    * Mission specific memory initialization. Sub-classes should set up their
    * specific data fields.
    */
   protected abstract initMemory(): M;
 
+  /**
+   * Mission specific calculation for the maximum number of creeps to hold.
+   */
+  protected abstract get maxCreeps(): number;
+  // #### End Abstract Fields #### //
+
+
+  // #### Public API #### //
   public init(): void {
     throw new Error('Not Implemented');
   }
@@ -81,4 +89,14 @@ export default abstract class Mission<M> {
   public run(): void {
     throw new Error('Not Implemented');
   }
+
+  /**
+   * Overrides the SpawnQueue from which this mission will request Creeps.
+   *
+   * @param source RoomName of Foreign SpawnQueue
+   */
+  public setSpawnSource(source: string): void {
+    this.mem.spawnSource = source;
+  }
+  // #### End Public API #### //
 }
