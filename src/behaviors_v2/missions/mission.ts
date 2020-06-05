@@ -52,9 +52,10 @@ export default abstract class Mission<M> {
   protected abstract bodyType: string;
 
   constructor(readonly name: string, roomName: string) {
-    if (getMemory(this) !== undefined) {
-      this.mem = getMemory(this);
-    } else {
+    this.mem = getMemory(this);
+
+    if (this.mem === undefined) {
+      // No existing memory, initialize default
       this.mem = {
         creeps: [],
         colony: roomName,
