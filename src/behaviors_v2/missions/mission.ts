@@ -64,6 +64,16 @@ export default abstract class Mission<M> {
    */
   protected abstract initMemory(): M;
 
+  /**
+   * Fetch the missions memory from global Memory.
+   *
+   * Warning: Do not modify this object outside mission class. May have
+   * unintended side effects.
+   */
+  public getMemory(): MissionMemory<M> {
+    return Memory.missions[this.name];
+  }
+
   public init(): void {
     throw new Error('Not Implemented');
   }

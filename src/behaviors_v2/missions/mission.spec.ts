@@ -8,6 +8,7 @@ describe('Abstract Mission', () => {
   let mission: MockMission;
   let mockData: MockMissionData;  // Initial mock mission data
 
+  // Fake Implementation Class for Abstract Mission
   interface MockMissionData {
     missionData?: string;  // Arbitrary data pretaining to the mission
   }
@@ -37,13 +38,19 @@ describe('Abstract Mission', () => {
 
   describe('Initialization', () => {
     // Memory initialization
-    it('should initialize Memory with mission memory on initialization', () => {
-      const msn = new MockMission('mockMission', 'N1W1');
+    it('should store mission memory in Memory.missions[name]', () => {
+      const msn = new MockMission('mission-name', 'N1W1');
 
-      expect(msn.name).toBe('mockMission');
-      expect(Memory.missions['mockMission']).toBeDefined();
-      const mem: MissionMemory<MockMissionData> =
-          Memory.missions['mockMission'];
+      // Using 'toBe' to ensure they are the same object
+      expect(Memory.missions['mission-name']).toBe(msn.getMemory());
+    });
+
+    it('should initialize mission memory on initialization', () => {
+      Memory.missions = {};
+      const msn = new MockMission('mission-name', 'N1W1');
+
+      expect(msn.name).toBe('mission-name');
+      const mem: MissionMemory<MockMissionData> = msn.getMemory();
       expect(mem.creeps).toEqual([]);
       expect(mem.colony).toEqual('N1W1');
       expect(mem.data).toBeDefined();
@@ -51,19 +58,19 @@ describe('Abstract Mission', () => {
 
     it('should initialize custom mission data on initialization', () => {
       mockData = {missionData: 'foobar'};
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const msn = new MockMission('mockMission', 'N1W1');
 
-      const mem: MissionMemory<MockMissionData> =
-          Memory.missions['mockMission'];
+      const mem: MissionMemory<MockMissionData> = msn.getMemory();
       expect(mem.data).toEqual(mockData);
     });
   });
 
-  // Spawning Behavior
-  it('should request a new creep when below a full complement', () => {
-    mission.rollCall();
+  describe.skip('Spawning', () => {
+    // Spawning Behavior
+    it('should request a new creep when below a full complement', () => {
+      mission.rollCall();
 
-    expect(global.spawnQueues['N1W1'].requestCreep).toHaveBeenCalled();
+      expect(global.spawnQueues['N1W1'].requestCreep).toHaveBeenCalled();
+    });
   });
 });
