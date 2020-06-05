@@ -1,6 +1,6 @@
 import {mockGlobal, mockInstanceOf} from 'screeps-jest';
 import {WORKER} from 'spawn-system/bodyTypes';
-import {SpawnQueue} from 'spawn-system/spawnQueue';
+import {SpawnQueue, SpawnRequest} from 'spawn-system/spawnQueue';
 
 import Mission, {MissionMemory} from './mission';
 import {getMemory} from './utils';
@@ -17,19 +17,28 @@ describe('Abstract Mission', () => {
   }
 
   class MockMission extends Mission<MockMissionData> {
-    protected maxCreeps = 1;
     protected bodyType = WORKER;
 
+    // Expose internal state
+    public get mockMemory(): MissionMemory<MockMissionData> {
+      return this.mem;
+    }
+
+    // Overwrite these values to mock internal state
+    public mockMaxCreepsFn = (): number => 1;
+
+    // Overrides
     protected initMemory(): MockMissionData {
       return mockData;
+    }
+
+    protected get maxCreeps(): number {
+      return this.mockMaxCreepsFn();
     }
   }
 
   beforeEach(() => {
     // Set up Globals
-    mockGlobal<{[roomname: string]: SpawnQueue}>('spawnQueues', {
-      'N1W1': mockInstanceOf<SpawnQueue>(),
-    });
     mockGlobal<Memory>('Memory', {
       missions: {
         [MISSION_NAME]: undefined,
@@ -38,11 +47,11 @@ describe('Abstract Mission', () => {
 
     // Initialize test variables
     mockData = {};
-    // mission = new MockMission(MISSION_NAME, 'N1W1');
   });
 
   describe('Initialization', () => {
     // Memory initialization
+
     it('should store mission memory in Memory.missions[name]', () => {
       const msn = new MockMission(MISSION_NAME, 'N1W1');
 
@@ -85,10 +94,56 @@ describe('Abstract Mission', () => {
 
   describe.skip('Spawning', () => {
     // Spawning Behavior
+    beforeEach(() => {
+      // Set up Globals
+      mockGlobal<{[roomname: string]: SpawnQueue}>('spawnQueues', {
+        'N1W1': mockInstanceOf<SpawnQueue>(),
+      });
+
+      mission = new MockMission(MISSION_NAME, 'N1W1');
+    });
+
+    it('should not request a new creep when at full capacity', () => {
+      // TODO: replace this with a public AssignCreep Api
+      mission.mockMemory.creeps = ['creep1', 'creep2'];
+      mission.mockMaxCreepsFn = (): number => 2;
+
+      mission.rollCall();
+
+      expect(global.spawnQueues['N1W1'].requestCreep).not.toHaveBeenCalled();
+    });
+
     it('should request a new creep when below a full complement', () => {
+      // TODO: replace this with a public AssignCreep Api
+      mission.mockMemory.creeps = [];
+      mission.mockMaxCreepsFn = (): number => 1;
+
       mission.rollCall();
 
       expect(global.spawnQueues['N1W1'].requestCreep).toHaveBeenCalled();
+    });
+
+    it('should request creeps from foreign spawnSource if set', () => {
+      mockGlobal<{[roomname: string]: SpawnQueue}>('spawnQueues', {
+        'N1W1': mockInstanceOf<SpawnQueue>(),
+        'Narnia': mockInstanceOf<SpawnQueue>(),
+      });
+
+      mission.setSpawnSource('Narnia');
+      mission.rollCall();
+
+      expect(global.spawnQueues['N1W1'].requestCreep).not.toHaveBeenCalled();
+      expect(global.spawnQueues['Narnia'].requestCreep).toHaveBeenCalled();
+    });
+
+    it('should request creeps with the appropriate arguments', () => {
+      const requestCreepSpy = spyOn(global.spawnQueues['N1W1'], 'requestCreep');
+      mission.rollCall();
+
+      const request: SpawnRequest = requestCreepSpy.calls.mostRecent().args[0];
+      expect(request.bodyRatio).toEqual(WORKER);  // From Sub-Class
+      expect(request.priority).toEqual(1);
+      expect(request.mission).toEqual(mission.name);
     });
   });
 });
