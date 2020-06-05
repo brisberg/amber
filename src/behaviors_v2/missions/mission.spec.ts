@@ -93,12 +93,15 @@ describe('Abstract Mission', () => {
         [MISSION_NAME]: undefined,
       },
     });
-
-    // Initialize test variables
-    // mockData = {};
   });
 
   describe('Initialization', () => {
+    it('should construct with a name', () => {
+      const msn = new MockMission(MISSION_NAME);
+
+      expect(msn.name).toBe(MISSION_NAME);
+    });
+
     // Memory initialization
     it('should store mission memory in Memory.missions[name]', () => {
       const msn = new MockMission(MISSION_NAME);
@@ -113,7 +116,6 @@ describe('Abstract Mission', () => {
       const msn = new MockMission(MISSION_NAME);
       msn.init('N1W1', defaultConfig);
 
-      expect(msn.name).toBe(MISSION_NAME);
       const mem: MissionMemory<MockMissionData> = getMemory(msn);
       expect(mem.creeps).toEqual([]);
       expect(mem.colony).toEqual('N1W1');
@@ -134,7 +136,7 @@ describe('Abstract Mission', () => {
       expect(getMemory(msn)).toEqual(existingMemory);
     });
 
-    it('should initialize custom mission data on initialization', () => {
+    it('should initialize custom mission data from config', () => {
       const msn = new MockMission(MISSION_NAME);
       msn.init('N1W1', {mockDataField: 'custom value'});
 
