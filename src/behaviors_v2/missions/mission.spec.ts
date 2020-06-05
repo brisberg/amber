@@ -117,7 +117,7 @@ describe('Abstract Mission', () => {
       expect(global.spawnQueues['N1W1'].requestCreep).not.toHaveBeenCalled();
     });
 
-    it.skip('should request a new creep when below a full complement', () => {
+    it('should request a new creep when below a full complement', () => {
       // TODO: replace this with a public AssignCreep Api
       mission.mockMemory.creeps = [];
       mission.mockMaxCreepsFn = (): number => 1;
@@ -125,6 +125,16 @@ describe('Abstract Mission', () => {
       mission.rollCall();
 
       expect(global.spawnQueues['N1W1'].requestCreep).toHaveBeenCalled();
+    });
+
+    it('should request creeps with the appropriate arguments', () => {
+      const requestCreepSpy = spyOn(global.spawnQueues['N1W1'], 'requestCreep');
+      mission.rollCall();
+
+      const request: SpawnRequest = requestCreepSpy.calls.mostRecent().args[0];
+      expect(request.bodyRatio).toEqual(WORKER);  // From Sub-Class
+      expect(request.priority).toEqual(1);
+      expect(request.mission).toEqual(mission.name);
     });
 
     it.skip('should request creeps from foreign spawnSource if set', () => {
@@ -138,16 +148,6 @@ describe('Abstract Mission', () => {
 
       expect(global.spawnQueues['N1W1'].requestCreep).not.toHaveBeenCalled();
       expect(global.spawnQueues['Narnia'].requestCreep).toHaveBeenCalled();
-    });
-
-    it.skip('should request creeps with the appropriate arguments', () => {
-      const requestCreepSpy = spyOn(global.spawnQueues['N1W1'], 'requestCreep');
-      mission.rollCall();
-
-      const request: SpawnRequest = requestCreepSpy.calls.mostRecent().args[0];
-      expect(request.bodyRatio).toEqual(WORKER);  // From Sub-Class
-      expect(request.priority).toEqual(1);
-      expect(request.mission).toEqual(mission.name);
     });
   });
 });

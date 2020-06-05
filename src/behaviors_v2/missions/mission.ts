@@ -84,6 +84,12 @@ export default abstract class Mission<M> {
 
   public rollCall(): void {
     if (this.mem.creeps.length >= this.maxCreeps) return;
+
+    global.spawnQueues[this.mem.colony].requestCreep({
+      bodyRatio: this.bodyType,
+      priority: 1,
+      mission: this.name,
+    });
   }
 
   public run(): void {
