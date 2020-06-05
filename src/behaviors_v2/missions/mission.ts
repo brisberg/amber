@@ -35,18 +35,34 @@
  */
 
 
-export interface MissionMemory {
+export interface MissionMemory<M> {
   creeps: string[];      // Names of owned creeps
-  nextCreep: string;     // Name of possible next creep
+  nextCreep?: string;    // Name of possible next creep
   spawnSource?: string;  // Optional name of foreign SpawnQueue
+  colony: string;        // WIP Roomname of host colony
+  data: M;               // Mission specific data fields
 }
 
-export abstract class Mission<M extends MissionMemory> {
-  protected abstract maxCreeps: number;
+export default abstract class Mission<M> {
+  private mem: MissionMemory<M>;
 
+  protected abstract maxCreeps: number;
   protected abstract bodyType: string;
 
-  constructor(readonly name: string) {}
+  constructor(readonly name: string, roomName: string) {
+    this.mem = {
+      creeps: [],
+      colony: roomName,
+      data: this.initMemory(),
+    };
+    Memory.missions[name] = this.mem;
+  }
+
+  /**
+   * Mission specific memory initialization. Sub-classes should set up their
+   * specific data fields.
+   */
+  protected abstract initMemory(): M;
 
   public init(): void {
     throw new Error('Not Implemented');
