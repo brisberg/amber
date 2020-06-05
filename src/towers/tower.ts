@@ -39,11 +39,17 @@ export class TowerBehavior {
 
     // Scan for damaged structures every 100 ticks
     if (Game.time % 100 === 0) {
+      const lookRanges = [
+        Math.max(tower.pos.y - 7, 1),
+        Math.max(tower.pos.x - 7, 1),
+        Math.min(tower.pos.y + 7, 49),
+        Math.min(tower.pos.x + 7, 49),
+      ];
       const structs =
           tower.room
               .lookForAtArea(
-                  LOOK_STRUCTURES, tower.pos.y - 7, tower.pos.x - 7,
-                  tower.pos.y + 7, tower.pos.x + 7, true)
+                  LOOK_STRUCTURES, lookRanges[0], lookRanges[1], lookRanges[2],
+                  lookRanges[3], true)
               .map((result) => result.structure)
               .filter((struct) => struct.structureType !== STRUCTURE_WALL);
       const damaged = structs.filter(
