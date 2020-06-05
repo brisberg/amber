@@ -1,3 +1,14 @@
+import {getMemory, setMemory} from './utils';
+
+
+export interface MissionMemory<M> {
+  creeps: string[];      // Names of owned creeps
+  nextCreep?: string;    // Name of possible next creep
+  spawnSource?: string;  // Optional name of foreign SpawnQueue
+  colony: string;        // WIP Roomname of host colony
+  data: M;               // Mission specific data fields
+}
+
 /**
  * Abstract Mission base class all other missions with inherit from.
  *
@@ -33,18 +44,6 @@
  * Executes the action steps for this mission, setting or resetting the behavior
  * of each creep in the mission.
  */
-
-import {getMemory, setMemory} from './utils';
-
-
-export interface MissionMemory<M> {
-  creeps: string[];      // Names of owned creeps
-  nextCreep?: string;    // Name of possible next creep
-  spawnSource?: string;  // Optional name of foreign SpawnQueue
-  colony: string;        // WIP Roomname of host colony
-  data: M;               // Mission specific data fields
-}
-
 export default abstract class Mission<M> {
   private mem: MissionMemory<M>;
 
