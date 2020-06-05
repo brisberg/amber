@@ -170,6 +170,11 @@ export default abstract class Mission<M, C> {
   public setSpawnSource(source: string): void {
     this.mem.spawnSource = source;
   }
+
+  public assignCreep(creep: Creep): void {
+    // TODO: validate the creep has needed parts?
+    this.mem.creeps.push(creep.name);
+  }
   // #### End Public API #### //
 
   private get SpawnSource(): string {

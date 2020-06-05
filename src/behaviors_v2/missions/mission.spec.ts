@@ -4,13 +4,13 @@ import {SpawnQueue, SpawnRequest} from 'spawn-system/spawnQueue';
 
 import {MissionMemory} from './mission';
 import MockMission,
-{MockMissionConfig, MockMissionData} from './mission-mock.spec';
+{MockMissionConfig, MockMissionData} from './testing/mission-mock';
 import {getMemory} from './utils';
 
 const MISSION_NAME = 'mission-name';
 
 /** Utility to create a minimum mock instance of a Spawn Queue. */
-function mockSpawnQueueInstance(): SpawnQueue {
+export function mockSpawnQueueInstance(): SpawnQueue {
   return mockInstanceOf<SpawnQueue>({
     requestCreep: (): void => {
       return;
@@ -105,8 +105,10 @@ describe('Abstract Mission', () => {
     });
 
     it('should not request a new creep when at full capacity', () => {
-      // TODO: replace this with a public AssignCreep Api
-      mission.mockMemory.creeps = ['creep1', 'creep2'];
+      const creep1 = mockInstanceOf<Creep>({name: 'creep1'});
+      const creep2 = mockInstanceOf<Creep>({name: 'creep2'});
+      mission.assignCreep(creep1);
+      mission.assignCreep(creep2);
       mission.mockMaxCreepsFn = (): number => 2;
 
       mission.rollCall();
@@ -115,8 +117,6 @@ describe('Abstract Mission', () => {
     });
 
     it('should request a new creep when below a full complement', () => {
-      // TODO: replace this with a public AssignCreep Api
-      mission.mockMemory.creeps = [];
       mission.mockMaxCreepsFn = (): number => 1;
 
       mission.rollCall();

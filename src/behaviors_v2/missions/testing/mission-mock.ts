@@ -1,6 +1,6 @@
 import {WORKER} from 'spawn-system/bodyTypes';
 
-import Mission, {MissionMemory} from './mission';
+import Mission, {MissionMemory} from '../mission';
 
 /**
  * Fake Implementation Class for Abstract Mission
