@@ -45,7 +45,7 @@ describe('Abstract Mission', () => {
       expect(Memory.missions['mission-name']).toBe(msn.getMemory());
     });
 
-    it('should initialize mission memory on initialization', () => {
+    it('should initialize default mission memory if none exists', () => {
       Memory.missions = {};
       const msn = new MockMission('mission-name', 'N1W1');
 
@@ -54,6 +54,21 @@ describe('Abstract Mission', () => {
       expect(mem.creeps).toEqual([]);
       expect(mem.colony).toEqual('N1W1');
       expect(mem.data).toBeDefined();
+    });
+
+    // Happens when reinitialized after a Global refresh
+    it('should reuse existing mission memory if it exists', () => {
+      const existingMemory: MissionMemory<MockMissionData> = {
+        creeps: ['creep1'],
+        colony: 'Wisteria',
+        data: {missionData: 'Hyacinth'},
+      };
+      Memory.missions = {
+        'mission-name': existingMemory,
+      };
+      const msn = new MockMission('mission-name', 'N1W1');
+
+      expect(msn.getMemory()).toEqual(existingMemory);
     });
 
     it('should initialize custom mission data on initialization', () => {
