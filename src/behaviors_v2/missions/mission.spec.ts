@@ -198,21 +198,38 @@ describe('Abstract Mission', () => {
 
   describe('Run', () => {
     it('should call sub-class actions when run', () => {
-      const msn = new MockMission(MISSION_NAME, 'N1W1');
+      mission = new MockMission(MISSION_NAME, 'N1W1');
 
-      msn.run();
+      mission.run();
 
-      expect(msn.mockCreepActionsFn).toHaveBeenCalled();
+      expect(mission.mockCreepActionsFn).toHaveBeenCalled();
     });
   });
 
   describe('Retire', () => {
+    beforeEach(() => {
+      // Allow undefined because memory may be cleared
+      mockGlobal<Memory>('Memory', {missions: {}}, true);
+      mission = new MockMission(MISSION_NAME, 'N1W1');
+    });
+
     it('should call sub-class finalize when retired', () => {
-      const msn = new MockMission(MISSION_NAME, 'N1W1');
+      mission.retire();
 
-      msn.retire();
+      expect(mission.mockFinalizeFn).toHaveBeenCalled();
+    });
 
-      expect(msn.mockFinalizeFn).toHaveBeenCalled();
+    it('should clear mission memory', () => {
+      mission.retire();
+
+      expect(getMemory(mission)).toBeUndefined();
+    });
+
+    it.skip('should release all of the missions creeps', () => {
+      mission.retire();
+
+      // TODO:
+      // expect(mission.creeps).toBeReleased()
     });
   });
 });

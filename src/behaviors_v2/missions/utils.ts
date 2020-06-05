@@ -6,8 +6,6 @@ import Mission, {MissionMemory} from './mission';
 /**
  * Fetch the missions memory from global Memory.
  *
- * Exported for testing only.
- *
  * @param msn Mission object
  */
 export function getMemory<M>(msn: Mission<M>): MissionMemory<M> {
@@ -17,11 +15,18 @@ export function getMemory<M>(msn: Mission<M>): MissionMemory<M> {
 /**
  * Saves the given MissionMemory into the given Mission.
  *
- * Exported for testing only.
- *
  * @param msn Mission object
  * @param mem New Memory
  */
 export function setMemory<M>(msn: Mission<M>, mem: MissionMemory<M>): void {
   Memory.missions[msn.name] = mem;
+}
+
+/**
+ * Delete the missions memory from global Memory.
+ *
+ * @param msn Mission object
+ */
+export function deleteMemory(msn: Mission<{}>): void {
+  delete Memory.missions[msn.name];
 }

@@ -1,4 +1,4 @@
-import {getMemory, setMemory} from './utils';
+import {deleteMemory, getMemory, setMemory} from './utils';
 
 
 export interface MissionMemory<M> {
@@ -122,6 +122,8 @@ export default abstract class Mission<M> {
    */
   public retire(): void {
     this.finalize();
+
+    deleteMemory(this);
   }
 
   /**
