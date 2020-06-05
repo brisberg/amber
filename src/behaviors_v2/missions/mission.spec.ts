@@ -7,6 +7,15 @@ import {getMemory} from './utils';
 
 const MISSION_NAME = 'mission-name';
 
+/** Utility to create a minimum mock instance of a Spawn Queue. */
+function mockSpawnQueueInstance(): SpawnQueue {
+  return mockInstanceOf<SpawnQueue>({
+    requestCreep: (): void => {
+      return;
+    },
+  });
+}
+
 describe('Abstract Mission', () => {
   let mission: MockMission;
   let mockData: MockMissionData;  // Initial mock mission data
@@ -19,15 +28,17 @@ describe('Abstract Mission', () => {
   class MockMission extends Mission<MockMissionData> {
     protected bodyType = WORKER;
 
-    // Expose internal state
+    // Expose internal state TODO: remove this?
     public get mockMemory(): MissionMemory<MockMissionData> {
       return this.mem;
     }
 
+
     // Overwrite these values to mock internal state
     public mockMaxCreepsFn = (): number => 1;
 
-    // Overrides
+
+    // Abstract Overrides
     protected initMemory(): MockMissionData {
       return mockData;
     }
@@ -97,11 +108,7 @@ describe('Abstract Mission', () => {
     beforeEach(() => {
       // Set up Globals
       mockGlobal<{[roomname: string]: SpawnQueue}>('spawnQueues', {
-        'N1W1': mockInstanceOf<SpawnQueue>({
-          requestCreep: (): void => {
-            return;
-          },
-        }),
+        'N1W1': mockSpawnQueueInstance(),
       });
 
       mission = new MockMission(MISSION_NAME, 'N1W1');
@@ -137,10 +144,10 @@ describe('Abstract Mission', () => {
       expect(request.mission).toEqual(mission.name);
     });
 
-    it.skip('should request creeps from foreign spawnSource if set', () => {
+    it('should request creeps from foreign spawnSource if set', () => {
       mockGlobal<{[roomname: string]: SpawnQueue}>('spawnQueues', {
-        'N1W1': mockInstanceOf<SpawnQueue>(),
-        'Narnia': mockInstanceOf<SpawnQueue>(),
+        'N1W1': mockSpawnQueueInstance(),
+        'Narnia': mockSpawnQueueInstance(),
       });
 
       mission.setSpawnSource('Narnia');

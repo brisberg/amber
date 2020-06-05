@@ -85,7 +85,7 @@ export default abstract class Mission<M> {
   public rollCall(): void {
     if (this.mem.creeps.length >= this.maxCreeps) return;
 
-    global.spawnQueues[this.mem.colony].requestCreep({
+    global.spawnQueues[this.SpawnSource].requestCreep({
       bodyRatio: this.bodyType,
       priority: 1,
       mission: this.name,
@@ -105,4 +105,8 @@ export default abstract class Mission<M> {
     this.mem.spawnSource = source;
   }
   // #### End Public API #### //
+
+  private get SpawnSource(): string {
+    return this.mem.spawnSource || this.mem.colony;
+  }
 }
