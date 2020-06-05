@@ -11,10 +11,20 @@ interface SingleHarvestMsnData {
  *
  * If the position contains a container, the creep will repair it when damaged.
  */
-export default class SingleHarvestMsn extends Mission<SingleHarvestMsnData> {
+export default class SingleHarvestMsn extends
+    Mission<SingleHarvestMsnData, {}> {
   private source: Source|null = null;
 
   protected bodyType = WORKER;
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected initialize(config: {}): void {
+    throw new Error('Method not implemented.');
+  }
+
+  protected reconcile(): void {
+    throw new Error('Method not implemented.');
+  }
 
   protected initMemory(): SingleHarvestMsnData {
     throw new Error('Method not implemented.');

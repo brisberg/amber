@@ -43,32 +43,31 @@ export interface MissionMemory<M> {
  *
  * Executes the action steps for this mission, setting or resetting the behavior
  * of each creep in the mission.
+ *
+ * Generic type M is the specialized memory data type for this mission.
+ * Generic type C is the configuration type for this mission.
  */
-export default abstract class Mission<M> {
+export default abstract class Mission<M, C> {
   protected mem: MissionMemory<M>;
 
-  constructor(readonly name: string, roomName: string) {
+  constructor(readonly name: string) {
     this.mem = getMemory(this);
-
-    if (this.mem === undefined) {
-      // No existing memory, initialize default
-      this.mem = {
-        creeps: [],
-        colony: roomName,
-        data: this.initMemory(),
-      };
-      setMemory(this, this.mem);
-    }
   }
 
   // ### Abstract Fields #### //
+  /** BodyRatio of creeps used by this mission. */
   protected abstract bodyType: string;
+
+  /** Mission specific initializer to set up initial memory/config */
+  protected abstract initialize(config: C): void;
+  /** Mission specific handler to update GameObject references each tick. */
+  protected abstract reconcile(): void;
 
   /**
    * Mission specific memory initialization. Sub-classes should set up their
    * specific data fields.
    */
-  protected abstract initMemory(): M;
+  protected abstract initMemory(config: C): M;
 
   /**
    * Mission specific calculation for the maximum number of creeps to hold.
@@ -88,7 +87,44 @@ export default abstract class Mission<M> {
 
 
   // #### Public API #### //
-  public init(): void {
+  /**
+   * Initializes this mission.
+   *
+   * Validates that there is not a duplicate mission in the Global Registry.
+   *    If not, returns null to void the mission
+   * Registers the mission in the registry
+   * Formats initial Mission Memory
+   * Runs sub-class initializer
+   * Refreshes specialized mission state.
+   *
+   * Returns the initialized Mission object so missions can be spawned:
+   * const msn = new Mission(...).init('room', {config});
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public init(roomName: string, config: C): this|null {
+    this.mem = getMemory(this);
+
+    if (this.mem === undefined) {
+      // No existing memory, initialize default
+      this.mem = {
+        creeps: [],
+        colony: roomName,
+        data: this.initMemory(config),
+      };
+      setMemory(this, this.mem);
+    }
+
+    this.initialize(config);
+
+    return this;
+  }
+
+  /**
+   * Refreshes the mission based on the world state this tick.
+   *
+   * Reaquires fresh references to GameObjects needed by the mission.
+   */
+  public refresh(): void {
     throw new Error('Not Implemented');
   }
 

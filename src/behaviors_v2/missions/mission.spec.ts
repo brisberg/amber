@@ -18,14 +18,20 @@ function mockSpawnQueueInstance(): SpawnQueue {
 
 describe('Abstract Mission', () => {
   let mission: MockMission;
-  let mockData: MockMissionData;  // Initial mock mission data
+  const defaultConfig: MockMissionConfig = {
+    mockDataField: 'foobar',
+  };
 
   // Fake Implementation Class for Abstract Mission
   interface MockMissionData {
-    missionData?: string;  // Arbitrary data pretaining to the mission
+    mockDataField?: string;  // Arbitrary data pretaining to the mission
   }
 
-  class MockMission extends Mission<MockMissionData> {
+  interface MockMissionConfig {
+    mockDataField: string;
+  }
+
+  class MockMission extends Mission<MockMissionData, MockMissionConfig> {
     protected bodyType = WORKER;
 
     // Expose internal state TODO: remove this?
@@ -35,18 +41,36 @@ describe('Abstract Mission', () => {
 
 
     // Overwrite these values to mock internal state
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    public mockInitializeFn = (config: {}): void => {
+      return;
+    };
+    public mockReconcileFn = (): void => {
+      return;
+    };
     public mockMaxCreepsFn = (): number => 1;
-    public mockCreepActionsFn = jest.fn((): void => {
+    public mockCreepActionsFn = (): void => {
       return;
-    });
-    public mockFinalizeFn = jest.fn((): void => {
+    };
+    public mockFinalizeFn = (): void => {
       return;
-    });
+    };
 
 
     // Abstract Overrides
-    protected initMemory(): MockMissionData {
-      return mockData;
+    protected initialize(config: {}): this {
+      this.mockInitializeFn(config);
+      return this;
+    }
+
+    protected reconcile(): void {
+      this.mockReconcileFn();
+    }
+
+    protected initMemory(config: MockMissionConfig): MockMissionData {
+      return {
+        mockDataField: config.mockDataField,
+      };
     }
 
     protected get maxCreeps(): number {
@@ -71,14 +95,14 @@ describe('Abstract Mission', () => {
     });
 
     // Initialize test variables
-    mockData = {};
+    // mockData = {};
   });
 
   describe('Initialization', () => {
     // Memory initialization
-
     it('should store mission memory in Memory.missions[name]', () => {
-      const msn = new MockMission(MISSION_NAME, 'N1W1');
+      const msn = new MockMission(MISSION_NAME);
+      msn.init('N1W1', defaultConfig);
 
       // Using 'toBe' to ensure they are the same object
       expect(Memory.missions[MISSION_NAME]).toBe(getMemory(msn));
@@ -86,7 +110,8 @@ describe('Abstract Mission', () => {
 
     it('should initialize default mission memory if none exists', () => {
       Memory.missions = {};
-      const msn = new MockMission(MISSION_NAME, 'N1W1');
+      const msn = new MockMission(MISSION_NAME);
+      msn.init('N1W1', defaultConfig);
 
       expect(msn.name).toBe(MISSION_NAME);
       const mem: MissionMemory<MockMissionData> = getMemory(msn);
@@ -100,20 +125,30 @@ describe('Abstract Mission', () => {
       const existingMemory: MissionMemory<MockMissionData> = {
         creeps: ['creep1'],
         colony: 'Wisteria',
-        data: {missionData: 'Hyacinth'},
+        data: {mockDataField: 'Hyacinth'},
       };
       Memory.missions[MISSION_NAME] = existingMemory;
-      const msn = new MockMission(MISSION_NAME, 'N1W1');
+      const msn = new MockMission(MISSION_NAME);
+      msn.init('N1W1', defaultConfig);
 
       expect(getMemory(msn)).toEqual(existingMemory);
     });
 
     it('should initialize custom mission data on initialization', () => {
-      mockData = {missionData: 'foobar'};
-      const msn = new MockMission(MISSION_NAME, 'N1W1');
+      const msn = new MockMission(MISSION_NAME);
+      msn.init('N1W1', {mockDataField: 'custom value'});
 
       const mem: MissionMemory<MockMissionData> = getMemory(msn);
-      expect(mem.data).toEqual(mockData);
+      expect(mem.data.mockDataField).toEqual('custom value');
+    });
+
+    it('should run sub-class initializer', () => {
+      const config: MockMissionConfig = {mockDataField: 'barbaz'};
+      const msn = new MockMission(MISSION_NAME);
+      msn.mockInitializeFn = jest.fn();
+      msn.init('N1W1', config);
+
+      expect(msn.mockInitializeFn).toHaveBeenCalledWith(config);
     });
   });
 
@@ -125,7 +160,8 @@ describe('Abstract Mission', () => {
         'N1W1': mockSpawnQueueInstance(),
       });
 
-      mission = new MockMission(MISSION_NAME, 'N1W1');
+      mission = new MockMission(MISSION_NAME);
+      mission.init('N1W1', defaultConfig);
     });
 
     it('should not request a new creep when at full capacity', () => {
@@ -198,7 +234,9 @@ describe('Abstract Mission', () => {
 
   describe('Run', () => {
     it('should call sub-class actions when run', () => {
-      mission = new MockMission(MISSION_NAME, 'N1W1');
+      mission = new MockMission(MISSION_NAME);
+      mission.mockCreepActionsFn = jest.fn();
+      mission.init('N1W1', defaultConfig);
 
       mission.run();
 
@@ -210,10 +248,12 @@ describe('Abstract Mission', () => {
     beforeEach(() => {
       // Allow undefined because memory may be cleared
       mockGlobal<Memory>('Memory', {missions: {}}, true);
-      mission = new MockMission(MISSION_NAME, 'N1W1');
+      mission = new MockMission(MISSION_NAME);
+      mission.init('N1W1', defaultConfig);
     });
 
     it('should call sub-class finalize when retired', () => {
+      mission.mockFinalizeFn = jest.fn();
       mission.retire();
 
       expect(mission.mockFinalizeFn).toHaveBeenCalled();

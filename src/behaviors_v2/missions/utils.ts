@@ -8,7 +8,7 @@ import Mission, {MissionMemory} from './mission';
  *
  * @param msn Mission object
  */
-export function getMemory<M>(msn: Mission<M>): MissionMemory<M> {
+export function getMemory<M>(msn: Mission<M, unknown>): MissionMemory<M> {
   return Memory.missions[msn.name];
 }
 
@@ -18,7 +18,8 @@ export function getMemory<M>(msn: Mission<M>): MissionMemory<M> {
  * @param msn Mission object
  * @param mem New Memory
  */
-export function setMemory<M>(msn: Mission<M>, mem: MissionMemory<M>): void {
+export function setMemory<M>(
+    msn: Mission<M, unknown>, mem: MissionMemory<M>): void {
   Memory.missions[msn.name] = mem;
 }
 
@@ -27,6 +28,6 @@ export function setMemory<M>(msn: Mission<M>, mem: MissionMemory<M>): void {
  *
  * @param msn Mission object
  */
-export function deleteMemory(msn: Mission<{}>): void {
+export function deleteMemory(msn: Mission<{}, unknown>): void {
   delete Memory.missions[msn.name];
 }
