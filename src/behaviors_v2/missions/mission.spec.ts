@@ -92,12 +92,16 @@ describe('Abstract Mission', () => {
     });
   });
 
-  describe.skip('Spawning', () => {
+  describe('Spawning', () => {
     // Spawning Behavior
     beforeEach(() => {
       // Set up Globals
       mockGlobal<{[roomname: string]: SpawnQueue}>('spawnQueues', {
-        'N1W1': mockInstanceOf<SpawnQueue>(),
+        'N1W1': mockInstanceOf<SpawnQueue>({
+          requestCreep: (): void => {
+            return;
+          },
+        }),
       });
 
       mission = new MockMission(MISSION_NAME, 'N1W1');
@@ -113,7 +117,7 @@ describe('Abstract Mission', () => {
       expect(global.spawnQueues['N1W1'].requestCreep).not.toHaveBeenCalled();
     });
 
-    it('should request a new creep when below a full complement', () => {
+    it.skip('should request a new creep when below a full complement', () => {
       // TODO: replace this with a public AssignCreep Api
       mission.mockMemory.creeps = [];
       mission.mockMaxCreepsFn = (): number => 1;
@@ -123,7 +127,7 @@ describe('Abstract Mission', () => {
       expect(global.spawnQueues['N1W1'].requestCreep).toHaveBeenCalled();
     });
 
-    it('should request creeps from foreign spawnSource if set', () => {
+    it.skip('should request creeps from foreign spawnSource if set', () => {
       mockGlobal<{[roomname: string]: SpawnQueue}>('spawnQueues', {
         'N1W1': mockInstanceOf<SpawnQueue>(),
         'Narnia': mockInstanceOf<SpawnQueue>(),
@@ -136,7 +140,7 @@ describe('Abstract Mission', () => {
       expect(global.spawnQueues['Narnia'].requestCreep).toHaveBeenCalled();
     });
 
-    it('should request creeps with the appropriate arguments', () => {
+    it.skip('should request creeps with the appropriate arguments', () => {
       const requestCreepSpy = spyOn(global.spawnQueues['N1W1'], 'requestCreep');
       mission.rollCall();
 

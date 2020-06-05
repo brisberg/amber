@@ -83,7 +83,7 @@ export default abstract class Mission<M> {
   }
 
   public rollCall(): void {
-    throw new Error('Not Implemented');
+    if (this.mem.creeps.length >= this.maxCreeps) return;
   }
 
   public run(): void {
