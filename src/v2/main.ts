@@ -1,41 +1,23 @@
 import {SpawnQueue} from 'spawn-system/spawnQueue';
 
-import {Behavior, getBehaviorMemory} from './behaviors/behavior';
-import HarvestBehavior from './behaviors/harvest';
-import PickupBehavior from './behaviors/pickup';
-import RelieveBehavior from './behaviors/relieve';
+import {getBehaviorMemory} from './behaviors/behavior';
+import {setupGlobal} from './global';
 import {PickupMission} from './missions/logistics/pickup-mission';
 import {HarvestMission} from './missions/mining/harvest-mission';
 
-const harvest = new HarvestBehavior();
-const relieve = new RelieveBehavior();
-const pickup = new PickupBehavior();
-
-const behaviors: {[name: string]: Behavior} = {
-  'harvest': harvest,
-  'relieve': relieve,
-  'pickup': pickup,
-};
-
-if (!global.cc) {
-  global.cc = {};
-  global.cc.spawnMiner = (): void => {
-    const spawn = Game.spawns.Spawn1;
-    const source = spawn.room.find(FIND_SOURCES)[0];
-    spawn.spawnCreep([WORK, CARRY, MOVE], 'miner1', {
-      memory: {
-        mission: '',
-        bodyRatio: '',
-        behavior: '',
-        mem: behaviors['harvest'].new(source, {}),
-      },
-    });
-  };
+function formatMemory(): void {
+  if (!Memory.missions) {
+    Memory.missions = {};
+  }
 }
 
-if (!Memory.missions) {
-  Memory.missions = {};
-}
+console.log('Amber AI');
+console.log('Initializing...');
+console.log(' - Setting up Global');
+setupGlobal();
+console.log(' - Formatting Memory');
+formatMemory();
+console.log('...Done');
 
 export const loop = (): void => {
   // Init the simulation spawn queue
@@ -84,7 +66,7 @@ export const loop = (): void => {
 
       const mem = getBehaviorMemory(creep);
       if (mem && mem.name) {
-        const behavior = behaviors[mem.name];
+        const behavior = global.behaviorsMap[mem.name];
         if (behavior) {
           behavior.run(creep);
         }

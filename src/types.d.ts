@@ -29,6 +29,8 @@ declare namespace NodeJS {
   interface Global {
     // Global creep behavior registry
     behaviors: import('./behaviors').BehaviorMap;
+    // v2 Behavior Registry
+    behaviorsMap: {[name: string]: import('./v2/behaviors/behavior').Behavior};
     // Global tower behavior registry
     tower: import('./towers/tower').TowerBehavior;
     // Global mission behavior registry
