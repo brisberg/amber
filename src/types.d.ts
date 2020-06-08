@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
 // Memory Extensions for Amber
 interface CreepMemory {
   mission: string|null;
@@ -32,6 +33,8 @@ declare namespace NodeJS {
     tower: import('./towers/tower').TowerBehavior;
     // Global mission behavior registry
     missions: import('./missions').MissionMap;
+    // v2 Registry
+    msnRegistry: import('./behaviors_v2/missions/registry').MissionRegistry;
     // Global operation behavior registry
     operations: import('./operations').OperationMap;
     // Global Spawn Queue instances

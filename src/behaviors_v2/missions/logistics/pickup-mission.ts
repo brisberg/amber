@@ -1,8 +1,8 @@
 import {HAULER} from 'spawn-system/bodyTypes';
 
-import {Mission, MissionMemory} from '../../missions/mission';
+import {Mission, MissionMemory} from '../../../missions/mission';
 
-import PickupBehavior from '../behaviors/pickup';
+import PickupBehavior from '../../behaviors/pickup';
 
 interface PickupMemory extends MissionMemory {
   resID: Id<Resource>|null;

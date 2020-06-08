@@ -1,9 +1,9 @@
 import {WORKER, zeroRatio} from 'spawn-system/bodyTypes';
 
-import {Mission, MissionMemory} from '../../missions/mission';
+import {Mission, MissionMemory} from '../../../missions/mission';
 
-import HarvestBehavior from '../behaviors/harvest';
-import RelieveBehavior from '../behaviors/relieve';
+import HarvestBehavior from '../../behaviors/harvest';
+import RelieveBehavior from '../../behaviors/relieve';
 
 interface HarvestMemory extends MissionMemory {
   sourceID: Id<Source>|null;

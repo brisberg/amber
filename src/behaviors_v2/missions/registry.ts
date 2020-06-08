@@ -7,7 +7,7 @@ import Mission from './mission';
  * It is stored on the global scope, meaning it will persist between ticks to
  * avoid rebuilding the Mission Objects.
  */
-export default class MissionRegistry {
+export class MissionRegistry {
   private missionMap: {[name: string]: Mission} = {}
 
   /**
