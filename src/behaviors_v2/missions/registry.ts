@@ -1,3 +1,4 @@
+import {constructMissionFromFlag} from '.';
 import Mission from './mission';
 
 /**
@@ -14,9 +15,18 @@ export class MissionRegistry {
    * Initialize the Mission Registry from scratch.
    *
    * Usually called after a Global Reset
+   * @param flags List of Flags to initialize missions
    */
-  public init(): void {
-    throw new Error('Unimplemented');
+  public init(flags: Flag[]): void {
+    this.missionMap = {};
+
+    flags.forEach((flag) => {
+      const msn = constructMissionFromFlag(flag);
+
+      if (msn) {
+        this.register(msn);
+      }
+    });
   }
 
   /**
@@ -31,15 +41,23 @@ export class MissionRegistry {
    * @param mission Mission to register
    */
   public register(mission: Mission): Mission {
-    throw new Error('Unimplemented');
+    this.missionMap[mission.name] = mission;
+    return mission;
   }
 
   /** Removes the specified Mission or mission name from the Global Registry */
   public unregister(msnOrName: Mission|string): boolean {
-    throw new Error('Unimplemented');
+    const key = msnOrName instanceof Mission ? msnOrName.name : msnOrName;
+
+    if (this.missionMap[key]) {
+      delete this.missionMap[key];
+      return true;
+    }
+
+    return false;
   }
 
   public get(name: string): Mission|null {
-    throw new Error('Unimplemented');
+    return this.missionMap[name] || null;
   }
 }

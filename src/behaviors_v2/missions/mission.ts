@@ -102,8 +102,6 @@ export default abstract class Mission<M = {}, C = {}> {
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public init(roomName: string, config: C): this|null {
-    this.mem = getMemory(this);
-
     if (this.mem === undefined) {
       // No existing memory, initialize default
       this.mem = {
