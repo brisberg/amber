@@ -96,4 +96,16 @@ describe('Mission Registry', () => {
       expect(result).toBeFalsy();
     });
   });
+
+  describe('List', () => {
+    it('should return an empty array if Registry is empty', () => {
+      expect(registry.list()).toEqual([]);
+    });
+
+    it('should return an array of all Missions registered', () => {
+      registry.register(msn);
+
+      expect(registry.list()).toEqual([msn]);
+    });
+  });
 });

@@ -59,7 +59,13 @@ export class MissionRegistry {
     return false;
   }
 
+  /** Returns a specific Mission by name. Null if not registered */
   public get(name: string): Mission|null {
     return this.missionMap[name] || null;
+  }
+
+  /** Returns a list of all Missions registered */
+  public list(): Mission[] {
+    return Object.values(this.missionMap);
   }
 }
