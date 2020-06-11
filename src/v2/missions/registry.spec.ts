@@ -1,4 +1,4 @@
-import {mockGlobal, mockInstanceOf} from 'screeps-jest';
+import {mockGlobal} from 'screeps-jest';
 
 import Mission from './mission';
 import {MissionRegistry} from './registry';
@@ -18,26 +18,20 @@ describe('Mission Registry', () => {
     msn = new MockMission(MISSION_NAME);
   });
 
-  it('should initialize missions from existing flags', () => {
-    const flags = [
-      mockInstanceOf<Flag>({
-        name: 'msn-flag-1',
-        color: COLOR_BROWN,
-        secondaryColor: COLOR_BROWN,
-      }),
-      mockInstanceOf<Flag>({
-        name: 'msn-flag-2',
-        color: COLOR_BROWN,
-        secondaryColor: COLOR_BROWN,
-      }),
-    ];
+  it('should initialize missions from existing mission memorys', () => {
+    mockGlobal<Memory>('Memory', {
+      missions: {
+        'msn1': {type: MockMission.name},
+        'msn2': {type: MockMission.name},
+      },
+    });
 
-    registry.init(flags);
+    registry.init();
 
-    const msn1 = registry.get('msn-flag-1');
+    const msn1 = registry.get('msn1');
     expect(msn1).toBeDefined();
     expect(msn1 instanceof MockMission).toBeTruthy();
-    const msn2 = registry.get('msn-flag-2');
+    const msn2 = registry.get('msn2');
     expect(msn2).toBeDefined();
     expect(msn2 instanceof MockMission).toBeTruthy();
   });

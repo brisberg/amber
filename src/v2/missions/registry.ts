@@ -1,4 +1,4 @@
-import {constructMissionFromFlag} from '.';
+import {constructMissionFromType} from '.';
 import Mission from './mission';
 
 /**
@@ -15,18 +15,20 @@ export class MissionRegistry {
    * Initialize the Mission Registry from scratch.
    *
    * Usually called after a Global Reset
-   * @param flags List of Flags to initialize missions
    */
-  public init(flags: Flag[]): void {
+  public init(): void {
     this.missionMap = {};
 
-    flags.forEach((flag) => {
-      const msn = constructMissionFromFlag(flag);
+    for (const name in Memory.missions) {
+      if ({}.hasOwnProperty.call(Memory.missions, name)) {
+        const mem = Memory.missions[name];
+        const msn = constructMissionFromType(mem.type, name);
 
-      if (msn) {
-        this.register(msn);
+        if (msn) {
+          this.register(msn);
+        }
       }
-    });
+    };
   }
 
   /**

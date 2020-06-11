@@ -55,6 +55,8 @@ describe('Abstract Mission', () => {
       msn.init('N1W1', defaultConfig);
 
       const mem: MissionMemory<MockMissionData> = getMemory(msn);
+      // TODO: May not work well with property renaming
+      expect(mem.type).toEqual(MockMission.name);
       expect(mem.creeps).toEqual([]);
       expect(mem.colony).toEqual('N1W1');
       expect(mem.data).toBeDefined();
@@ -63,6 +65,7 @@ describe('Abstract Mission', () => {
     // Happens when reinitialized after a Global refresh
     it('should reuse existing mission memory if it exists', () => {
       const existingMemory: MissionMemory<MockMissionData> = {
+        type: MockMission.name,
         creeps: ['creep1'],
         colony: 'Wisteria',
         data: {mockDataField: 'Hyacinth'},

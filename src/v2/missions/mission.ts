@@ -2,6 +2,7 @@ import {deleteMemory, getMemory, setMemory} from './utils';
 
 
 export interface MissionMemory<M> {
+  type: string;          // KEY of the Mission class for this memory
   creeps: string[];      // Names of owned creeps
   nextCreep?: string;    // Name of possible next creep
   spawnSource?: string;  // Optional name of foreign SpawnQueue
@@ -55,6 +56,7 @@ export default abstract class Mission<M = {}, C = {}> {
   }
 
   // ### Abstract Fields #### //
+
   /** BodyRatio of creeps used by this mission. */
   protected abstract bodyType: string;
 
@@ -105,6 +107,7 @@ export default abstract class Mission<M = {}, C = {}> {
     if (this.mem === undefined) {
       // No existing memory, initialize default
       this.mem = {
+        type: this.constructor.name,
         creeps: [],
         colony: roomName,
         data: this.initMemory(config),
