@@ -10,13 +10,9 @@ function formatMemory(): void {
   }
 }
 
-console.log('Amber AI');
-console.log('Initializing...');
-console.log(' - Setting up Global');
+console.log('-- Global Reset --');
 setupGlobal();
-console.log(' - Formatting Memory');
 formatMemory();
-console.log('...Done');
 
 export const loop = (): void => {
   // Init the simulation spawn queue
