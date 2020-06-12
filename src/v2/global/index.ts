@@ -31,5 +31,5 @@ export function setupGlobal(): void {
 
   // Set up Mission Registry
   global.msnRegistry = new MissionRegistry();
-  global.msnRegistry.init(Object.values(Game.flags));
+  global.msnRegistry.init();
 }

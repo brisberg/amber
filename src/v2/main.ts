@@ -30,11 +30,11 @@ export const loop = (): void => {
 
   // Launch mining missions for each source
   const sources = Game.rooms.sim.find(FIND_SOURCES);
-  for (let i = 0; i++; i < sources.length) {
+  for (let i = 0; i < sources.length; i++) {
     const msnName = `sim-mine-${i}`;
     if (!global.msnRegistry.get(msnName)) {
       console.log(`Launching new Mining Mission: ${msnName}`);
-      const msn = new SingleHarvestMsn(msnName).init('sim', {sourceIdx: 1});
+      const msn = new SingleHarvestMsn(msnName).init('sim', {sourceIdx: i});
       global.msnRegistry.register(msn);
     }
   }
