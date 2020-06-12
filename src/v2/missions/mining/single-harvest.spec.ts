@@ -27,7 +27,36 @@ describe('SingleHarvestMsn', () => {
 
   it.todo('should request a replacement when the first worker is old');
 
-  it.todo('should send creeps to harvest the Ith Source in the room');
+  it('should send creeps to harvest the Ith Source in the room', () => {
+    const source = mockInstanceOf<Source>({
+      id: '12345' as Id<Source>,
+      pos: new RoomPosition(5, 5, 'N1W1'),
+    });
+    const room = mockInstanceOf<Room>({
+      find: (find: FindConstant) => {
+        if (find === FIND_SOURCES) {
+          return [source];
+        } else {
+          return [];
+        }
+      },
+    });
+    const creep = mockInstanceOf<Creep>({name: 'creep1', memory: {}}, true);
+    // mockGlobal<{[name: string]: Room}>('Game.rooms', {'N1W1': room});
+    mockGlobal<Game>('Game', {
+      rooms: {'N1W1': room},
+      creeps: {'creep1': creep},
+      time: 100,
+    });
+
+    const msn = new SingleHarvestMsn('harvest').init('N1W1', {sourceIdx: 0});
+    msn.assignCreep(creep);
+
+    msn.run();
+
+    expect(creep.memory.mem.name).toBe('harvest');
+    expect(creep.memory.mem.target.id).toBe(source.id);
+  });
 
   it.todo('should send the replacement creep to relieve the worker');
 });

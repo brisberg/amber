@@ -1,4 +1,7 @@
 import {WORKER} from 'spawn-system/bodyTypes';
+import {setCreepBehavior} from 'v2/behaviors/behavior';
+import HarvestBehavior from 'v2/behaviors/harvest';
+
 import Mission from '../mission';
 
 interface SingleHarvestMsnData {
@@ -41,7 +44,17 @@ export default class SingleHarvestMsn extends
   }
 
   protected creepActions(): void {
-    throw new Error('Method not implemented.');
+    const room = Game.rooms[this.mem.colony];
+    const sources = room.find(FIND_SOURCES);
+
+    for (const name of this.mem.creeps) {
+      const creep = Game.creeps[name];
+
+      if (!creep) continue;
+
+      const behavior = new HarvestBehavior();
+      setCreepBehavior(creep, behavior.new(sources[this.mem.data.sourceIdx]));
+    }
   }
 
   protected finalize(): void {

@@ -34,7 +34,7 @@ export const loop = (): void => {
     const msnName = `sim-mine-${i}`;
     if (!global.msnRegistry.get(msnName)) {
       console.log(`Launching new Mining Mission: ${msnName}`);
-      const msn = new SingleHarvestMsn(msnName).init('sim', {});
+      const msn = new SingleHarvestMsn(msnName).init('sim', {sourceIdx: 1});
       global.msnRegistry.register(msn);
     }
   }
