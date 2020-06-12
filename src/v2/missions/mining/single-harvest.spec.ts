@@ -17,7 +17,7 @@ describe('SingleHarvestMsn', () => {
   it('should use max 1 worker', () => {
     // TODO: Should figure out a better way to test this
     const creep = mockInstanceOf<Creep>({name: 'creep1'});
-    const msn = new SingleHarvestMsn('harvest').init('N1W1', {});
+    const msn = new SingleHarvestMsn('harvest').init('N1W1', {sourceIdx: 0});
     msn.assignCreep(creep);
 
     msn.rollCall();
