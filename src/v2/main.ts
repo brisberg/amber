@@ -2,8 +2,7 @@ import {SpawnQueue} from 'spawn-system/spawnQueue';
 
 import {getBehaviorMemory} from './behaviors/behavior';
 import {setupGlobal} from './global';
-import {PickupMission} from './missions/logistics/pickup-mission';
-import {HarvestMission} from './missions/mining/harvest-mission';
+import SingleHarvestMsn from './missions/mining/single-harvest';
 
 function formatMemory(): void {
   if (!Memory.missions) {
@@ -29,22 +28,26 @@ export const loop = (): void => {
     global.spawnQueues['sim'] = new SpawnQueue('sim', spawns);
   }
 
-  // Init and run drop mining mission
-  const miningFlag = Game.flags['mining'];
-  if (miningFlag) {
-    const msn = new HarvestMission(miningFlag);
-    msn.init();
-    msn.roleCall();
-    msn.run();
+  // Launch mining missions for each source
+  const sources = Game.rooms.sim.find(FIND_SOURCES);
+  for (let i = 0; i++; i < sources.length) {
+    const msnName = `sim-mine-${i}`;
+    if (!global.msnRegistry.get(msnName)) {
+      console.log(`Launching new Mining Mission: ${msnName}`);
+      const msn = new SingleHarvestMsn(msnName).init('sim', {});
+      global.msnRegistry.register(msn);
+    }
   }
 
-  // Init and run drop mining mission
-  const pickupFlag = Game.flags['pickup'];
-  if (pickupFlag) {
-    const msn = new PickupMission(pickupFlag);
-    msn.init();
-    msn.roleCall();
+  // Execute all of the missions in the Registry
+  const missions = global.msnRegistry.list();
+  for (const msn of missions) {
+    // msn.refresh();
+    msn.rollCall();
     msn.run();
+
+    // TODO: Validate the missions.
+    // TODO: Retire missions no longer valid.
   }
 
   // SpawnQueue must execute after missions have a chance request creeps

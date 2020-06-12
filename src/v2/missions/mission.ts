@@ -92,8 +92,6 @@ export default abstract class Mission<M = {}, C = {}> {
   /**
    * Initializes this mission.
    *
-   * Validates that there is not a duplicate mission in the Global Registry.
-   *    If not, returns null to void the mission
    * Registers the mission in the registry
    * Formats initial Mission Memory
    * Runs sub-class initializer
@@ -102,8 +100,7 @@ export default abstract class Mission<M = {}, C = {}> {
    * Returns the initialized Mission object so missions can be spawned:
    * const msn = new Mission(...).init('room', {config});
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public init(roomName: string, config: C): this|null {
+  public init(roomName: string, config: C): this {
     if (this.mem === undefined) {
       // No existing memory, initialize default
       this.mem = {
