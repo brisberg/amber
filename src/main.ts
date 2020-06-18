@@ -410,4 +410,18 @@ export const loop = (): void => {
       global.behaviors[creep.memory.behavior].run(creep, creep.memory.mem);
     }
   }
+
+  /**
+   * Next Patch only Code.
+   * TODO: Clean this up once @types/screeps is updated
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if ((Game.cpu as any).generatePixel instanceof Function) {
+    // We are on decorations patch
+    if (Game.cpu.bucket > 9000) {
+      // We have CPU to spare
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (Game.cpu as any).generatePixel();
+    }
+  }
 };
