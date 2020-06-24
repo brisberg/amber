@@ -9,7 +9,7 @@ import multiEntry from '@rollup/plugin-multi-entry';
 export default {
   input: 'test/integration/**/*.test.ts',
   output: {
-    file: 'dist/test-integration.bundle.js',
+    file: 'lib/test-integration.bundle.js',
     name: 'lib',
     sourcemap: true,
     format: 'cjs',
@@ -22,7 +22,7 @@ export default {
   external: ['chai', 'fs', 'screeps-server-mockup'],
   plugins:
       [
-        clear({targets: ['dist/test.bundle.js']}),
+        clear({targets: ['lib/test.bundle.js']}),
         resolve(),
         commonjs(),
         typescript({tsconfig: './tsconfig.json'}),
