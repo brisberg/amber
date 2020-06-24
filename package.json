@@ -41,7 +41,7 @@
     "@types/jest": "^25.2.1",
     "@types/lodash": "^4.14.149",
     "@types/node": "^10.17.17",
-    "@types/screeps": "^3.0.0",
+    "@types/screeps": "github:screepers/typed-screeps",
     "@typescript-eslint/eslint-plugin": "^2.26.0",
     "@typescript-eslint/parser": "^2.26.0",
     "clang-format": "^1.4.0",

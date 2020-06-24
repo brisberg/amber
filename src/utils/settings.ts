@@ -8,7 +8,7 @@ export function getUsername(): string {
   for (const i in Game.rooms) {
     if ({}.hasOwnProperty.call(Game.rooms, i)) {
       const room = Game.rooms[i];
-      if (room.controller && room.controller.my) {
+      if (room.controller && room.controller.owner && room.controller.my) {
         return room.controller.owner.username;
       }
     }

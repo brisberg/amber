@@ -41,10 +41,13 @@ export class Depositer extends Behavior<DepositerMemory> {
       // spawn.store.getFreeCapacity() always returns 0
       if (target instanceof StructureSpawn ||
           target instanceof StructureExtension ||
-          target instanceof StructureTower) {
+          target instanceof StructureTower || target instanceof StructureLink) {
         amount = Math.min(amount, target.energyCapacity - target.energy);
       } else {
-        amount = Math.min(amount, target.store.getFreeCapacity());
+        amount = Math.min(
+            amount,
+            target.store.getFreeCapacity(RESOURCE_ENERGY),
+        );
       }
 
       if (amount > 0) {

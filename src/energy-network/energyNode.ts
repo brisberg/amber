@@ -166,12 +166,28 @@ export class EnergyNode {
 
   public transferFrom(creep: Creep, amount?: number): void {
     if (this.structure) {
-      const amt = amount ||
-          Math.min(creep.store.energy, this.structure.store.getFreeCapacity());
+      let amt = 0;
+      // Have to special case spawns and extensions for some reason
+      // spawn.store.getFreeCapacity() always returns 0
+      if (this.structure instanceof StructureSpawn ||
+          this.structure instanceof StructureExtension ||
+          this.structure instanceof StructureTower ||
+          this.structure instanceof StructureLink) {
+        amt = Math.min(
+            amount || Infinity,
+            this.structure.energyCapacity - this.structure.energy);
+      } else {
+        amt = amount ||
+            Math.min(
+                creep.store.energy,
+                this.structure.store.getFreeCapacity(RESOURCE_ENERGY));
+      }
       creep.transfer(this.structure, RESOURCE_ENERGY, amt);
     } else if (this.creep) {
       const amt = amount ||
-          Math.min(creep.store.energy, this.creep.store.getFreeCapacity());
+          Math.min(
+              creep.store.energy,
+              this.creep.store.getFreeCapacity(RESOURCE_ENERGY));
       creep.transfer(this.creep, RESOURCE_ENERGY, amt);
     }
   }
