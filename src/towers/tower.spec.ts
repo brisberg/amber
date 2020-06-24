@@ -15,7 +15,7 @@ describe('tower module', () => {
          });
          const hostileCreep = mockInstanceOf<Creep>();
          const tower = mockStructure(STRUCTURE_TOWER, {
-           attack: () => OK,
+           attack: jest.fn(() => OK),
            room: {
              name: 'W1N1',
              find: (type: FindConstant): Creep[] | null => {
