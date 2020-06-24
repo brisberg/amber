@@ -8,9 +8,9 @@ You will need:
 
  - [Node.JS](https://nodejs.org/en/download) (>= 8.0.0)
  - A Package Manager ([Yarn](https://yarnpkg.com/en/docs/getting-started) or [npm](https://docs.npmjs.com/getting-started/installing-node))
- - Rollup CLI (Optional, install via `npm install -g rollup`) 
+ - Rollup CLI (Optional, install via `npm install -g rollup`)
  - Python 2 (for node-gyp, [Python 3 is not supported](https://github.com/nodejs/node-gyp/issues/193))
- - Build tools (`apt install build-essential` for Ubuntu, [Visual Studio](https://www.visualstudio.com/vs/) for Windows, etc) 
+ - Build tools (`apt install build-essential` for Ubuntu, [Visual Studio](https://www.visualstudio.com/vs/) for Windows, etc)
 
 
 Download the latest source [here](https://github.com/screepers/screeps-typescript-starter/archive/master.zip) and extract it to a folder.
@@ -53,6 +53,15 @@ Maintaining the docs will also become a more community-focused effort, which mea
 
 To visit the docs, [click here](https://screepers.gitbooks.io/screeps-typescript-starter/).
 
-## Contributing
+## Actions
 
-Issues, Pull Requests, and contribution to the docs are welcome! See our [Contributing Guidelines](CONTRIBUTING.md) for more details.
+`yarn build` - Builds the package, emitting .js and .d.ts files\
+`yarn lint` - Runs lint over the project source\
+`yarn test` - Runs all tests under the src/ directory\
+`yarn publish` - Bumps package version and publishes the package to Github Packages
+
+## Toolchain
+
+Uses [@brisberg/typescript-pkg](https://github.com/brisberg/typescript-pkg) as a template for Toolchain configuration.
+
+See that repo for a list of tools, documentation, and upgrade steps.

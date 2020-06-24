@@ -1,0 +1,23 @@
+# Need to use .npmignore instead of package.json#files because yarn does not respect negations in 'files' attribute
+# https://github.com/yarnpkg/yarn/issues/7888
+# Once this issue is resolved, we can remove this and add the equivalent configuration to package.json#files
+# files: ["lib/**/*.js", "lib/**/*.d.ts", "!lib/**/*.spec.*]
+
+# NPM Modules
+/node_modules
+
+# Dot files and folders
+.*
+
+# Log files
+yarn-error.log
+
+# Dev config files
+jest.config.js
+tsconfig.json
+yarn.lock
+
+# Source and Build files (tests and source maps)
+/lib/**/*.spec.*
+/lib/**/*.js.map
+/src
