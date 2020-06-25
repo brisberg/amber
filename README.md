@@ -62,6 +62,6 @@ To visit the docs, [click here](https://screepers.gitbooks.io/screeps-typescript
 
 ## Toolchain
 
-Uses [@brisberg/typescript-pkg](https://github.com/brisberg/typescript-pkg) as a template for Toolchain configuration.
+Uses [@brisberg/typescript-toolchain](https://github.com/brisberg/typescript-toolchain) as a template for Toolchain configuration.
 
 See that repo for a list of tools, documentation, and upgrade steps.
