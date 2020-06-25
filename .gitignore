@@ -2,6 +2,7 @@
 /yarn.lock
 
 # Ignore basic folders
+/lib
 /dist
 /.rpt2_cache
 /tsc-out

@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "CommonJs",
+    "module": "ESNext",
     "lib": [
       "ES2018"
     ],
