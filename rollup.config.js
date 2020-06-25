@@ -1,5 +1,6 @@
 'use strict';
 
+import fs from 'fs';
 import clear from 'rollup-plugin-clear';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
@@ -11,8 +12,12 @@ const dest = process.env.DEST;
 if (!dest) {
   console.log(
       'No destination specified - code will be compiled but not uploaded');
-} else if ((cfg = require('./screeps.json')[dest]) == null) {
-  throw new Error('Invalid upload destination');
+} else {
+  const credentials = JSON.parse(fs.readFileSync('./screeps.json'));
+  if (!credentials[dest]) {
+    throw new Error('Invalid upload destination');
+  }
+  cfg = credentials[dest];
 }
 
 export default {
