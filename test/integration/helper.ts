@@ -26,6 +26,7 @@ class IntegrationTestHelper {
 
   public async beforeEach(): Promise<void> {
     this._server = new ScreepsServer();
+    await this._server.world.load();
 
     // reset world but add invaders and source keepers bots
     await this._server.world.reset();
