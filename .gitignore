@@ -1,6 +1,3 @@
-# yarn lock file
-/yarn.lock
-
 # Ignore basic folders
 /lib
 /dist

@@ -6,9 +6,9 @@ Screeps Typescript Starter is a starting point for a Screeps AI written in Types
 
 You will need:
 
- - [Node.JS](https://nodejs.org/en/download) (>= 8.0.0)
+ - [Node.JS](https://nodejs.org/en/download) (>= 10.0.0)
  - A Package Manager ([Yarn](https://yarnpkg.com/en/docs/getting-started) or [npm](https://docs.npmjs.com/getting-started/installing-node))
- - Rollup CLI (Optional, install via `npm install -g rollup`)
+ - Rollup CLI (Optional, install via `yarn global add rollup`)
  - Python 2 (for node-gyp, [Python 3 is not supported](https://github.com/nodejs/node-gyp/issues/193))
  - Build tools (`apt install build-essential` for Ubuntu, [Visual Studio](https://www.visualstudio.com/vs/) for Windows, etc)
 
@@ -18,9 +18,6 @@ Download the latest source [here](https://github.com/screepers/screeps-typescrip
 Open the folder in your terminal and run your package manager to install install the required packages and TypeScript declaration files:
 
 ```bash
-# npm
-npm install
-
 # yarn
 yarn
 ```
@@ -37,7 +34,7 @@ Running `rollup -c` will compile your code and do a "dry run", preparing the cod
 
 You can use `-cw` instead of `-c` to automatically re-run when your source code changes - for example, `rollup -cw --environment DEST:main` will automatically upload your code to the `main` configuration every time your code is changed.
 
-Finally, there are also NPM scripts that serve as aliases for these commands in `package.json` for IDE integration. Running `npm run push-main` is equivalent to `rollup -c --environment DEST:main`, and `npm run watch-sim` is equivalent to `rollup -cw --dest sim`.
+Finally, there are also NPM scripts that serve as aliases for these commands in `package.json` for IDE integration. Running `yarn run push-main` is equivalent to `rollup -c --environment DEST:main`, and `yarn run watch-sim` is equivalent to `rollup -cw --dest sim`.
 
 #### Important! To upload code to a private server, you must have [screepsmod-auth](https://github.com/ScreepsMods/screepsmod-auth) installed and configured!
 
