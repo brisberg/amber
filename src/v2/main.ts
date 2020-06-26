@@ -16,21 +16,22 @@ formatMemory();
 
 export const loop = (): void => {
   // Init the simulation spawn queue
-  const spawns = Game.rooms.sim.find(FIND_MY_SPAWNS);
+  const room = 'W1N1';  // Debug for integration testing needs a valid room name
+  const spawns = Game.rooms[room].find(FIND_MY_SPAWNS);
   if (!global.spawnQueues) {
     global.spawnQueues = {};
   }
   if (spawns.length > 0) {
-    global.spawnQueues['sim'] = new SpawnQueue('sim', spawns);
+    global.spawnQueues[room] = new SpawnQueue(room, spawns);
   }
 
   // Launch mining missions for each source
-  const sources = Game.rooms.sim.find(FIND_SOURCES);
+  const sources = Game.rooms[room].find(FIND_SOURCES);
   for (let i = 0; i < sources.length; i++) {
-    const msnName = `sim-mine-${i}`;
+    const msnName = `${room}-mine-${i}`;
     if (!global.msnRegistry.get(msnName)) {
       console.log(`Launching new Mining Mission: ${msnName}`);
-      const msn = new SingleHarvestMsn(msnName).init('sim', {sourceIdx: i});
+      const msn = new SingleHarvestMsn(msnName).init(room, {sourceIdx: i});
       global.msnRegistry.register(msn);
     }
   }

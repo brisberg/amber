@@ -1,0 +1,102 @@
+import {TerrainMatrix} from '@brisberg/screeps-server-mockup';
+import {ScreepsServer} from '@brisberg/screeps-server-mockup';
+import User from '@brisberg/screeps-server-mockup/dist/src/user';
+import World from '@brisberg/screeps-server-mockup/dist/src/world';
+import {readFileSync} from 'fs';
+
+const DIST_MAIN_JS = 'lib/main.js';
+
+/**
+ * Integration Test package to test if we can harvest from a source using a
+ * container.
+ */
+
+const clearTerrain = '0'.repeat(2500);
+
+describe('drop mining mission operation', () => {
+  let server: ScreepsServer;
+  let player: User;
+  let world: World;
+  const room = 'W1N1';  // 'sim' hardcoded in main.js for now
+
+  beforeEach(async () => {
+    server = new ScreepsServer();
+    world = server.world;
+    await world.load();
+
+    // reset world but add invaders and source keepers bots
+    await world.reset();
+
+    // add basic room and room objects
+    await world.addRoom(room);
+    await world.setTerrain(room, TerrainMatrix.unserialize(clearTerrain));
+    await world.addRoomObject(room, 'controller', 25, 25, {level: 0});
+    await world.addRoomObject(
+        room, 'source', 35, 25,
+        {energy: 1000, energyCapacity: 1000, ticksToRegeneration: 300});
+
+
+    // add a player with the built lib/main.js file
+    const modules = {
+      main: readFileSync(DIST_MAIN_JS).toString(),
+    };
+    player = await world.addBot(
+        {username: 'player', gcl: 10, room, x: 35, y: 20, modules});
+
+    // Subscribe to player's console output
+    player.on('console', async (log: string[], results, userid, username) => {
+      const time = await world.gameTime;
+      for (const line of log) {
+        console.log(`\t${time}:[${username}]: ${line}`);
+      }
+    });
+
+    // Start server
+    await server.start();
+  });
+
+  afterEach(() => {
+    if (server) {
+      server.stop();
+    }
+  });
+
+  it('will harvest the source until empty', async () => {
+    jest.setTimeout(20000);
+    const {db, C} = await world.load();
+    // Test fails with a timeout after this many ticks
+    const TIMEOUT_TICKS = 2000;
+
+    // Upgrade Spawn to RCL3
+    await db['rooms.objects'].update({room, type: C.STRUCTURE_SPAWN}, {
+      $set: {
+        store: {
+          energy: 50000,
+        },
+        storeCapacityResource: {energy: 800},
+      },
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async function getSource(roomname: string): Promise<any|null> {
+      return db['rooms.objects'].findOne({room: roomname, type: 'source'});
+    }
+
+    // Run the test until passing conditions
+    let source = await getSource(room);
+    let gameTime = 0;
+    while (gameTime < TIMEOUT_TICKS && source.energy > 0) {
+      await server.tick();
+
+      gameTime = await world.gameTime;
+      source = await getSource(room);
+    }
+
+    const creeps = await db['rooms.objects'].find({room, type: 'creep'});
+    console.log(`Ended with ${creeps.length} harvester creeps.`);
+    console.log(`Mining Operation completed in ${gameTime} ticks.`);
+
+    // `Mining Operation failed to exhaust source in ${TIMEOUT_TICKS} ticks.`
+    expect(source.energy).toBe(0);
+  });
+});
