@@ -3,7 +3,7 @@ import {readFileSync} from 'fs';
 
 import {helper} from './helper';
 
-const DIST_MAIN_JS = 'dist/main.js';
+const DIST_MAIN_JS = 'lib/main.js';
 
 /**
  * Integration Test package to test if we can harvest from a source using a
@@ -28,12 +28,12 @@ describe('mining operation', () => {
         room, 'source', 35, 25,
         {energy: 1000, energyCapacity: 1000, ticksToRegeneration: 300});
 
-    // add a player with the built dist/main.js file
+    // add a player with the built lib/main.js file
     const modules = {
       main: readFileSync(DIST_MAIN_JS).toString(),
     };
-    helper.player =
-        await world.addBot({username: 'player', room, x: 35, y: 20, modules});
+    helper.player = await world.addBot(
+        {username: 'player', gcl: 10, room, x: 35, y: 20, modules});
 
     // Subscribe to player's console output
     helper.player.on(

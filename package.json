@@ -45,12 +45,11 @@
     "source-map": "^0.6.1"
   },
   "devDependencies": {
-    "@brisberg/screeps-server-mockup": "^1.6.3",
+    "@brisberg/screeps-server-mockup": "^1.6.4",
     "@rollup/plugin-commonjs": "^11.0.0",
     "@rollup/plugin-multi-entry": "^3.0.0",
     "@rollup/plugin-node-resolve": "^6.0.0",
     "@rollup/plugin-typescript": "^3.0.0",
-    "@screeps/common": "^2.12.1",
     "@types/jest": "^26.0.0",
     "@types/lodash": "^4.14.149",
     "@types/node": "^10.17.17",
