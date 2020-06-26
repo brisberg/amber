@@ -11,7 +11,8 @@ const DIST_MAIN_JS = 'dist/main.js';
  */
 const clearTerrain = '0'.repeat(2500);
 
-describe('upgrade operation', () => {
+// Skipped for v2, old mining operations deprecated
+describe.skip('upgrade operation', () => {
   const room = 'W0N1';
 
   beforeEach(async () => {
