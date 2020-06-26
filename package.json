@@ -1,5 +1,5 @@
 {
-  "name": "amber",
+  "name": "@brisberg/amber",
   "version": "0.1.0",
   "description": "Amber AI is a set of AI Code for playing the Screeps MMO",
   "//": "If you add or change the names of destinations in screeps.json, make sure you update these scripts to reflect the changes",
