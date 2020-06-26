@@ -4,7 +4,7 @@ import {helper} from './helper';
 
 const DIST_MAIN_JS = 'dist/main.js';
 
-describe('main', () => {
+describe.only('main', () => {
   beforeEach(async () => {
     // create a stub world composed of 9 rooms with sources and controller
     await helper.server.world.stubWorld();
