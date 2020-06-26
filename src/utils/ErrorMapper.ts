@@ -1,5 +1,4 @@
 import _ from 'lodash';
-// tslint:disable:no-conditional-assignment
 import {SourceMapConsumer} from 'source-map';
 
 export class ErrorMapper {

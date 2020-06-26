@@ -12,9 +12,7 @@ export function hashCode(input: string): number {
   }
   for (let i = 0; i < input.length; i++) {
     const chr = input.charCodeAt(i);
-    // tslint:disable-next-line: no-bitwise
     hash = ((hash << 5) - hash) + chr;
-    // tslint:disable-next-line: no-bitwise
     hash |= 0;  // Convert to 32bit integer
   }
   return hash;
