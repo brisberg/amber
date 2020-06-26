@@ -1,4 +1,3 @@
-import {assert} from 'chai';
 import {readFileSync} from 'fs';
 
 import {helper} from './helper';
@@ -20,7 +19,7 @@ describe('main', () => {
     // Subscribe to player's console output
     helper.player.on(
         'console',
-        (log: string[], results: Array<{}>, userid: string,
+        (log: string[], results: Record<string, unknown>, userid: string,
          username: string) => {
           for (const line of log) {
             console.log(`\t[${username}]: ${line}`);
@@ -33,7 +32,7 @@ describe('main', () => {
 
   it('runs a server and matches the game tick', async () => {
     for (let i = 1; i < 10; i += 1) {
-      assert.equal(await helper.server.world.gameTime, i);
+      expect(await helper.server.world.gameTime).toEqual(i);
       await helper.server.tick();
     }
   });
@@ -42,6 +41,6 @@ describe('main', () => {
     await helper.player.console(`Memory.foo = 'bar'`);
     await helper.server.tick();
     const memory = JSON.parse(await helper.player.memory);
-    assert.equal(memory.foo, 'bar');
+    expect(memory.foo).toEqual('bar');
   });
 });

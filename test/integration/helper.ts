@@ -1,5 +1,5 @@
-import {ScreepsServer, stdHooks} from 'screeps-server-mockup';
-import User from 'screeps-server-mockup/dist/src/user';
+import {ScreepsServer, stdHooks} from '@brisberg/screeps-server-mockup';
+import User from '@brisberg/screeps-server-mockup/dist/src/user';
 
 /*
  * Helper class for creating a ScreepsServer and resetting it between tests.
@@ -48,6 +48,6 @@ afterEach(() => {
   helper.afterEach();
 });
 
-before(() => {
+beforeAll(() => {
   stdHooks.hookWrite();
 });

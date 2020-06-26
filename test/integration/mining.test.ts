@@ -1,6 +1,5 @@
-import {expect} from 'chai';
+import {TerrainMatrix} from '@brisberg/screeps-server-mockup';
 import {readFileSync} from 'fs';
-import {TerrainMatrix} from 'screeps-server-mockup';
 
 import {helper} from './helper';
 
@@ -50,7 +49,7 @@ describe('mining operation', () => {
   });
 
   it('will build and fill a container next to a source', async () => {
-    // this.timeout(20000);
+    jest.setTimeout(20000);
     const world = helper.server.world;
     const {db, C} = await world.load();
     // Test fails with a timeout after this many ticks
@@ -99,12 +98,10 @@ describe('mining operation', () => {
     console.log(`Ended with ${creeps.length} harvester creeps.`);
     console.log(`Mining Operation completed in ${gameTime} ticks.`);
 
-    // tslint:disable-next-line: no-unused-expression
-    expect(container, 'Mining Operation failed to construct a container.')
-        .to.not.be.null;
-    expect(
-        container.store.energy,
-        `Mining Operation failed to fill container in ${TIMEOUT_TICKS} ticks.`)
-        .to.be.greaterThan(TARGET_ENERGY);
+    // 'Mining Operation failed to construct a container.'
+    expect(container).not.toBe(null);
+
+    // `Mining Operation failed to fill container in ${TIMEOUT_TICKS} ticks.`
+    expect(container.store.energy).toBeGreaterThan(TARGET_ENERGY);
   });
 });

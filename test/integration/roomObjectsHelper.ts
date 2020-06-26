@@ -1,4 +1,4 @@
-import User from 'screeps-server-mockup/dist/src/user';
+import User from '@brisberg/screeps-server-mockup/dist/src/user';
 
 import {helper} from './helper';
 

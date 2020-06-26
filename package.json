@@ -35,7 +35,7 @@
     "test-unit": "jest",
     "test-unit-watch": "jest --watch",
     "test-unit-cov": "jest --coverage",
-    "test-integration": "npm run build && rollup -c rollup.test-integration-config.js && mocha dist/test-integration.bundle.js",
+    "test-integration": "npm run build && jest --config=jest.config.integration.js --runInBand",
     "watch-main": "rollup -cw --environment DEST:main",
     "watch-pserver": "rollup -cw --environment DEST:pserver",
     "watch-sim": "rollup -cw --environment DEST:sim",
@@ -45,6 +45,7 @@
     "source-map": "^0.6.1"
   },
   "devDependencies": {
+    "@brisberg/screeps-server-mockup": "^1.6.2",
     "@rollup/plugin-commonjs": "^11.0.0",
     "@rollup/plugin-multi-entry": "^3.0.0",
     "@rollup/plugin-node-resolve": "^6.0.0",
@@ -65,7 +66,6 @@
     "rollup-plugin-clear": "^2.0.7",
     "rollup-plugin-screeps": "^0.1.2",
     "screeps-jest": "github:brisberg/screeps-jest#jest-26",
-    "screeps-server-mockup": "github:brisberg/screeps-server-mockup#typescript",
     "ts-jest": "^26.1.1",
     "typescript": "^3.8.3"
   }

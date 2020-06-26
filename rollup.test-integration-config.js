@@ -14,12 +14,11 @@ export default {
     sourcemap: true,
     format: 'cjs',
     globals: {
-      chai: 'chai',
       it: 'it',
       describe: 'describe',
     },
   },
-  external: ['chai', 'fs', 'screeps-server-mockup'],
+  external: ['fs', '@brisberg/screeps-server-mockup'],
   plugins:
       [
         clear({targets: ['lib/test.bundle.js']}),

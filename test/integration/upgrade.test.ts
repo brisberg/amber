@@ -1,4 +1,3 @@
-import {expect} from 'chai';
 import {readFileSync} from 'fs';
 
 import {helper} from './helper';
@@ -35,6 +34,7 @@ describe('upgrade operation', () => {
   });
 
   it('when fully stocked will upgrade controller', async () => {
+    jest.setTimeout(30000);
     const room = 'W0N1';
     const world = helper.server.world;
     const {db, C} = await world.load();
@@ -79,10 +79,8 @@ describe('upgrade operation', () => {
     console.log(`Ended with ${creeps.length} upgrader creeps.`);
     console.log(`Upgrade Operation completed in ${gameTime} ticks.`);
 
-    expect(
-        controller.progress,
-        `Upgrade Operation failed to upgrade controller by ${
-            INITIAL_ENERGY} in ${TIMEOUT_TICKS} ticks.`)
-        .to.equal(TARGET_PROGRESS);
+    // `Upgrade Operation failed to upgrade controller by ${
+    //   INITIAL_ENERGY} in ${TIMEOUT_TICKS} ticks.`
+    expect(controller.progress).toEqual(TARGET_PROGRESS);
   });
 });
