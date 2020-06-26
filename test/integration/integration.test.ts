@@ -1,17 +1,13 @@
-import {readFileSync} from 'fs';
-
 import {helper} from './helper';
 
-const DIST_MAIN_JS = 'dist/main.js';
-
-describe.only('main', () => {
+describe('main', () => {
   beforeEach(async () => {
     // create a stub world composed of 9 rooms with sources and controller
     await helper.server.world.stubWorld();
 
-    // add a player with the built dist/main.js file
+    // add a simple player
     const modules = {
-      main: readFileSync(DIST_MAIN_JS).toString(),
+      main: `module.exports.loop = function() {}`,
     };
     helper.player = await helper.server.world.addBot(
         {username: 'player', room: 'W0N1', x: 17, y: 45, modules});

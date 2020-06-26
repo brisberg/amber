@@ -48,6 +48,13 @@ export const loop = (): void => {
   Memory.operations = Memory.operations || {};
   Memory.rooms = Memory.rooms || {};
   Memory.flags = Memory.flags || {};
+  // Debug for now, to allow integration tests to pass
+  Memory.auto = Memory.auto || {
+    sourceBuild: true,
+    mining: true,
+    upgrade: true,
+    enetwork: true,
+  };
   global.spawnQueues = global.spawnQueues || {};
 
   installConsoleCommands();

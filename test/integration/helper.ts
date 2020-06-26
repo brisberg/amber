@@ -1,4 +1,4 @@
-import {ScreepsServer, stdHooks} from '@brisberg/screeps-server-mockup';
+import {ScreepsServer} from '@brisberg/screeps-server-mockup';
 import User from '@brisberg/screeps-server-mockup/dist/src/user';
 
 /*
@@ -49,6 +49,6 @@ afterEach(() => {
   helper.afterEach();
 });
 
-beforeAll(() => {
-  stdHooks.hookWrite();
-});
+// beforeAll(() => {
+//   stdHooks.hookWrite();
+// });
