@@ -25,7 +25,7 @@ import {TownSquare} from 'layout/townSquare';
 import {PioneerMission} from 'missions/colonization/pioneer';
 import {Mission} from 'missions/mission';
 import {AllOperations} from 'operations';
-import {BaseOperation} from 'operations/BaseOperation';
+import {BaseOperation} from 'operations/baseOperation';
 import {MiningOperation} from 'operations/miningOperation';
 import {declareOrphan} from 'spawn-system/orphans';
 import {SpawnQueue} from 'spawn-system/spawnQueue';

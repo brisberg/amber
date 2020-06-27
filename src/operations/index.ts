@@ -7,7 +7,7 @@ import {
   UPGRADE_OPERATION_FLAG,
 } from 'flagConstants';
 
-import {BaseOperation} from './BaseOperation';
+import {BaseOperation} from './baseOperation';
 import {BuildOperation} from './buildOperation';
 import {ColonizeOperation} from './colonizeOperation';
 import {MiningOperation} from './miningOperation';

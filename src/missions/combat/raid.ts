@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {setCreepBehavior} from 'behaviors/behavior';
-import {DEPOSITER, Depositer} from 'behaviors/Depositer';
+import {DEPOSITER, Depositer} from 'behaviors/depositer';
 import {FETCHER, Fetcher} from 'behaviors/fetcher';
 import {IDLER} from 'behaviors/idler';
 import {GenerateCreepBodyOptions, HAULER} from 'spawn-system/bodyTypes';

@@ -17,7 +17,6 @@ export const BODY_MANIFEST_INDEX = {
   carry: 1,
   move: 2,
   attack: 3,
-  // eslint-disable-next-line @typescript-eslint/camelcase
   ranged_attack: 4,
   heal: 5,
   tough: 6,

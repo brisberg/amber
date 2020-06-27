@@ -49,7 +49,7 @@ describe('mining operation', () => {
   });
 
   it('will build and fill a container next to a source', async () => {
-    jest.setTimeout(20000);
+    jest.setTimeout(150 * 1000);
     const world = helper.server.world;
     const {db, C} = await world.load();
     // Test fails with a timeout after this many ticks
