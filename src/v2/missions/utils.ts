@@ -28,6 +28,6 @@ export function setMemory<M>(
  *
  * @param msn Mission object
  */
-export function deleteMemory(msn: Mission<{}, unknown>): void {
+export function deleteMemory(msn: Mission<unknown, unknown>): void {
   delete Memory.missions[msn.name];
 }

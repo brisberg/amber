@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Basic, inefficient implementation.
   - Energy Harvesting
   - Spawn/Extension distribution
+  - Contoller Upgrading
   - Manual Colonization
 
 [Unreleased]: https://github.com/brisberg/amber/compare/v0.1.0...HEAD

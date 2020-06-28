@@ -28,7 +28,7 @@ export class MissionRegistry {
           this.register(msn);
         }
       }
-    };
+    }
   }
 
   /**

@@ -48,7 +48,8 @@ export interface MissionMemory<M> {
  * Generic type M is the specialized memory data type for this mission.
  * Generic type C is the configuration type for this mission.
  */
-export default abstract class Mission<M = {}, C = {}> {
+export default abstract class Mission<
+    M = Record<string, unknown>, C = Record<string, unknown>> {
   protected mem: MissionMemory<M>;
 
   constructor(readonly name: string) {

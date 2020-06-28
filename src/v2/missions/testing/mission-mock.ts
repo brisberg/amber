@@ -27,7 +27,7 @@ export default class MockMission extends
 
   // Overwrite these values to mock internal state
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public mockInitializeFn = (config: {}): void => {
+  public mockInitializeFn = (config: MockMissionConfig): void => {
     return;
   };
   public mockReconcileFn = (): void => {
@@ -43,7 +43,7 @@ export default class MockMission extends
 
 
   // Abstract Overrides
-  protected initialize(config: {}): this {
+  protected initialize(config: MockMissionConfig): this {
     this.mockInitializeFn(config);
     return this;
   }
