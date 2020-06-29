@@ -2,6 +2,7 @@ import HarvestBehavior from 'v2/behaviors/harvest';
 import PickupBehavior from 'v2/behaviors/pickup';
 import RelieveBehavior from 'v2/behaviors/relieve';
 import {MissionRegistry} from 'v2/missions/registry';
+import {OperationRegistry} from 'v2/operations/registry';
 
 /**
  * Set up all Global Objects.
@@ -32,4 +33,8 @@ export function setupGlobal(): void {
   // Set up Mission Registry
   global.msnRegistry = new MissionRegistry();
   global.msnRegistry.init();
+
+  // Set up Operation Registry
+  global.opRegistry = new OperationRegistry();
+  global.opRegistry.init();
 }
