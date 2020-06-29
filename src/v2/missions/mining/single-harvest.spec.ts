@@ -44,7 +44,10 @@ describe('SingleHarvestMsn', () => {
 
   it('should use max 1 worker', () => {
     // TODO: Should figure out a better way to test this
-    const msn = new SingleHarvestMsn('harvest').init('N1W1', {sourceIdx: 0});
+    const msn = new SingleHarvestMsn('harvest').init('N1W1', {
+      sourceIdx: 0,
+      pos: [5, 4],
+    });
     msn.assignCreep(creep);
 
     msn.rollCall();
@@ -54,7 +57,10 @@ describe('SingleHarvestMsn', () => {
 
   it.skip('should request a replacement when the first worker is old', () => {
     // TODO: Should figure out a better way to test this
-    const msn = new SingleHarvestMsn('harvest').init('N1W1', {sourceIdx: 0});
+    const msn = new SingleHarvestMsn('harvest').init('N1W1', {
+      sourceIdx: 0,
+      pos: [5, 4],
+    });
     creep.ticksToLive = 30;  // Below age threshold
     msn.assignCreep(creep);
 
@@ -64,7 +70,10 @@ describe('SingleHarvestMsn', () => {
   });
 
   it('should send creeps to harvest the Ith Source in the room', () => {
-    const msn = new SingleHarvestMsn('harvest').init('N1W1', {sourceIdx: 0});
+    const msn = new SingleHarvestMsn('harvest').init('N1W1', {
+      sourceIdx: 0,
+      pos: [5, 4],
+    });
     msn.assignCreep(creep);
 
     msn.run();
@@ -76,7 +85,10 @@ describe('SingleHarvestMsn', () => {
   it.skip('should send the replacement creep to relieve the worker', () => {
     const replacement =
         mockInstanceOf<Creep>({name: 'creep1', memory: {}}, true);
-    const msn = new SingleHarvestMsn('harvest').init('N1W1', {sourceIdx: 0});
+    const msn = new SingleHarvestMsn('harvest').init('N1W1', {
+      sourceIdx: 0,
+      pos: [5, 4],
+    });
     msn.assignCreep(creep);
     msn.assignCreep(replacement);
 

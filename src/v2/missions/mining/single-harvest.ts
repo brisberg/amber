@@ -6,10 +6,12 @@ import Mission from '../mission';
 
 interface SingleHarvestMsnData {
   sourceIdx: number;  // Target source index in room.sources
+  pos: number[];      // Standing position, [x, y]
 }
 
 interface SingleHarvestConfig {
   sourceIdx: number;  // Target source index in room.sources
+  pos: number[];      // Standing position
 }
 
 /**
@@ -36,6 +38,7 @@ export default class SingleHarvestMsn extends
   protected initMemory(config: SingleHarvestConfig): SingleHarvestMsnData {
     return {
       sourceIdx: config.sourceIdx,
+      pos: config.pos,
     };
   }
 

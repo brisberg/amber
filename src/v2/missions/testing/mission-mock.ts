@@ -9,10 +9,12 @@ import Mission, {MissionMemory} from '../mission';
  */
 export interface MockMissionData {
   mockDataField?: string;  // Arbitrary data pretaining to the mission
+  [key: string]: string|undefined;
 }
 
 export interface MockMissionConfig {
   mockDataField: string;
+  [key: string]: string|undefined;
 }
 
 export default class MockMission extends
