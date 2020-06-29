@@ -8,6 +8,10 @@ function formatMemory(): void {
   if (!Memory.missions) {
     Memory.missions = {};
   }
+
+  if (!Memory.operations) {
+    Memory.operations = {};
+  }
 }
 
 console.log('-- Global Reset --');

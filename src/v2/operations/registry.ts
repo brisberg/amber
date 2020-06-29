@@ -42,9 +42,9 @@ export class OperationRegistry {
    * Registers a new Operation into the Global Registry.
    * @param Operation Operation to register
    */
-  public register(Operation: Operation): Operation {
-    this.operationMap[Operation.name] = Operation;
-    return Operation;
+  public register(operation: Operation): Operation {
+    this.operationMap[operation.name] = operation;
+    return operation;
   }
 
   /**

@@ -65,7 +65,7 @@ describe('drop mining mission operation', () => {
     jest.setTimeout(20000);
     const {db, C} = await world.load();
     // Test fails with a timeout after this many ticks
-    const TIMEOUT_TICKS = 2000;
+    const TIMEOUT_TICKS = 1000;
 
     // Upgrade Spawn to RCL3
     await db['rooms.objects'].update({room, type: C.STRUCTURE_SPAWN}, {

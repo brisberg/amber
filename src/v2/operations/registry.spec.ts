@@ -11,7 +11,7 @@ describe('Operation Registry', () => {
 
   beforeEach(() => {
     // Mock Operation memory to initialize Operations
-    mockGlobal<Memory>('Memory', {Operations: {}}, true);
+    mockGlobal<Memory>('Memory', {operations: {}}, true);
 
     // Initialize test variables
     registry = new OperationRegistry();
@@ -20,7 +20,7 @@ describe('Operation Registry', () => {
 
   it('should initialize Operations from existing Operation memorys', () => {
     mockGlobal<Memory>('Memory', {
-      Operations: {
+      operations: {
         'op1': {type: MockOperation.name},
         'op2': {type: MockOperation.name},
       },

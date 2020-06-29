@@ -1,5 +1,3 @@
-import {WORKER} from 'spawn-system/bodyTypes';
-
 import Operation, {OperationMemory} from '../operation';
 
 /**
@@ -19,8 +17,6 @@ export interface MockOperationConfig {
 
 export default class MockOperation extends
     Operation<MockOperationData, MockOperationConfig> {
-  protected bodyType = WORKER;
-
   // Expose internal state TODO: remove this?
   public get mockMemory(): OperationMemory<MockOperationData> {
     return this.mem;

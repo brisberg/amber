@@ -1,9 +1,20 @@
+import SingleHarvestMsn from 'v2/missions/mining/single-harvest';
+import {ProtoPos} from 'v2/types';
+
 import Operation from './operation';
-import {getMemory} from './utils';
 
 export interface MiningOperationMemory {
   sourceIdx: number;
+  harvestMsn?: string;
+  analysis?: {pos: ProtoPos};
   type: 'drop'|'cont'|'link';
+  [key: string]: unknown;
+}
+
+export interface MiningOperationConfig {
+  sourceIdx: number;
+  type: 'drop'|'cont'|'link';
+  [key: string]: unknown;
 }
 
 /**
@@ -29,25 +40,57 @@ export interface MiningOperationMemory {
  * Requires a slightly larger carry capacity to reduce Transfer intents.
  */
 export default class MiningOperation extends
-    Operation<MiningOperationMemory, Record<string, unknown>> {
-  constructor(readonly name: string) {
-    super(name);
-    this.mem = getMemory(this);
+    Operation<MiningOperationMemory, MiningOperationConfig> {
+  private singleHarvestMsn: SingleHarvestMsn|null = null;
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected initialize(config: MiningOperationConfig): void {
+    // TODO: Perform Source Analysis
+    const room = Game.rooms[this.mem.colony];
+    const source = room.find(FIND_SOURCES)[config.sourceIdx];
+    this.mem.data.analysis = {
+      pos: {
+        room: room.name,
+        x: source.pos.x,
+        y: source.pos.y - 1,
+      },
+    };
+    return;
   }
 
-  protected initialize(config: Record<string, unknown>): void {
-    throw new Error('Method not implemented.');
-  }
   protected reconcile(): void {
-    throw new Error('Method not implemented.');
+    const harvestMsn = this.mem.data.harvestMsn;
+    if (harvestMsn) {
+      this.singleHarvestMsn =
+          global.msnRegistry.get(harvestMsn) as SingleHarvestMsn;
+    }
   }
-  protected initMemory(config: Record<string, unknown>): MiningOperationMemory {
-    throw new Error('Method not implemented.');
+
+  protected initMemory(config: MiningOperationConfig): MiningOperationMemory {
+    return {
+      sourceIdx: config.sourceIdx,
+      type: config.type,
+    };
   }
+
+  /**  */
   public run(): void {
-    throw new Error('Method not implemented.');
+    if (!this.mem.data.analysis) return;
+
+    if (!this.singleHarvestMsn) {
+      // Launch a new Single Harvest Mission
+      const pos = this.mem.data.analysis.pos;
+      const msn = new SingleHarvestMsn(`${this.name}-hvst`);
+      msn.init(this.mem.colony, {
+        sourceIdx: this.mem.data.sourceIdx,
+        pos: [pos.x, pos.y],
+      });
+      global.msnRegistry.register(msn);
+      this.mem.data.harvestMsn = msn.name;
+    }
   }
+
   protected finalize(): void {
-    throw new Error('Method not implemented.');
+    return;
   }
 }

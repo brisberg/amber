@@ -77,7 +77,7 @@ export default abstract class Operation<
    * Reaquires fresh references to GameObjects needed by the operation.
    */
   public refresh(): void {
-    throw new Error('Not Implemented');
+    this.reconcile();
   }
 
   /**

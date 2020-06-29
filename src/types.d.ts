@@ -37,6 +37,8 @@ declare namespace NodeJS {
     missions: import('./missions').MissionMap;
     // v2 Registry
     msnRegistry: import('./v2/missions/registry').MissionRegistry;
+    // v2 Registry
+    opRegistry: import('./v2/operations/registry').OperationRegistry;
     // Global operation behavior registry
     operations: import('./operations').OperationMap;
     // Global Spawn Queue instances
