@@ -56,7 +56,12 @@ export default class SingleHarvestMsn extends
       if (!creep) continue;
 
       const behavior = new HarvestBehavior();
-      setCreepBehavior(creep, behavior.new(sources[this.mem.data.sourceIdx]));
+      const harvestPosition = this.mem.data.pos;
+      const overridePos =
+          new RoomPosition(harvestPosition[0], harvestPosition[1], room.name);
+      setCreepBehavior(
+          creep,
+          behavior.new(sources[this.mem.data.sourceIdx], {}, {overridePos}));
     }
   }
 

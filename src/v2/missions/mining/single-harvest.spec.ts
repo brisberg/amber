@@ -1,5 +1,6 @@
 import {mockGlobal, mockInstanceOf} from 'screeps-jest';
 import {SpawnQueue} from 'spawn-system/spawnQueue';
+import {ProtoPos} from 'v2/types';
 
 import {mockSpawnQueueInstance} from '../mission.spec';
 
@@ -19,6 +20,7 @@ describe('SingleHarvestMsn', () => {
       pos: new RoomPosition(5, 5, 'N1W1'),
     });
     const room = mockInstanceOf<Room>({
+      name: 'N1W1',
       find: (find: FindConstant) => {
         if (find === FIND_SOURCES) {
           return [source];
@@ -80,6 +82,21 @@ describe('SingleHarvestMsn', () => {
 
     expect(creep.memory.mem.name).toBe('harvest');
     expect(creep.memory.mem.target.id).toBe(source.id);
+  });
+
+  it('should send creeps to harvest from the specified position', () => {
+    const msn = new SingleHarvestMsn('harvest').init('N1W1', {
+      sourceIdx: 0,
+      pos: [1, 2],
+    });
+    msn.assignCreep(creep);
+
+    msn.run();
+
+    const targetPos: ProtoPos = creep.memory.mem.target.pos;
+    expect(targetPos.x).toBe(1);
+    expect(targetPos.y).toBe(2);
+    expect(targetPos.room).toBe('N1W1');
   });
 
   it.skip('should send the replacement creep to relieve the worker', () => {
