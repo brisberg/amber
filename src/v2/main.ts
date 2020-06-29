@@ -2,7 +2,7 @@ import {SpawnQueue} from 'spawn-system/spawnQueue';
 
 import {getBehaviorMemory} from './behaviors/behavior';
 import {setupGlobal} from './global';
-import SingleHarvestMsn from './missions/mining/single-harvest';
+import MiningOperation from './operations/mining.op';
 
 function formatMemory(): void {
   if (!Memory.missions) {
@@ -29,19 +29,30 @@ export const loop = (): void => {
     global.spawnQueues[room] = new SpawnQueue(room, spawns);
   }
 
-  // Launch mining missions for each source
+  // Launch mining operation for each source
   const sources = Game.rooms[room].find(FIND_SOURCES);
   for (let i = 0; i < sources.length; i++) {
-    const msnName = `${room}-mine-${i}`;
-    if (!global.msnRegistry.get(msnName)) {
-      console.log(`Launching new Mining Mission: ${msnName}`);
-      const sourcePos = sources[i].pos;
-      const msn = new SingleHarvestMsn(msnName).init(room, {
+    const opName = `${room}-mine-${i}`;
+    if (!global.opRegistry.get(opName)) {
+      console.log(`Launching new Mining Operation: ${opName}`);
+      const op = new MiningOperation(opName).init(room, {
         sourceIdx: i,
-        pos: [sourcePos.x, sourcePos.y],
+        type: 'drop',
       });
-      global.msnRegistry.register(msn);
+      global.opRegistry.register(op);
     }
+  }
+
+  // Execute all of the operations in the Registry
+  const operations = global.opRegistry.list();
+  for (const op of operations) {
+    // msn.refresh();
+    // msn.rollCall();
+    op.refresh();
+    op.run();
+
+    // TODO: Validate the missions.
+    // TODO: Retire missions no longer valid.
   }
 
   // Execute all of the missions in the Registry
