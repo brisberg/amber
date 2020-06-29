@@ -1,4 +1,5 @@
 import {
+  BehaviorData,
   BehaviorMemory,
   BehaviorOptions,
   BehaviorSettings,
@@ -45,16 +46,17 @@ export abstract class Behavior {
   public new(
       target: RoomObject&{id: string},
       options: BehaviorOptions = {},
-      data: Record<string, unknown> = {},
+      data: BehaviorData = {},
       ): BehaviorMemory {
+    const tarPos = data.overridePos || target.pos;
     return {
       name: this.name,
       target: {
         id: target.id,
         pos: {
-          x: target.pos.x,
-          y: target.pos.y,
-          room: target.pos.roomName,
+          x: tarPos.x,
+          y: tarPos.y,
+          room: tarPos.roomName,
         },
       },
       options,

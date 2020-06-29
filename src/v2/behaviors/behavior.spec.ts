@@ -91,6 +91,14 @@ describe('Abstract Behavior', () => {
     expect(mem.data).toEqual({foo: 'bar'});
   });
 
+  it('should override target position from data', () => {
+    const mem = mockBehavior.new(target, {}, {
+      overridePos: new RoomPosition(4, 4, 'W0N0'),
+    });
+
+    expect(mem.target.pos).toEqual({x: 4, y: 4, room: 'W0N0'});
+  });
+
   it('should be valid iff both the task and target are valid', () => {
     setCreepBehavior(creep, mockBehavior.new(target));
 

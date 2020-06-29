@@ -50,5 +50,6 @@ export interface BehaviorOptions {
  * each Behavior subclass.
  */
 export interface BehaviorData {
-  amount: number;  // Unimplemented; Amount to transfer.
+  overridePos?: RoomPosition;  // Target Position override. [x, y].
+  [key: string]: unknown;
 }
