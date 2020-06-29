@@ -155,11 +155,13 @@ describe('Abstract Mission', () => {
       spyOn(global.spawnQueues['N1W1'], 'requestCreep')
           .and.returnValue(creep.name);
       mockGlobal<Game>('Game', {creeps: {[creep.name]: creep}});
+      mission.mockMaxCreepsFn = (): number => 1;
       mission.rollCall();  // Request a new creep
 
       mission.rollCall();  // Aquire creep requested last tick
 
       expect(mission.mockMemory.creeps).toEqual([creep.name]);
+      expect(mission.mockMemory.nextCreep).toBeUndefined();
     });
 
     it('should ignore a nextCreep if it was not spawned', () => {

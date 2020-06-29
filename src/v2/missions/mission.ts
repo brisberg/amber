@@ -129,11 +129,13 @@ export default abstract class Mission<
 
   public rollCall(): void {
     // Aquire next creep from last tick if it exists
-    if (this.mem.nextCreep && Game.creeps[this.mem.nextCreep]) {
-      // Creep exists, grab it!
-      this.mem.creeps.push(this.mem.nextCreep);
-    } else {
-      // Oh well, remove flag so we can re-request
+    if (this.mem.nextCreep) {
+      if (Game.creeps[this.mem.nextCreep]) {
+        // Creep exists, grab it!
+        this.mem.creeps.push(this.mem.nextCreep);
+      }
+
+      // Clear next creep flag
       delete this.mem.nextCreep;
     }
 
