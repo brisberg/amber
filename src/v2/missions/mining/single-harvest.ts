@@ -63,7 +63,7 @@ export default class SingleHarvestMsn extends
           new RoomPosition(harvestPosition[0], harvestPosition[1], room.name);
       setCreepBehavior(
           creep,
-          harvest.new(sources[this.mem.data.sourceIdx], {}, {overridePos}));
+          harvest.new(sources[this.mem.data.sourceIdx], {overridePos}, {}));
     }
   }
 

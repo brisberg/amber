@@ -91,14 +91,6 @@ describe('Abstract Behavior', () => {
     expect(mem.data).toEqual({foo: 'bar'});
   });
 
-  it('should override target position from data', () => {
-    const mem = mockBehavior.new(target, {}, {
-      overridePos: new RoomPosition(4, 4, 'W0N0'),
-    });
-
-    expect(mem.target.pos).toEqual({x: 4, y: 4, room: 'W0N0'});
-  });
-
   it('should be valid iff both the task and target are valid', () => {
     setCreepBehavior(creep, mockBehavior.new(target));
 
@@ -151,6 +143,19 @@ describe('Abstract Behavior', () => {
     mockBehavior.run(creep);
 
     expect(work).toHaveBeenCalled();
+  });
+
+  it('should move towards override position if out of range', () => {
+    const mem = mockBehavior.new(target, {
+      overridePos: new RoomPosition(4, 4, 'W0N0'),
+    });
+    setCreepBehavior(creep, mem);
+    creep.pos.inRangeTo = (): boolean => false;
+
+    mockBehavior.run(creep);
+
+    expect(creep.moveTo).toHaveBeenCalledWith(4, 4, {range: 0});
+    expect(work).not.toHaveBeenCalled();
   });
 
   it('should return the response code of work()', () => {

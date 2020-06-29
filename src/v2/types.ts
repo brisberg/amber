@@ -22,8 +22,7 @@ export interface BehaviorMemory {
   };
   tick: number;              // Tick when task was assigned
   options: BehaviorOptions;  // Options for a specific behavior instance
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data: any;
+  data: BehaviorData;
 }
 
 /**
@@ -43,6 +42,8 @@ export interface BehaviorSettings {
  */
 export interface BehaviorOptions {
   blind?: boolean;  // Unimplemented. Don't need vision for the task.
+  // Target Position override. [x, y]. Creeps work from this exact position.
+  overridePos?: RoomPosition;
 }
 
 /**
@@ -50,6 +51,5 @@ export interface BehaviorOptions {
  * each Behavior subclass.
  */
 export interface BehaviorData {
-  overridePos?: RoomPosition;  // Target Position override. [x, y].
   [key: string]: unknown;
 }

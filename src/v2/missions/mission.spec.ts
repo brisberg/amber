@@ -5,18 +5,10 @@ import {SpawnQueue, SpawnRequest} from 'spawn-system/spawnQueue';
 import {MissionMemory} from './mission';
 import MockMission,
 {MockMissionConfig, MockMissionData} from './testing/mission-mock';
+import {mockSpawnQueueInstance} from './testing/spawnQueue-mock';
 import {getMemory} from './utils';
 
 const MISSION_NAME = 'mission-name';
-
-/** Utility to create a minimum mock instance of a Spawn Queue. */
-export function mockSpawnQueueInstance(): SpawnQueue {
-  return mockInstanceOf<SpawnQueue>({
-    requestCreep: (): void => {
-      return;
-    },
-  });
-}
 
 describe('Abstract Mission', () => {
   let mission: MockMission;

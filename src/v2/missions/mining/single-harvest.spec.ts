@@ -1,9 +1,8 @@
 import {mockGlobal, mockInstanceOf} from 'screeps-jest';
 import {SpawnQueue} from 'spawn-system/spawnQueue';
 import {setupGlobal} from 'v2/global';
-import {ProtoPos} from 'v2/types';
 
-import {mockSpawnQueueInstance} from '../mission.spec';
+import {mockSpawnQueueInstance} from '../testing/spawnQueue-mock';
 
 import SingleHarvestMsn from './single-harvest';
 
@@ -13,6 +12,12 @@ describe('SingleHarvestMsn', () => {
 
   beforeEach(() => {
     // Set up Globals
+    mockGlobal<Memory>(
+        'Memory', {
+          missions: {},
+          operations: {},
+        },
+        true);
     setupGlobal();
     mockGlobal<{[roomname: string]: SpawnQueue}>('spawnQueues', {
       'N1W1': mockSpawnQueueInstance(),
@@ -43,7 +48,6 @@ describe('SingleHarvestMsn', () => {
       creeps: {'creep1': creep},
       time: 100,
     });
-    Memory.missions = {};
   });
 
   it('should use max 1 worker', () => {
@@ -95,10 +99,10 @@ describe('SingleHarvestMsn', () => {
 
     msn.run();
 
-    const targetPos: ProtoPos = creep.memory.mem.target.pos;
-    expect(targetPos.x).toBe(1);
-    expect(targetPos.y).toBe(2);
-    expect(targetPos.room).toBe('N1W1');
+    const overridePos: RoomPosition = creep.memory.mem.options.overridePos;
+    expect(overridePos.x).toBe(1);
+    expect(overridePos.y).toBe(2);
+    expect(overridePos.roomName).toBe('N1W1');
   });
 
   it.skip('should send the replacement creep to relieve the worker', () => {

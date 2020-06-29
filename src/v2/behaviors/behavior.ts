@@ -48,15 +48,14 @@ export abstract class Behavior {
       options: BehaviorOptions = {},
       data: BehaviorData = {},
       ): BehaviorMemory {
-    const tarPos = data.overridePos || target.pos;
     return {
       name: this.name,
       target: {
         id: target.id,
         pos: {
-          x: tarPos.x,
-          y: tarPos.y,
-          room: tarPos.roomName,
+          x: target.pos.x,
+          y: target.pos.y,
+          room: target.pos.roomName,
         },
       },
       options,
@@ -70,13 +69,36 @@ export abstract class Behavior {
     return Game.getObjectById(mem.target.id);
   }
 
+  /** Returns the Target position (including position override) */
+  private getTargetPos(mem: BehaviorMemory): RoomPosition {
+    const override = mem.options.overridePos;
+    if (override) {
+      return new RoomPosition(override.x, override.y, override.roomName);
+    }
+    const target = this.getTarget(mem);
+    if (target) {
+      return target.pos;
+    }
+
+    // Blind target position
+    const pos = mem.target.pos;
+    return new RoomPosition(pos.x, pos.y, pos.room);
+  }
+
+  /** Returns the desired range to target (including override)  */
+  private getRange(mem: BehaviorMemory): number {
+    return mem.options.overridePos ? 0 : this.settings.range;
+  }
+
   /**
    * Move to within range of the target
    */
-  protected moveToTarget(creep: Creep, range = this.settings.range): number {
-    const tar = this.getTarget(getBehaviorMemory(creep));
-    if (tar) {
-      return creep.moveTo(tar.pos.x, tar.pos.y, {range: range});
+  protected moveToTarget(creep: Creep, range?: number): number {
+    const mem = getBehaviorMemory(creep);
+    const finalRange = range || this.getRange(mem);
+    const pos = this.getTargetPos(mem);
+    if (pos) {
+      return creep.moveTo(pos.x, pos.y, {range: finalRange});
     }
     return ERR_INVALID_TARGET;
   }
@@ -117,11 +139,9 @@ export abstract class Behavior {
   /** Determine if the creep is in range to perform the work */
   protected isWorking(creep: Creep): boolean {
     const mem = getBehaviorMemory(creep);
-    return creep.pos.inRangeTo(
-        mem.target.pos.x,
-        mem.target.pos.y,
-        this.settings.range,
-    );
+    const tarPos = this.getTargetPos(mem);
+    const range = this.getRange(mem);
+    return creep.pos.inRangeTo(tarPos.x, tarPos.y, range);
     // TODO: Check if creep is on edge
   }
 
