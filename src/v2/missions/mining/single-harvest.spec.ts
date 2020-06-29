@@ -1,5 +1,6 @@
 import {mockGlobal, mockInstanceOf} from 'screeps-jest';
 import {SpawnQueue} from 'spawn-system/spawnQueue';
+import {setupGlobal} from 'v2/global';
 import {ProtoPos} from 'v2/types';
 
 import {mockSpawnQueueInstance} from '../mission.spec';
@@ -12,6 +13,7 @@ describe('SingleHarvestMsn', () => {
 
   beforeEach(() => {
     // Set up Globals
+    setupGlobal();
     mockGlobal<{[roomname: string]: SpawnQueue}>('spawnQueues', {
       'N1W1': mockSpawnQueueInstance(),
     });

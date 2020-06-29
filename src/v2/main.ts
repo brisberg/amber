@@ -31,7 +31,11 @@ export const loop = (): void => {
     const msnName = `${room}-mine-${i}`;
     if (!global.msnRegistry.get(msnName)) {
       console.log(`Launching new Mining Mission: ${msnName}`);
-      const msn = new SingleHarvestMsn(msnName).init(room, {sourceIdx: i});
+      const sourcePos = sources[i].pos;
+      const msn = new SingleHarvestMsn(msnName).init(room, {
+        sourceIdx: i,
+        pos: [sourcePos.x, sourcePos.y],
+      });
       global.msnRegistry.register(msn);
     }
   }

@@ -7,11 +7,13 @@ import Mission from '../mission';
 interface SingleHarvestMsnData {
   sourceIdx: number;  // Target source index in room.sources
   pos: number[];      // Standing position, [x, y]
+  [key: string]: unknown;
 }
 
 interface SingleHarvestConfig {
   sourceIdx: number;  // Target source index in room.sources
   pos: number[];      // Standing position
+  [key: string]: unknown;
 }
 
 /**
@@ -55,13 +57,13 @@ export default class SingleHarvestMsn extends
 
       if (!creep) continue;
 
-      const behavior = new HarvestBehavior();
+      const harvest = global.behaviorsMap['harvest'] as HarvestBehavior;
       const harvestPosition = this.mem.data.pos;
       const overridePos =
           new RoomPosition(harvestPosition[0], harvestPosition[1], room.name);
       setCreepBehavior(
           creep,
-          behavior.new(sources[this.mem.data.sourceIdx], {}, {overridePos}));
+          harvest.new(sources[this.mem.data.sourceIdx], {}, {overridePos}));
     }
   }
 

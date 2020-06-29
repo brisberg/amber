@@ -17,7 +17,7 @@ describe('drop mining mission operation', () => {
   let server: ScreepsServer;
   let player: User;
   let world: World;
-  const room = 'W1N1';  // 'sim' hardcoded in main.js for now
+  const room = 'W1N1';
 
   beforeEach(async () => {
     server = new ScreepsServer();
