@@ -42,8 +42,11 @@ export abstract class Behavior {
   protected abstract work(creep: Creep): number;
 
   /** Returns a new behavior memory */
-  public new(target: RoomObject&{id: string}, options: BehaviorOptions = {}):
-      BehaviorMemory {
+  public new(
+      target: RoomObject&{id: string},
+      options: BehaviorOptions = {},
+      data: Record<string, unknown> = {},
+      ): BehaviorMemory {
     return {
       name: this.name,
       target: {
@@ -56,7 +59,7 @@ export abstract class Behavior {
       },
       options,
       tick: Game.time,
-      data: {},
+      data,
     };
   }
 

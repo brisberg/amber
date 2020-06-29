@@ -84,6 +84,13 @@ describe('Abstract Behavior', () => {
     });
   });
 
+  it('should save supplied options to memory object', () => {
+    const mem = mockBehavior.new(target, {blind: true}, {foo: 'bar'});
+
+    expect(mem.options).toEqual({blind: true});
+    expect(mem.data).toEqual({foo: 'bar'});
+  });
+
   it('should be valid iff both the task and target are valid', () => {
     setCreepBehavior(creep, mockBehavior.new(target));
 
