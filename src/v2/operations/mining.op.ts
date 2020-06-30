@@ -61,8 +61,10 @@ export default class MiningOperation extends
   protected reconcile(): void {
     const harvestMsn = this.mem.data.harvestMsn;
     if (harvestMsn) {
-      this.singleHarvestMsn =
-          global.msnRegistry.get(harvestMsn) as SingleHarvestMsn;
+      const msn = global.msnRegistry.get(harvestMsn) as SingleHarvestMsn | null;
+      if (msn) {
+        this.singleHarvestMsn = msn;
+      }
     }
   }
 

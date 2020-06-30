@@ -1,8 +1,9 @@
+import {Registerable, RegisterableMemory} from 'v2/registry/registerable';
+
 import {deleteMemory, getMemory, setMemory} from './utils';
 
 
-export interface MissionMemory<M> {
-  type: string;          // KEY of the Mission class for this memory
+export interface MissionMemory<M> extends RegisterableMemory {
   creeps: string[];      // Names of owned creeps
   nextCreep?: string;    // Name of possible next creep
   spawnSource?: string;  // Optional name of foreign SpawnQueue
@@ -49,7 +50,8 @@ export interface MissionMemory<M> {
  * Generic type C is the configuration type for this mission.
  */
 export default abstract class Mission<
-    M = Record<string, unknown>, C = Record<string, unknown>> {
+    M = Record<string, unknown>, C = Record<string, unknown>> implements
+    Registerable {
   protected mem: MissionMemory<M>;
 
   constructor(readonly name: string) {

@@ -1,8 +1,9 @@
+import {Registerable, RegisterableMemory} from 'v2/registry/registerable';
+
 import {deleteMemory, getMemory, setMemory} from './utils';
 
 
-export interface OperationMemory<M> {
-  type: string;          // KEY of the Mission class for this memory
+export interface OperationMemory<M> extends RegisterableMemory {
   spawnSource?: string;  // Optional name of foreign SpawnQueue
   colony: string;        // WIP Roomname of host colony
   data: M;               // Operation specific data fields
@@ -13,7 +14,8 @@ export interface OperationMemory<M> {
  *
  */
 export default abstract class Operation<
-    M = Record<string, unknown>, C = Record<string, unknown>> {
+    M = Record<string, unknown>, C = Record<string, unknown>> implements
+    Registerable {
   protected mem: OperationMemory<M>;
 
   constructor(readonly name: string) {

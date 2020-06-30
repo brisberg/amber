@@ -1,63 +1,62 @@
 import {mockGlobal} from 'screeps-jest';
 
-import Mission from './mission';
-import {MissionRegistry} from './registry';
-import MockMission from './testing/mission-mock';
+import {Registry} from './registry';
+import {mockFromTypeFn, MockRegisterable} from './testing/registerable.mock';
 
-describe('Mission Registry', () => {
-  let registry: MissionRegistry;
-  let msn: Mission;
+describe('Registry', () => {
+  let registry: Registry<MockRegisterable>;
+  let obj: MockRegisterable;
   const MISSION_NAME = 'mission';
 
   beforeEach(() => {
-    // Mock mission memory to initialize missions
+    // Mock memory to initialize registerables
     mockGlobal<Memory>('Memory', {missions: {}}, true);
 
     // Initialize test variables
-    registry = new MissionRegistry();
-    msn = new MockMission(MISSION_NAME);
+    registry = new Registry<MockRegisterable>(mockFromTypeFn);
+    obj = new MockRegisterable(MISSION_NAME);
   });
 
   it('should initialize missions from existing mission memorys', () => {
     mockGlobal<Memory>('Memory', {
       missions: {
-        'msn1': {type: MockMission.name},
-        'msn2': {type: MockMission.name},
+        'obj1': {type: MockRegisterable.name},
+        'obj2': {type: MockRegisterable.name},
       },
     });
 
-    registry.init();
+    registry.init(Memory.missions);
 
-    const msn1 = registry.get('msn1');
-    expect(msn1).toBeDefined();
-    expect(msn1 instanceof MockMission).toBeTruthy();
-    const msn2 = registry.get('msn2');
-    expect(msn2).toBeDefined();
-    expect(msn2 instanceof MockMission).toBeTruthy();
+    const obj1 = registry.get('obj1');
+    expect(obj1).toBeDefined();
+    expect(obj1 instanceof MockRegisterable).toBeTruthy();
+    const obj2 = registry.get('obj2');
+    expect(obj2).toBeDefined();
+    expect(obj2 instanceof MockRegisterable).toBeTruthy();
   });
 
   it.todo('should refresh from flags?');
 
   describe('Register', () => {
     it('should register a new mission', () => {
-      registry.register(msn);
+      registry.register(obj);
 
-      expect(registry.get(MISSION_NAME)).toBe(msn);
+      expect(registry.get(MISSION_NAME)).toBe(obj);
     });
 
     it('should return the newly registered mission', () => {
-      const result = registry.register(msn);
+      const result = registry.register(obj);
 
-      expect(result).toBe(msn);
+      expect(result).toBe(obj);
     });
 
     it('should overwrite an existing mission when re-registering', () => {
-      const msn2 = new MockMission(MISSION_NAME);
-      registry.register(msn);
+      const obj2 = new MockRegisterable(MISSION_NAME);
+      registry.register(obj);
 
-      registry.register(msn2);  // Overwrite
+      registry.register(obj2);  // Overwrite
 
-      expect(registry.get(MISSION_NAME)).toBe(msn2);
+      expect(registry.get(MISSION_NAME)).toBe(obj2);
     });
 
     it('should return null when fetching a non-existant mission', () => {
@@ -66,16 +65,16 @@ describe('Mission Registry', () => {
   });
 
   describe('Unregister', () => {
-    it('should unregister a mission with a Mission Object', () => {
-      registry.register(msn);
+    it('should unregister a mission with a Registerable Object', () => {
+      registry.register(obj);
 
-      registry.unregister(msn);
+      registry.unregister(obj);
 
       expect(registry.get(MISSION_NAME)).toBeNull();
     });
 
     it('should unregister a mission with a name', () => {
-      registry.register(msn);
+      registry.register(obj);
 
       registry.unregister(MISSION_NAME);
 
@@ -83,7 +82,7 @@ describe('Mission Registry', () => {
     });
 
     it('should return true when successfully unregistering a mission', () => {
-      registry.register(msn);
+      registry.register(obj);
 
       const result = registry.unregister(MISSION_NAME);
 
@@ -102,10 +101,10 @@ describe('Mission Registry', () => {
       expect(registry.list()).toEqual([]);
     });
 
-    it('should return an array of all Missions registered', () => {
-      registry.register(msn);
+    it('should return an array of all Registerables registered', () => {
+      registry.register(obj);
 
-      expect(registry.list()).toEqual([msn]);
+      expect(registry.list()).toEqual([obj]);
     });
   });
 });

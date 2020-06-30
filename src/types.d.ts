@@ -35,10 +35,12 @@ declare namespace NodeJS {
     tower: import('./towers/tower').TowerBehavior;
     // Global mission behavior registry
     missions: import('./missions').MissionMap;
-    // v2 Registry
-    msnRegistry: import('./v2/missions/registry').MissionRegistry;
-    // v2 Registry
-    opRegistry: import('./v2/operations/registry').OperationRegistry;
+    // v2 Mission Registry
+    msnRegistry: import('./v2/registry/registry')
+        .Registry<import('./v2/missions/mission').default>;
+    // v2 Operation Registry
+    opRegistry: import('./v2/registry/registry')
+        .Registry<import('./v2/operations/operation').default>;
     // Global operation behavior registry
     operations: import('./operations').OperationMap;
     // Global Spawn Queue instances
