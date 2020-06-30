@@ -10,6 +10,13 @@ export interface ProtoPos {
 }
 
 /**
+ * Location in a room. Used when the room name can be implied.
+ *
+ * [X, Y]
+ */
+export type Point = [number, number];
+
+/**
  * Abstract interface for Behavior Memory. All behavior memories should
  * implement this. Mainly for standardizing sub-behaviors.
  */
