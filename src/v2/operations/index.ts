@@ -1,5 +1,5 @@
 import Operation from './operation';
-import Mockoperation from './testing/operation-mock';
+import Mockoperation from './testing/operation.mock';
 
 /**
  * Constructs a specific Operation Object from a type key and name.

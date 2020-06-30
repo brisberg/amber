@@ -2,7 +2,7 @@ import {mockGlobal, mockInstanceOf} from 'screeps-jest';
 import {SpawnQueue} from 'spawn-system/spawnQueue';
 import {setupGlobal} from 'v2/global';
 
-import {mockSpawnQueueInstance} from '../testing/spawnQueue-mock';
+import {mockSpawnQueueInstance} from '../testing/spawnQueue.mock';
 
 import SingleHarvestMsn from './single-harvest';
 

@@ -1,5 +1,5 @@
 import Mission from './mission';
-import MockMission from './testing/mission-mock';
+import MockMission from './testing/mission.mock';
 
 /**
  * Constructs a specific Mission Object from a type key and name.

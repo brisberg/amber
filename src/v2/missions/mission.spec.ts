@@ -4,8 +4,8 @@ import {SpawnQueue, SpawnRequest} from 'spawn-system/spawnQueue';
 
 import {MissionMemory} from './mission';
 import MockMission,
-{MockMissionConfig, MockMissionData} from './testing/mission-mock';
-import {mockSpawnQueueInstance} from './testing/spawnQueue-mock';
+{MockMissionConfig, MockMissionData} from './testing/mission.mock';
+import {mockSpawnQueueInstance} from './testing/spawnQueue.mock';
 import {getMemory} from './utils';
 
 const MISSION_NAME = 'mission-name';
