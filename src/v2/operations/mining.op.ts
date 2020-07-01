@@ -1,12 +1,12 @@
 import SingleHarvestMsn from 'v2/missions/mining/single-harvest';
-import {ProtoPos} from 'v2/types';
 
 import Operation from './operation';
+import {analyzeSourceForHarvesting, SourceAnalysis} from './sourceAnalysis';
 
 export interface MiningOperationMemory {
   sourceIdx: number;
   harvestMsn?: string;
-  analysis?: {pos: ProtoPos};
+  analysis?: SourceAnalysis;
   type: 'drop'|'cont'|'link';
   [key: string]: unknown;
 }
@@ -43,18 +43,14 @@ export default class MiningOperation extends
     Operation<MiningOperationMemory, MiningOperationConfig> {
   private singleHarvestMsn: SingleHarvestMsn|null = null;
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected initialize(config: MiningOperationConfig): void {
-    // TODO: Perform Source Analysis
     const room = Game.rooms[this.mem.colony];
     const source = room.find(FIND_SOURCES)[config.sourceIdx];
-    this.mem.data.analysis = {
-      pos: {
-        room: room.name,
-        x: source.pos.x,
-        y: source.pos.y - 1,
-      },
-    };
+    // TODO: calculate a better base location
+    const spawn = room.find(FIND_MY_SPAWNS)[0];
+
+    const analysis = analyzeSourceForHarvesting(spawn.pos, source);
+    this.mem.data.analysis = analysis;
     return;
   }
 
@@ -80,12 +76,12 @@ export default class MiningOperation extends
     if (!this.mem.data.analysis) return;
 
     if (!this.singleHarvestMsn) {
-      // Launch a new Single Harvest Mission
-      const pos = this.mem.data.analysis.pos;
+      // Launch a new Single Harvest Mission for primary position
+      const pos = this.mem.data.analysis.positions[0];
       const msn = new SingleHarvestMsn(`${this.name}-hvst`);
       msn.init(this.mem.colony, {
         sourceIdx: this.mem.data.sourceIdx,
-        pos: [pos.x, pos.y],
+        pos,
       });
       global.msnRegistry.register(msn);
       this.mem.data.harvestMsn = msn.name;
