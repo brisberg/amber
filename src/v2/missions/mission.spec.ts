@@ -90,6 +90,15 @@ describe('Abstract Mission', () => {
 
       expect(msn.mockInitializeFn).toHaveBeenCalledWith(config);
     });
+
+    it('should call refresh after init', () => {
+      const msn = new MockMission(MISSION_NAME);
+      msn.refresh = jest.fn();
+
+      msn.init('N1W1', defaultConfig);
+
+      expect(msn.refresh).toHaveBeenCalled();
+    });
   });
 
   describe('Refresh', () => {

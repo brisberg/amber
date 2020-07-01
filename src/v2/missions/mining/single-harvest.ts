@@ -28,13 +28,14 @@ export default class SingleHarvestMsn extends
 
   protected bodyType = WORKER;
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected initialize(config: SingleHarvestConfig): void {
+  protected initialize(): void {
     return;
   }
 
   protected reconcile(): void {
-    throw new Error('Method not implemented.');
+    const room = Game.rooms[this.mem.colony];
+    const sources = room.find(FIND_SOURCES);
+    this.source = sources[this.mem.data.sourceIdx];
   }
 
   protected initMemory(config: SingleHarvestConfig): SingleHarvestMsnData {
@@ -49,8 +50,7 @@ export default class SingleHarvestMsn extends
   }
 
   protected creepActions(): void {
-    const room = Game.rooms[this.mem.colony];
-    const sources = room.find(FIND_SOURCES);
+    if (!this.source) return;
 
     for (const name of this.mem.creeps) {
       const creep = Game.creeps[name];
@@ -59,11 +59,12 @@ export default class SingleHarvestMsn extends
 
       const harvest = global.behaviorsMap['harvest'] as HarvestBehavior;
       const harvestPosition = this.mem.data.pos;
-      const overridePos =
-          new RoomPosition(harvestPosition[0], harvestPosition[1], room.name);
-      setCreepBehavior(
-          creep,
-          harvest.new(sources[this.mem.data.sourceIdx], {overridePos}, {}));
+      const overridePos = new RoomPosition(
+          harvestPosition[0],
+          harvestPosition[1],
+          this.source.pos.roomName,
+      );
+      setCreepBehavior(creep, harvest.new(this.source, {overridePos}, {}));
     }
   }
 

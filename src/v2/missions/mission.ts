@@ -117,6 +117,8 @@ export default abstract class Mission<
 
     this.initialize(config);
 
+    this.refresh();
+
     return this;
   }
 
