@@ -35,6 +35,7 @@ describe('Abstract Mission', () => {
     // Memory initialization
     it('should store mission memory in Memory.missions[name]', () => {
       const msn = new MockMission(MISSION_NAME);
+
       msn.init('N1W1', defaultConfig);
 
       // Using 'toBe' to ensure they are the same object
@@ -44,6 +45,7 @@ describe('Abstract Mission', () => {
     it('should initialize default mission memory if none exists', () => {
       Memory.missions = {};
       const msn = new MockMission(MISSION_NAME);
+
       msn.init('N1W1', defaultConfig);
 
       const mem: MissionMemory<MockMissionData> = getMemory(msn);
@@ -54,7 +56,7 @@ describe('Abstract Mission', () => {
       expect(mem.data).toBeDefined();
     });
 
-    // Happens when reinitialized after a Global refresh
+    // Happens when reinitialized after a Global reset
     it('should reuse existing mission memory if it exists', () => {
       const existingMemory: MissionMemory<MockMissionData> = {
         type: MockMission.name,
@@ -64,6 +66,7 @@ describe('Abstract Mission', () => {
       };
       Memory.missions[MISSION_NAME] = existingMemory;
       const msn = new MockMission(MISSION_NAME);
+
       msn.init('N1W1', defaultConfig);
 
       expect(getMemory(msn)).toEqual(existingMemory);
@@ -71,6 +74,7 @@ describe('Abstract Mission', () => {
 
     it('should initialize custom mission data from config', () => {
       const msn = new MockMission(MISSION_NAME);
+
       msn.init('N1W1', {mockDataField: 'custom value'});
 
       const mem: MissionMemory<MockMissionData> = getMemory(msn);
@@ -81,9 +85,21 @@ describe('Abstract Mission', () => {
       const config: MockMissionConfig = {mockDataField: 'barbaz'};
       const msn = new MockMission(MISSION_NAME);
       msn.mockInitializeFn = jest.fn();
+
       msn.init('N1W1', config);
 
       expect(msn.mockInitializeFn).toHaveBeenCalledWith(config);
+    });
+  });
+
+  describe('Refresh', () => {
+    it('should call reconcile when refresh is called', () => {
+      const msn = new MockMission(MISSION_NAME);
+      msn.mockReconcileFn = jest.fn();
+
+      msn.refresh();
+
+      expect(msn.mockReconcileFn).toHaveBeenCalled();
     });
   });
 

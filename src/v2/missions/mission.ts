@@ -126,7 +126,8 @@ export default abstract class Mission<
    * Reaquires fresh references to GameObjects needed by the mission.
    */
   public refresh(): void {
-    throw new Error('Not Implemented');
+    this.mem = getMemory(this);
+    this.reconcile();
   }
 
   public rollCall(): void {
