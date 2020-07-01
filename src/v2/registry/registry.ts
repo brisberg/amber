@@ -33,10 +33,15 @@ export class Registry<R extends Registerable> {
   }
 
   /**
-   * Refresh the Mission Registry from the world once per tick.
+   * Refresh the each Object in the Registry from the world once per tick.
    */
   public refresh(): void {
-    throw new Error('Unimplemented');
+    for (const key in this.map) {
+      if ({}.hasOwnProperty.call(this.map, key)) {
+        const obj = this.map[key];
+        obj.refresh();
+      }
+    }
   }
 
   /**

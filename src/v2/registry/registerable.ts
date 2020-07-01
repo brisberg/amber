@@ -1,5 +1,7 @@
 export interface Registerable {
   name: string;
+
+  refresh(): void;
 }
 
 export interface RegisterableMemory {
