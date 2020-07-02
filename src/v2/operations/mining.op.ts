@@ -5,7 +5,7 @@ import {analyzeSourceForHarvesting, SourceAnalysis} from './sourceAnalysis';
 
 export interface MiningOperationMemory {
   sourceIdx: number;
-  harvestMsn?: string;
+  harvestMsns: string[];
   analysis?: SourceAnalysis;
   type: 'drop'|'cont'|'link';
   [key: string]: unknown;
@@ -41,7 +41,8 @@ export interface MiningOperationConfig {
  */
 export default class MiningOperation extends
     Operation<MiningOperationMemory, MiningOperationConfig> {
-  private singleHarvestMsn: SingleHarvestMsn|null = null;
+  private harvestMsns: SingleHarvestMsn[] = [];
+  private hUnitsAvailable = 0;
 
   protected initialize(config: MiningOperationConfig): void {
     const room = Game.rooms[this.mem.colony];
@@ -55,17 +56,24 @@ export default class MiningOperation extends
   }
 
   protected reconcile(): void {
-    const harvestMsn = this.mem.data.harvestMsn;
-    if (harvestMsn) {
-      const msn = global.msnRegistry.get(harvestMsn) as SingleHarvestMsn | null;
+    const room = Game.rooms[this.mem.colony];
+    const maxEnergy = room.energyCapacityAvailable;
+
+    // TODO: perform this calculation somewhere else
+    // (Energy - 1x CARRY) / 2x WORK 1x Move
+    this.hUnitsAvailable = Math.min((maxEnergy - 50) / 250);
+
+    this.mem.data.harvestMsns.forEach((msnName) => {
+      const msn = global.msnRegistry.get(msnName);
       if (msn) {
-        this.singleHarvestMsn = msn;
+        this.harvestMsns.push(msn as SingleHarvestMsn);
       }
-    }
+    });
   }
 
   protected initMemory(config: MiningOperationConfig): MiningOperationMemory {
     return {
+      harvestMsns: [],
       sourceIdx: config.sourceIdx,
       type: config.type,
     };
@@ -75,20 +83,24 @@ export default class MiningOperation extends
   public run(): void {
     if (!this.mem.data.analysis) return;
 
-    if (!this.singleHarvestMsn) {
-      // Launch a new Single Harvest Mission for primary position
-      const pos = this.mem.data.analysis.positions[0];
-      const msn = new SingleHarvestMsn(`${this.name}-hvst`);
-      msn.init(this.mem.colony, {
-        sourceIdx: this.mem.data.sourceIdx,
-        pos,
-      });
-      global.msnRegistry.register(msn);
-      this.mem.data.harvestMsn = msn.name;
-    }
+    // TODO: Maybe cache last room energy calculated, to avoid most of the time
+
+    let hUnitsLeft = 3;
+    this.harvestMsns.forEach((msn, index) => {
+      if (hUnitsLeft <= 0) {
+        msn.retire();
+      } else {
+        const hUnits = Math.min(hUnitsLeft, this.hUnitsAvailable);
+        hUnitsLeft -= hUnits;
+        // msn.setHUnits(hUnits);
+      }
+    });
+
+    // Fill in mission amounts
   }
 
   protected finalize(): void {
-    return;
+    // Retire all sub-missions
+    this.harvestMsns.forEach((msn) => msn.retire());
   }
 }
