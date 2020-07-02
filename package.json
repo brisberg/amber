@@ -64,7 +64,7 @@
     "rollup": "^1.27.14",
     "rollup-plugin-clear": "^2.0.7",
     "rollup-plugin-screeps": "^0.1.2",
-    "screeps-jest": "github:brisberg/screeps-jest#jest-26",
+    "screeps-jest": "github:brisberg/screeps-jest#ts-3.9",
     "ts-jest": "^26.1.1",
     "typescript": "^3.8.3"
   }

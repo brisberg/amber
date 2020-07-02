@@ -4,7 +4,7 @@ import {readFileSync} from 'fs';
 import {helper} from './helper';
 import {addContainer, getController} from './roomObjectsHelper';
 
-const DIST_MAIN_JS = 'lib/main.js';
+const DIST_MAIN_JS = 'dist/main.js';
 
 /**
  * Integration Test package to test if we can successfully upgrade a controller

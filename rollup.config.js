@@ -22,11 +22,11 @@ if (!dest) {
 
 export default {
   input: 'src/main.ts',
-  output: {file: 'lib/main.js', format: 'cjs', sourcemap: true},
+  output: {file: 'dist/main.js', format: 'cjs', sourcemap: true},
 
   plugins:
       [
-        clear({targets: ['lib']}),
+        clear({targets: ['dist']}),
         resolve(),
         commonjs(),
         typescript({tsconfig: './tsconfig.json'}),
