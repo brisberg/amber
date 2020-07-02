@@ -15,7 +15,7 @@ parserOptions:
 plugins:
   - '@typescript-eslint'
 ignorePatterns:
-  - lib/
+  - dist/
 rules:
   require-jsdoc: 0
   valid-jsdoc: 0

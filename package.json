@@ -46,10 +46,9 @@
   },
   "devDependencies": {
     "@brisberg/screeps-server-mockup": "^1.6.4",
-    "@rollup/plugin-commonjs": "^11.0.0",
-    "@rollup/plugin-multi-entry": "^3.0.0",
-    "@rollup/plugin-node-resolve": "^6.0.0",
-    "@rollup/plugin-typescript": "^3.0.0",
+    "@rollup/plugin-commonjs": "^13.0.0",
+    "@rollup/plugin-node-resolve": "^8.1.0",
+    "@rollup/plugin-typescript": "^5.0.1",
     "@types/jest": "^26.0.0",
     "@types/lodash": "^4.14.149",
     "@types/node": "^10.17.17",
@@ -61,11 +60,11 @@
     "eslint-config-google": "^0.14.0",
     "jest": "^26.1.0",
     "lodash": "^4.17.15",
-    "rollup": "^1.27.14",
+    "rollup": "^2.18.2",
     "rollup-plugin-clear": "^2.0.7",
-    "rollup-plugin-screeps": "^0.1.2",
+    "rollup-plugin-screeps": "^1.0.0",
     "screeps-jest": "github:brisberg/screeps-jest#ts-3.9",
     "ts-jest": "^26.1.1",
-    "typescript": "^3.8.3"
+    "typescript": "^3.9.6"
   }
 }
