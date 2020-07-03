@@ -86,7 +86,7 @@ export default class MiningOperation extends
     // TODO: Maybe cache last room energy calculated, to avoid most of the time
 
     let hUnitsLeft = 3;
-    this.harvestMsns.forEach((msn, index) => {
+    this.harvestMsns.forEach((msn) => {
       if (hUnitsLeft <= 0) {
         msn.retire();
       } else {
