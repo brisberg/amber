@@ -88,4 +88,12 @@ export class HarvestMission extends Mission<HarvestMemory> {
 
     return true;
   }
+
+  /**
+   * @override
+   * Never critical
+   */
+  protected needMoreCreepsCritical(): boolean {
+    return false;
+  }
 }
