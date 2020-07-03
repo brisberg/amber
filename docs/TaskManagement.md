@@ -12,7 +12,7 @@ A standard base with two sources, one storage, and one controller is maintaining
 
 One possible solution is to calculate a tighter upperlimit on the size of Haulers for each of these missions. This would reduce Energy waste as the haulers we have would be utilized more. However, this does cost more in CPU costs, as numerous, smaller creeps will each usually have a constant CPU cost.
 
-The goal of Task-based Missions is a mission will use a pool of creeps capable of completing tasks, and assign them to the small, ephemeral tasks as they arrive. There will need to be some calculation based on the number of tasks available on how many creeps we will need. This way early on we can have numberous, small haulers moving energy around. But as the RCL climbs, the mission will automatically scale down to a smaller set of much larger hauler creeps to complete the same set of tasks.
+The goal of Task-based Missions is a mission will use a pool of creeps capable of completing tasks, and assign them to the small, ephemeral tasks as they arrive. There will need to be some calculation based on the number of tasks available on how many creeps we will need. This way early on we can have numerous, small haulers moving energy around. But as the RCL climbs, the mission will automatically scale down to a smaller set of much larger hauler creeps to complete the same set of tasks.
 
 ### Task Definition
 
