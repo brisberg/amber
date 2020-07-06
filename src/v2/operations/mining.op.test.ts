@@ -75,7 +75,7 @@ describe('drop mining mission operation', () => {
         store: {
           energy: 50000,
         },
-        storeCapacityResource: {energy: 550},
+        storeCapacityResource: {energy: 1000},
       },
     });
 
@@ -87,16 +87,19 @@ describe('drop mining mission operation', () => {
     // Run the test until passing conditions
     let source = await getSource(room);
     let gameTime = 0;
+    let cpuTotal = 0;
     while (gameTime < TIMEOUT_TICKS && source.energy > 0) {
       await server.tick();
 
       gameTime = await world.gameTime;
+      cpuTotal += await player.lastUsedCpu;
       source = await getSource(room);
     }
 
     const creeps = await db['rooms.objects'].find({room, type: 'creep'});
     console.log(`Ended with ${creeps.length} harvester creeps.`);
     console.log(`Mining Operation completed in ${gameTime} ticks.`);
+    console.log(`Average CPU used: ${cpuTotal / gameTime}.`);
 
     // `Mining Operation failed to exhaust source in ${TIMEOUT_TICKS} ticks.`
     expect(source.energy).toBe(0);
