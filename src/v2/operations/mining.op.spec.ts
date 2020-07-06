@@ -1,5 +1,6 @@
 import {mockGlobal, mockInstanceOf} from 'screeps-jest';
 import {setupGlobal} from 'v2/global';
+import DropMineMsn from 'v2/missions/mining/drop-mine.msn';
 import SingleHarvestMsn from 'v2/missions/mining/single-harvest';
 import Mission from 'v2/missions/mission';
 import MockMission from 'v2/missions/testing/mission.mock';
@@ -67,6 +68,7 @@ describe('Mining Operation', () => {
           {x: 10, y: 10, dx: 1, dy: 0, direction: RIGHT},  // Source location
         ];
       },
+      energyCapacityAvailable: 300,
       createConstructionSite: jest.fn(),
     });
     source.room = room;
@@ -97,8 +99,10 @@ describe('Mining Operation', () => {
       expect(msn).toBeTruthy();
       if (msn) {
         const msnMem = getMsnMemory(msn);
-        expect(msnMem.type).toBe(SingleHarvestMsn.name);
+        expect(msnMem.type).toBe(DropMineMsn.name);
         expect(msnMem.data.sourceIdx).toEqual(dropConfig.sourceIdx);
+        const miningPositions = getMemory(op).data.analysis ?.positions;
+        expect(msnMem.data.positions).toEqual(miningPositions);
       }
     });
 

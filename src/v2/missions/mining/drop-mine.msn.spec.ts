@@ -86,7 +86,7 @@ describe('Drop Mining Mission', () => {
   });
 
   describe('Spawning', () => {
-    const costPerTier = (100 * 2) + 50;  // 2xWORK 1xMove
+    // const costPerTier = (100 * 2) + 50;  // 2xWORK 1xMove
 
     it.skip(
         'should request largest creep possible given spawn capacity', () => {

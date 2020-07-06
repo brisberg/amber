@@ -54,8 +54,8 @@ export function analyzeSourceForHarvesting(
     if (result.x === end.x && result.y === end.y) return false;
 
     const range = Math.max(
-        Math.abs(source.pos.x - result.x),
-        Math.abs(source.pos.y - result.y),
+        Math.abs(end.x - result.x),
+        Math.abs(end.y - result.y),
     );
 
     return range === 1;

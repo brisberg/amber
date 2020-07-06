@@ -4,7 +4,7 @@ import User from '@brisberg/screeps-server-mockup/dist/src/user';
 import World from '@brisberg/screeps-server-mockup/dist/src/world';
 import {readFileSync} from 'fs';
 
-const DIST_MAIN_JS = 'lib/main.js';
+const DIST_MAIN_JS = 'dist/main.js';
 
 /**
  * Integration Test package to test if we can harvest from a source using a
@@ -29,14 +29,16 @@ describe('drop mining mission operation', () => {
 
     // add basic room and room objects
     await world.addRoom(room);
-    await world.setTerrain(room, TerrainMatrix.unserialize(clearTerrain));
+    // Place wall where Source will go
+    const terrain = clearTerrain.substr(0, 25 * 50 + 35) + TERRAIN_MASK_WALL +
+        clearTerrain.substr(25 * 50 + 37, 2500);
+    await world.setTerrain(room, TerrainMatrix.unserialize(terrain));
     await world.addRoomObject(room, 'controller', 25, 25, {level: 0});
     await world.addRoomObject(
         room, 'source', 35, 25,
         {energy: 1000, energyCapacity: 1000, ticksToRegeneration: 300});
 
-
-    // add a player with the built lib/main.js file
+    // add a player with the built dist/main.js file
     const modules = {
       main: readFileSync(DIST_MAIN_JS).toString(),
     };

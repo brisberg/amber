@@ -60,11 +60,13 @@ describe('Source Analysis', () => {
             {type: 'terrain', x: 29, y: 24, terrain: 'plain'},
             {type: 'terrain', x: 29, y: 25, terrain: 'plain'},
             {type: 'terrain', x: 29, y: 26, terrain: 'swamp'},
+            {type: 'terrain', x: 31, y: 25, terrain: 'swamp'},  // Far position
           ];
         };
 
     const analysis = analyzeSourceForHarvesting(basePos, source);
 
+    expect(analysis.positions).toHaveLength(3);
     expect(analysis.positions[1]).toEqual([29, 24]);
     expect(analysis.positions[2]).toEqual([29, 26]);
   });

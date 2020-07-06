@@ -7,13 +7,15 @@ import {Point} from 'v2/types';
 import Mission from '../mission';
 
 interface DropMineMsnData {
-  sourceIdx: number;   // Target source index in room.sources
-  positions: Point[];  // Mining positions, Ordered Primary first
+  sourceIdx: number;       // Target source index in room.sources
+  positions: Point[];      // Mining positions, Ordered Primary first
+  [key: string]: unknown;  // TODO: Remove this
 }
 
 export interface DropMineMsnConfig {
-  sourceIdx: number;   // Target source index in room.sources
-  positions: Point[];  // Mining positions
+  sourceIdx: number;       // Target source index in room.sources
+  positions: Point[];      // Mining positions
+  [key: string]: unknown;  // TODO: Remove this
 }
 
 /**
