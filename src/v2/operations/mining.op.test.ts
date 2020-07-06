@@ -69,13 +69,13 @@ describe('drop mining mission operation', () => {
     // Test fails with a timeout after this many ticks
     const TIMEOUT_TICKS = 1000;
 
-    // Upgrade Spawn to RCL3
+    // Upgrade Spawn to RCL2
     await db['rooms.objects'].update({room, type: C.STRUCTURE_SPAWN}, {
       $set: {
         store: {
           energy: 50000,
         },
-        storeCapacityResource: {energy: 800},
+        storeCapacityResource: {energy: 550},
       },
     });
 

@@ -48,6 +48,7 @@ export default class DropMineMsn extends
   }
 
   protected get maxCreeps(): number {
+    // TODO: Limit creep total to 6 work parts
     return this.mem.data.positions.length;
   }
 
