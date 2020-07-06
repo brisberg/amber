@@ -2,6 +2,7 @@ import {mockGlobal, mockInstanceOf} from 'screeps-jest';
 import {setupGlobal} from 'v2/global';
 import SingleHarvestMsn from 'v2/missions/mining/single-harvest';
 import Mission from 'v2/missions/mission';
+import MockMission from 'v2/missions/testing/mission.mock';
 import {Registry} from 'v2/registry/registry';
 
 import {getMemory as getMsnMemory} from '../missions/utils';
@@ -66,6 +67,7 @@ describe('Mining Operation', () => {
           {x: 10, y: 10, dx: 1, dy: 0, direction: RIGHT},  // Source location
         ];
       },
+      createConstructionSite: jest.fn(),
       energyCapacityAvailable: 300,
     });
     source.room = room;
@@ -109,7 +111,6 @@ describe('Mining Operation', () => {
 
     it('should place a Container construction site at Primary location', () => {
       const op = new MiningOperation(OPERATION_NAME).init('N1W1', contConfig);
-      room.createConstructionSite = jest.fn();
 
       op.run();
 
@@ -118,11 +119,59 @@ describe('Mining Operation', () => {
     });
 
     describe('Container exists', () => {
+      let container: StructureContainer;
+
+      beforeEach(() => {
+        container = mockInstanceOf<StructureContainer>({
+          id: 'container1' as Id<StructureContainer>,
+        });
+        mockGlobal<Game>('Game', {
+          rooms: {'N1W1': room},
+          getObjectById: (id: Id<RoomObject>) => {
+            switch (id) {
+              case container.id:
+                return container;
+              default:
+                return null;
+            }
+          },
+        });
+      });
+
       it.todo('should register a Logistics Node on the Container');
 
-      it.todo('should retire Drop Mining mission');
+      it('should retire Drop Mining mission', () => {
+        const dropMsn = new MockMission('drop');
+        dropMsn.mockFinalizeFn = jest.fn();
+        msnRegistry.register(dropMsn);
+        const op = new MiningOperation(OPERATION_NAME).init('N1W1', contConfig);
+        const mem = getMemory(op);
+        mem.data.dropMsn = 'drop';
+        mem.data.containerId = container.id;
+        op.refresh();
 
-      it.todo('should start a Container Mining Mission');
+        op.run();
+
+        expect(dropMsn.mockFinalizeFn).toHaveBeenCalled();
+      });
+
+      it('should start a Container Mining Mission', () => {
+        const op = new MiningOperation(OPERATION_NAME).init('N1W1', contConfig);
+        const mem = getMemory(op);
+        mem.data.containerId = container.id;
+        op.refresh();
+
+        op.run();
+
+        const msn = msnRegistry.get(`${OPERATION_NAME}-cont`);
+        expect(msn).toBeTruthy();
+        if (msn) {
+          const msnMem = getMsnMemory(msn);
+          expect(msnMem.type).toBe(SingleHarvestMsn.name);
+          expect(msnMem.data.sourceIdx).toEqual(contConfig.sourceIdx);
+          // expect(msnMem.data.containerId).toEqual(contConfig.containerId);
+        }
+      });
     });
 
     describe('Container does not exist', () => {

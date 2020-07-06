@@ -5,7 +5,8 @@ import {analyzeSourceForHarvesting, SourceAnalysis} from './sourceAnalysis';
 
 export interface MiningOperationMemory {
   sourceIdx: number;
-  dropMsn?: string;
+  dropMsn?: string;  // Drop Mining Mission for this Op
+  contMsn?: string;  // Container Mining Mission for this Op
   containerId?: Id<StructureContainer|ConstructionSite<STRUCTURE_CONTAINER>>;
   analysis?: SourceAnalysis;
   type: 'drop'|'cont'|'link';
@@ -43,6 +44,7 @@ export interface MiningOperationConfig {
 export default class MiningOperation extends
     Operation<MiningOperationMemory, MiningOperationConfig> {
   private dropMsn: SingleHarvestMsn|null = null;
+  private contMsn: SingleHarvestMsn|null = null;
   private container: StructureContainer|ConstructionSite<STRUCTURE_CONTAINER>|
       null = null;
 
@@ -112,6 +114,23 @@ export default class MiningOperation extends
             primaryPos[1],
             STRUCTURE_CONTAINER,
         );
+      } else {
+        // Container finished
+        if (this.dropMsn) {
+          this.dropMsn.retire();
+          this.mem.data.dropMsn = undefined;
+        }
+
+        if (!this.contMsn) {
+          const msn = new SingleHarvestMsn(`${this.name}-cont`);
+          msn.init(this.mem.colony, {
+            sourceIdx: this.mem.data.sourceIdx,
+            pos: this.mem.data.analysis.positions[0],
+          });
+          global.msnRegistry.register(msn);
+          this.contMsn = msn;
+          this.mem.data.contMsn = msn.name;
+        }
       }
     }
   }
