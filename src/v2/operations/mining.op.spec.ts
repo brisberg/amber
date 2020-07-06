@@ -1,7 +1,7 @@
 import {mockGlobal, mockInstanceOf} from 'screeps-jest';
 import {setupGlobal} from 'v2/global';
+import ContMineMsn from 'v2/missions/mining/container-mine.msn';
 import DropMineMsn from 'v2/missions/mining/drop-mine.msn';
-import SingleHarvestMsn from 'v2/missions/mining/single-harvest';
 import Mission from 'v2/missions/mission';
 import MockMission from 'v2/missions/testing/mission.mock';
 import {Registry} from 'v2/registry/registry';
@@ -127,6 +127,7 @@ describe('Mining Operation', () => {
       beforeEach(() => {
         container = mockInstanceOf<StructureContainer>({
           id: 'container1' as Id<StructureContainer>,
+          hits: 250000,
         });
         mockGlobal<Game>('Game', {
           rooms: {'N1W1': room},
@@ -170,9 +171,9 @@ describe('Mining Operation', () => {
         expect(msn).toBeTruthy();
         if (msn) {
           const msnMem = getMsnMemory(msn);
-          expect(msnMem.type).toBe(SingleHarvestMsn.name);
+          expect(msnMem.type).toBe(ContMineMsn.name);
           expect(msnMem.data.sourceIdx).toEqual(contConfig.sourceIdx);
-          // expect(msnMem.data.containerId).toEqual(contConfig.containerId);
+          expect(msnMem.data.containerId).toEqual(container.id);
         }
       });
     });

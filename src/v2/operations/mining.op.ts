@@ -1,5 +1,5 @@
+import ContMineMsn from 'v2/missions/mining/container-mine.msn';
 import DropMineMsn from 'v2/missions/mining/drop-mine.msn';
-import SingleHarvestMsn from 'v2/missions/mining/single-harvest';
 
 import Operation from './operation';
 import {analyzeSourceForHarvesting, SourceAnalysis} from './sourceAnalysis';
@@ -45,7 +45,7 @@ export interface MiningOperationConfig {
 export default class MiningOperation extends
     Operation<MiningOperationMemory, MiningOperationConfig> {
   private dropMsn: DropMineMsn|null = null;
-  private contMsn: SingleHarvestMsn|null = null;
+  private contMsn: ContMineMsn|null = null;
   private container: StructureContainer|ConstructionSite<STRUCTURE_CONTAINER>|
       null = null;
 
@@ -114,7 +114,7 @@ export default class MiningOperation extends
             primaryPos[1],
             STRUCTURE_CONTAINER,
         );
-      } else {
+      } else if ((this.container as StructureContainer).hits > 0) {
         // Container finished
         if (this.dropMsn) {
           this.dropMsn.retire();
@@ -122,10 +122,11 @@ export default class MiningOperation extends
         }
 
         if (!this.contMsn) {
-          const msn = new SingleHarvestMsn(`${this.name}-cont`);
+          const msn = new ContMineMsn(`${this.name}-cont`);
           msn.init(this.mem.colony, {
             sourceIdx: this.mem.data.sourceIdx,
-            pos: this.mem.data.analysis.positions[0],
+            containerId: (this.container as StructureContainer).id,
+            positions: this.mem.data.analysis.positions,
           });
           global.msnRegistry.register(msn);
           this.contMsn = msn;
