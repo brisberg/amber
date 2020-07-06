@@ -5,7 +5,8 @@ import {analyzeSourceForHarvesting, SourceAnalysis} from './sourceAnalysis';
 
 export interface MiningOperationMemory {
   sourceIdx: number;
-  harvestMsns: string[];
+  dropMsn?: string;
+  containerId?: Id<StructureContainer|ConstructionSite<STRUCTURE_CONTAINER>>;
   analysis?: SourceAnalysis;
   type: 'drop'|'cont'|'link';
   [key: string]: unknown;
@@ -41,7 +42,10 @@ export interface MiningOperationConfig {
  */
 export default class MiningOperation extends
     Operation<MiningOperationMemory, MiningOperationConfig> {
-  private harvestMsns: SingleHarvestMsn[] = [];
+  private dropMsn: SingleHarvestMsn|null = null;
+  private container: StructureContainer|ConstructionSite<STRUCTURE_CONTAINER>|
+      null = null;
+
   private hUnitsAvailable = 0;
 
   protected initialize(config: MiningOperationConfig): void {
@@ -63,12 +67,15 @@ export default class MiningOperation extends
     // (Energy - 1x CARRY) / 2x WORK 1x Move
     this.hUnitsAvailable = Math.min((maxEnergy - 50) / 250);
 
-    this.mem.data.harvestMsns.forEach((msnName) => {
-      const msn = global.msnRegistry.get(msnName);
-      if (msn) {
-        this.harvestMsns.push(msn as SingleHarvestMsn);
-      }
-    });
+    if (this.mem.data.dropMsn) {
+      this.dropMsn =
+          global.msnRegistry.get(this.mem.data.dropMsn) as SingleHarvestMsn |
+          null;
+    }
+
+    if (this.mem.data.containerId) {
+      this.container = Game.getObjectById(this.mem.data.containerId);
+    }
   }
 
   protected initMemory(config: MiningOperationConfig): MiningOperationMemory {
@@ -83,24 +90,36 @@ export default class MiningOperation extends
   public run(): void {
     if (!this.mem.data.analysis) return;
 
-    // TODO: Maybe cache last room energy calculated, to avoid most of the time
-
-    let hUnitsLeft = 3;
-    this.harvestMsns.forEach((msn) => {
-      if (hUnitsLeft <= 0) {
-        msn.retire();
-      } else {
-        const hUnits = Math.min(hUnitsLeft, this.hUnitsAvailable);
-        hUnitsLeft -= hUnits;
-        // msn.setHUnits(hUnits);
+    if (this.mem.data.type === 'drop') {
+      if (!this.dropMsn) {
+        const msn = new SingleHarvestMsn(`${this.name}-drop`);
+        msn.init(this.mem.colony, {
+          sourceIdx: this.mem.data.sourceIdx,
+          pos: this.mem.data.analysis.positions[0],
+        });
+        global.msnRegistry.register(msn);
+        this.dropMsn = msn;
+        this.mem.data.dropMsn = msn.name;
       }
-    });
+    }
 
-    // Fill in mission amounts
+    if (this.mem.data.type === 'cont') {
+      if (!this.container) {
+        const room = Game.rooms[this.mem.colony];
+        const primaryPos = this.mem.data.analysis.positions[0];
+        room.createConstructionSite(
+            primaryPos[0],
+            primaryPos[1],
+            STRUCTURE_CONTAINER,
+        );
+      }
+    }
   }
 
   protected finalize(): void {
     // Retire all sub-missions
-    this.harvestMsns.forEach((msn) => msn.retire());
+    if (this.dropMsn) {
+      this.dropMsn.retire();
+    }
   }
 }

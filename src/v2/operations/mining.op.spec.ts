@@ -1,14 +1,121 @@
+import {mockGlobal, mockInstanceOf} from 'screeps-jest';
+import {setupGlobal} from 'v2/global';
+import SingleHarvestMsn from 'v2/missions/mining/single-harvest';
+import Mission from 'v2/missions/mission';
+import {Registry} from 'v2/registry/registry';
+
+import {getMemory as getMsnMemory} from '../missions/utils';
+
+import MiningOperation, {MiningOperationConfig} from './mining.op';
+import {analyzeSourceForHarvesting} from './sourceAnalysis';
+import {getMemory} from './utils';
+
 describe('Mining Operation', () => {
-  it.todo('should perform Source Analysis on the source if needed');
+  const OPERATION_NAME = 'mining';
+  let spawn: StructureSpawn;
+  let source: Source;
+  let room: Room;
+  let msnRegistry: Registry<Mission>;
+  const defaultConfig: MiningOperationConfig = {
+    sourceIdx: 0,
+    type: 'drop',
+  };
+
+  beforeEach(() => {
+    mockGlobal<Memory>(
+        'Memory', {
+          operations: {},
+          missions: {},
+        },
+        true);
+    setupGlobal();
+    source = mockInstanceOf<Source>({
+      id: 'source1' as Id<Source>,
+      pos: new RoomPosition(10, 10, 'N1W1'),
+      room: undefined,
+    });
+    spawn = mockInstanceOf<StructureSpawn>({
+      pos: new RoomPosition(5, 10, 'N1W1'),
+    });
+    room = mockInstanceOf<Room>({
+      find: (find: FIND_SOURCES|FIND_MY_SPAWNS) => {
+        switch (find) {
+          case FIND_SOURCES:
+            return [source];
+          case FIND_MY_SPAWNS:
+            return [spawn];
+          default:
+            return [];
+        }
+      },
+      lookForAtArea: (): LookForAtAreaResultArray<Terrain, 'terrain'> => {
+        return [
+          {type: 'terrain', x: 0, y: 0, terrain: 'plain'},
+          {type: 'terrain', x: 0, y: 0, terrain: 'plain'},
+          {type: 'terrain', x: 0, y: 0, terrain: 'swamp'},
+          {type: 'terrain', x: 0, y: 0, terrain: 'wall'},
+        ];
+      },
+      findPath: (): PathStep[] => {
+        return [
+          {x: 5, y: 10, dx: 1, dy: 0, direction: RIGHT},
+          {x: 6, y: 10, dx: 1, dy: 0, direction: RIGHT},
+          {x: 7, y: 10, dx: 1, dy: 0, direction: RIGHT},
+          {x: 8, y: 10, dx: 1, dy: 0, direction: RIGHT},
+          {x: 9, y: 10, dx: 1, dy: 0, direction: RIGHT},   // Primary position
+          {x: 10, y: 10, dx: 1, dy: 0, direction: RIGHT},  // Source location
+        ];
+      },
+      energyCapacityAvailable: 300,
+    });
+    source.room = room;
+    mockGlobal<Game>('Game', {
+      rooms: {
+        'N1W1': room,
+      },
+    });
+    msnRegistry = global.msnRegistry;
+  });
+
+  it('should perform Source Analysis on the source if needed', () => {
+    const op = new MiningOperation(OPERATION_NAME).init('N1W1', defaultConfig);
+
+    const expected = analyzeSourceForHarvesting(spawn.pos, source);
+    expect(getMemory(op).data.analysis).toEqual(expected);
+  });
 
   describe(`Type 'drop'`, () => {
-    it.todo('should start a HarvestV2Mission with the source as a target');
+    const dropConfig: MiningOperationConfig = {...defaultConfig, type: 'drop'};
+
+    it('should start a DropMiningMsn with the source as a target', () => {
+      const op = new MiningOperation(OPERATION_NAME).init('N1W1', dropConfig);
+
+      op.run();
+
+      const msn = msnRegistry.get(`${OPERATION_NAME}-drop`);
+      expect(msn).toBeTruthy();
+      if (msn) {
+        const msnMem = getMsnMemory(msn);
+        expect(msnMem.type).toBe(SingleHarvestMsn.name);
+        expect(msnMem.data.sourceIdx).toEqual(dropConfig.sourceIdx);
+      }
+    });
 
     // Let the Harvest mission register with logistics
   });
 
   describe(`Type 'cont' (Container)`, () => {
-    it.todo('should place a Container construction site at Primary location');
+    const contConfig: MiningOperationConfig = {...defaultConfig, type: 'cont'};
+
+    it('should place a Container construction site at Primary location', () => {
+      const op = new MiningOperation(OPERATION_NAME).init('N1W1', contConfig);
+      room.createConstructionSite = jest.fn();
+
+      op.run();
+
+      expect(room.createConstructionSite)
+          .toHaveBeenCalledWith(9, 10, STRUCTURE_CONTAINER);
+    });
 
     describe('Container exists', () => {
       it.todo('should register a Logistics Node on the Container');
@@ -24,6 +131,8 @@ describe('Mining Operation', () => {
   });
 
   describe.skip(`Type 'link'`, () => {
+    // const linkConfig: MiningOperationConfig = {...defaultConfig, type:
+    // 'link'};
     /**
      * If type = ‘link’, and there is no Link or Link Construction Site: creates
      * a Link Construction site at the link location.

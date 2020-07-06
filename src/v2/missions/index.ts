@@ -1,3 +1,4 @@
+import SingleHarvestMsn from './mining/single-harvest';
 import Mission from './mission';
 import MockMission from './testing/mission.mock';
 
@@ -12,6 +13,8 @@ export function constructMissionFromType(type: string, name: string): Mission|
   switch (type) {
     case MockMission.name:
       return new MockMission(name);
+    case SingleHarvestMsn.name:
+      return new SingleHarvestMsn(name);
     default:
       return null;  // No mission definition found for type
   }
