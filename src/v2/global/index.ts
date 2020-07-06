@@ -1,3 +1,4 @@
+import CHarvestBehavior from 'v2/behaviors/c-harvest';
 import HarvestBehavior from 'v2/behaviors/harvest';
 import PickupBehavior from 'v2/behaviors/pickup';
 import RelieveBehavior from 'v2/behaviors/relieve';
@@ -29,6 +30,7 @@ export function setupGlobal(): void {
   // Set up Behavior Map
   global.behaviorsMap = {
     'harvest': new HarvestBehavior(),
+    'c-harvest': new CHarvestBehavior(),
     'relieve': new RelieveBehavior(),
     'pickup': new PickupBehavior(),
   };
