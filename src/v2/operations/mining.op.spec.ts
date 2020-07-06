@@ -68,7 +68,6 @@ describe('Mining Operation', () => {
         ];
       },
       createConstructionSite: jest.fn(),
-      energyCapacityAvailable: 300,
     });
     source.room = room;
     mockGlobal<Game>('Game', {
