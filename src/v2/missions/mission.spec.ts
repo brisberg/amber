@@ -2,7 +2,7 @@ import {mockGlobal, mockInstanceOf} from 'screeps-jest';
 import {WORKER} from 'spawn-system/bodyTypes';
 import {SpawnQueue, SpawnRequest} from 'spawn-system/spawnQueue';
 
-import {MissionMemory} from './mission';
+import {GetBodyTypeResult, MissionMemory} from './mission';
 import MockMission,
 {MockMissionConfig, MockMissionData} from './testing/mission.mock';
 import {mockSpawnQueueInstance} from './testing/spawnQueue.mock';
@@ -146,10 +146,14 @@ describe('Abstract Mission', () => {
 
     it('should request creeps with the appropriate arguments', () => {
       const requestCreepSpy = spyOn(global.spawnQueues['N1W1'], 'requestCreep');
+      mission.mockGetBodyTypeFn = (): GetBodyTypeResult => {
+        return {ratio: WORKER, options: {max: {work: 1}}};
+      };
       mission.rollCall();
 
       const request: SpawnRequest = requestCreepSpy.calls.mostRecent().args[0];
-      expect(request.bodyRatio).toEqual(WORKER);  // From Sub-Class
+      expect(request.bodyRatio).toEqual(WORKER);
+      expect(request.bodyOptions).toEqual({max: {work: 1}});
       expect(request.priority).toEqual(1);
       expect(request.mission).toEqual(mission.name);
     });

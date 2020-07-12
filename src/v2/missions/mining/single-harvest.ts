@@ -2,7 +2,7 @@ import {WORKER} from 'spawn-system/bodyTypes';
 import {setCreepBehavior} from 'v2/behaviors/behavior';
 import HarvestBehavior from 'v2/behaviors/harvest';
 
-import Mission from '../mission';
+import Mission, {GetBodyTypeResult} from '../mission';
 
 interface SingleHarvestMsnData {
   sourceIdx: number;  // Target source index in room.sources
@@ -26,10 +26,12 @@ export default class SingleHarvestMsn extends
     Mission<SingleHarvestMsnData, SingleHarvestConfig> {
   private source: Source|null = null;
 
-  protected bodyType = WORKER;
-
   protected initialize(): void {
     return;
+  }
+
+  protected getBodyType(): GetBodyTypeResult {
+    return {ratio: WORKER};
   }
 
   protected reconcile(): void {

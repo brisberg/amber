@@ -1,6 +1,6 @@
 import {WORKER} from 'spawn-system/bodyTypes';
 
-import Mission, {MissionMemory} from '../mission';
+import Mission, {GetBodyTypeResult, MissionMemory} from '../mission';
 
 /**
  * Fake Implementation Class for Abstract Mission
@@ -19,8 +19,6 @@ export interface MockMissionConfig {
 
 export default class MockMission extends
     Mission<MockMissionData, MockMissionConfig> {
-  protected bodyType = WORKER;
-
   // Expose internal state TODO: remove this?
   public get mockMemory(): MissionMemory<MockMissionData> {
     return this.mem;
@@ -28,6 +26,9 @@ export default class MockMission extends
 
 
   // Overwrite these values to mock internal state
+  public mockGetBodyTypeFn = (): GetBodyTypeResult => {
+    return {ratio: WORKER};
+  };
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public mockInitializeFn = (config: MockMissionConfig): void => {
     return;
@@ -45,6 +46,9 @@ export default class MockMission extends
 
 
   // Abstract Overrides
+  protected getBodyType(): GetBodyTypeResult {
+    return this.mockGetBodyTypeFn();
+  }
   protected initialize(config: MockMissionConfig): this {
     this.mockInitializeFn(config);
     return this;

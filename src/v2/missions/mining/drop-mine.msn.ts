@@ -4,7 +4,7 @@ import HarvestBehavior from 'v2/behaviors/harvest';
 import RelieveBehavior from 'v2/behaviors/relieve';
 import {Point} from 'v2/types';
 
-import Mission from '../mission';
+import Mission, {GetBodyTypeResult} from '../mission';
 
 interface DropMineMsnData {
   sourceIdx: number;       // Target source index in room.sources
@@ -28,10 +28,12 @@ export default class DropMineMsn extends
     Mission<DropMineMsnData, DropMineMsnConfig> {
   private source: Source|null = null;
 
-  protected bodyType = WORKER;
-
   protected initialize(): void {
     return;
+  }
+
+  protected getBodyType(): GetBodyTypeResult {
+    return {ratio: WORKER};
   }
 
   protected reconcile(): void {

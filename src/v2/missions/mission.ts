@@ -1,3 +1,4 @@
+import {GenerateCreepBodyOptions} from 'spawn-system/bodyTypes';
 import {Registerable, RegisterableMemory} from 'v2/registry/registerable';
 
 import {deleteMemory, getMemory, setMemory} from './utils';
@@ -9,6 +10,12 @@ export interface MissionMemory<M> extends RegisterableMemory {
   spawnSource?: string;  // Optional name of foreign SpawnQueue
   colony: string;        // WIP Roomname of host colony
   data: M;               // Mission specific data fields
+}
+
+/** Result Object returned from GetBodyType */
+export interface GetBodyTypeResult {
+  ratio: string;
+  options?: GenerateCreepBodyOptions;
 }
 
 /**
@@ -61,7 +68,7 @@ export default abstract class Mission<
   // ### Abstract Fields #### //
 
   /** BodyRatio of creeps used by this mission. */
-  protected abstract bodyType: string;
+  protected abstract getBodyType(): GetBodyTypeResult;
 
   /** Mission specific initializer to set up initial memory/config */
   protected abstract initialize(config: C): void;
@@ -146,8 +153,10 @@ export default abstract class Mission<
 
     if (this.mem.creeps.length >= this.maxCreeps) return;
 
+    const bodyType = this.getBodyType();
     this.mem.nextCreep = global.spawnQueues[this.SpawnSource].requestCreep({
-      bodyRatio: this.bodyType,
+      bodyRatio: bodyType.ratio,
+      bodyOptions: bodyType.options,
       priority: 1,
       mission: this.name,
     });
