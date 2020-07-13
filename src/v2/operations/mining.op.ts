@@ -1,13 +1,11 @@
-import ContMineMsn from 'v2/missions/mining/container-mine.msn';
-import DropMineMsn from 'v2/missions/mining/drop-mine.msn';
+import HarvestMsn from 'v2/missions/mining/harvest.msn';
 
 import Operation from './operation';
 import {analyzeSourceForHarvesting, SourceAnalysis} from './sourceAnalysis';
 
 export interface MiningOperationMemory {
   sourceIdx: number;
-  dropMsn?: string;  // Drop Mining Mission for this Op
-  contMsn?: string;  // Container Mining Mission for this Op
+  harvestMsn?: string;  // Harvest Mission for this Op
   containerId?: Id<StructureContainer|ConstructionSite<STRUCTURE_CONTAINER>>;
   analysis?: SourceAnalysis;
   type: 'drop'|'cont'|'link';
@@ -44,12 +42,9 @@ export interface MiningOperationConfig {
  */
 export default class MiningOperation extends
     Operation<MiningOperationMemory, MiningOperationConfig> {
-  private dropMsn: DropMineMsn|null = null;
-  private contMsn: ContMineMsn|null = null;
+  private harvestMsn: HarvestMsn|null = null;
   private container: StructureContainer|ConstructionSite<STRUCTURE_CONTAINER>|
       null = null;
-
-  private hUnitsAvailable = 0;
 
   protected initialize(config: MiningOperationConfig): void {
     const room = Game.rooms[this.mem.colony];
@@ -63,16 +58,9 @@ export default class MiningOperation extends
   }
 
   protected reconcile(): void {
-    const room = Game.rooms[this.mem.colony];
-    const maxEnergy = room.energyCapacityAvailable;
-
-    // TODO: perform this calculation somewhere else
-    // (Energy - 1x CARRY) / 2x WORK 1x Move
-    this.hUnitsAvailable = Math.min((maxEnergy - 50) / 250);
-
-    if (this.mem.data.dropMsn) {
-      this.dropMsn =
-          global.msnRegistry.get(this.mem.data.dropMsn) as DropMineMsn | null;
+    if (this.mem.data.harvestMsn) {
+      this.harvestMsn =
+          global.msnRegistry.get(this.mem.data.harvestMsn) as HarvestMsn | null;
     }
 
     if (this.mem.data.containerId) {
@@ -92,17 +80,15 @@ export default class MiningOperation extends
   public run(): void {
     if (!this.mem.data.analysis) return;
 
-    if (this.mem.data.type === 'drop') {
-      if (!this.dropMsn) {
-        const msn = new DropMineMsn(`${this.name}-drop`);
-        msn.init(this.mem.colony, {
-          sourceIdx: this.mem.data.sourceIdx,
-          positions: this.mem.data.analysis.positions,
-        });
-        global.msnRegistry.register(msn);
-        this.dropMsn = msn;
-        this.mem.data.dropMsn = msn.name;
-      }
+    if (!this.harvestMsn) {
+      const msn = new HarvestMsn(`${this.name}-harvest`);
+      msn.init(this.mem.colony, {
+        sourceIdx: this.mem.data.sourceIdx,
+        positions: this.mem.data.analysis.positions,
+      });
+      global.msnRegistry.register(msn);
+      this.harvestMsn = msn;
+      this.mem.data.dropMsn = msn.name;
     }
 
     if (this.mem.data.type === 'cont') {
@@ -116,21 +102,13 @@ export default class MiningOperation extends
         );
       } else if ((this.container as StructureContainer).hits > 0) {
         // Container finished
-        if (this.dropMsn) {
-          this.dropMsn.retire();
-          this.mem.data.dropMsn = undefined;
-        }
 
-        if (!this.contMsn) {
-          const msn = new ContMineMsn(`${this.name}-cont`);
-          msn.init(this.mem.colony, {
+        if (this.harvestMsn) {
+          this.harvestMsn.init(this.mem.colony, {
             sourceIdx: this.mem.data.sourceIdx,
-            containerId: (this.container as StructureContainer).id,
+            containerId: this.container.id as Id<StructureContainer>,
             positions: this.mem.data.analysis.positions,
           });
-          global.msnRegistry.register(msn);
-          this.contMsn = msn;
-          this.mem.data.contMsn = msn.name;
         }
       }
     }
@@ -138,8 +116,8 @@ export default class MiningOperation extends
 
   protected finalize(): void {
     // Retire all sub-missions
-    if (this.dropMsn) {
-      this.dropMsn.retire();
+    if (this.harvestMsn) {
+      this.harvestMsn.retire();
     }
   }
 }

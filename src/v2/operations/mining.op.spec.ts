@@ -1,9 +1,7 @@
 import {mockGlobal, mockInstanceOf} from 'screeps-jest';
 import {setupGlobal} from 'v2/global';
-import ContMineMsn from 'v2/missions/mining/container-mine.msn';
-import DropMineMsn from 'v2/missions/mining/drop-mine.msn';
+import HarvestMsn from 'v2/missions/mining/harvest.msn';
 import Mission from 'v2/missions/mission';
-import MockMission from 'v2/missions/testing/mission.mock';
 import {Registry} from 'v2/registry/registry';
 
 import {getMemory as getMsnMemory} from '../missions/utils';
@@ -90,16 +88,16 @@ describe('Mining Operation', () => {
   describe(`Type 'drop'`, () => {
     const dropConfig: MiningOperationConfig = {...defaultConfig, type: 'drop'};
 
-    it('should start a DropMiningMsn with the source as a target', () => {
+    it('should start a HarvestMsn with the source as a target', () => {
       const op = new MiningOperation(OPERATION_NAME).init('N1W1', dropConfig);
 
       op.run();
 
-      const msn = msnRegistry.get(`${OPERATION_NAME}-drop`);
+      const msn = msnRegistry.get(`${OPERATION_NAME}-harvest`);
       expect(msn).toBeTruthy();
       if (msn) {
         const msnMem = getMsnMemory(msn);
-        expect(msnMem.type).toBe(DropMineMsn.name);
+        expect(msnMem.type).toBe(HarvestMsn.name);
         expect(msnMem.data.sourceIdx).toEqual(dropConfig.sourceIdx);
         const miningPositions = getMemory(op).data.analysis ?.positions;
         expect(msnMem.data.positions).toEqual(miningPositions);
@@ -144,22 +142,7 @@ describe('Mining Operation', () => {
 
       it.todo('should register a Logistics Node on the Container');
 
-      it('should retire Drop Mining mission', () => {
-        const dropMsn = new MockMission('drop');
-        dropMsn.mockFinalizeFn = jest.fn();
-        msnRegistry.register(dropMsn);
-        const op = new MiningOperation(OPERATION_NAME).init('N1W1', contConfig);
-        const mem = getMemory(op);
-        mem.data.dropMsn = 'drop';
-        mem.data.containerId = container.id;
-        op.refresh();
-
-        op.run();
-
-        expect(dropMsn.mockFinalizeFn).toHaveBeenCalled();
-      });
-
-      it('should start a Container Mining Mission', () => {
+      it('add the container to the HarvestMsn', () => {
         const op = new MiningOperation(OPERATION_NAME).init('N1W1', contConfig);
         const mem = getMemory(op);
         mem.data.containerId = container.id;
@@ -167,19 +150,15 @@ describe('Mining Operation', () => {
 
         op.run();
 
-        const msn = msnRegistry.get(`${OPERATION_NAME}-cont`);
+        const msn = msnRegistry.get(`${OPERATION_NAME}-harvest`);
         expect(msn).toBeTruthy();
         if (msn) {
           const msnMem = getMsnMemory(msn);
-          expect(msnMem.type).toBe(ContMineMsn.name);
+          expect(msnMem.type).toBe(HarvestMsn.name);
           expect(msnMem.data.sourceIdx).toEqual(contConfig.sourceIdx);
           expect(msnMem.data.containerId).toEqual(container.id);
         }
       });
-    });
-
-    describe('Container does not exist', () => {
-      it.todo('should convert Container Mining Msn to Drop Mining Msn');
     });
   });
 

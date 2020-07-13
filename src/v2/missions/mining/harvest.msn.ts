@@ -34,8 +34,8 @@ export default class HarvestMsn extends
   private source: Source|null = null;
   private container: StructureContainer|null = null;
 
-  protected initialize(): void {
-    return;
+  protected initialize(config: HarvestMsnConfig): void {
+    this.mem.data.containerId = config.containerId;
   }
 
   protected getBodyType(): GetBodyTypeResult {
@@ -73,6 +73,11 @@ export default class HarvestMsn extends
     this.source = sources[this.mem.data.sourceIdx];
     if (this.mem.data.containerId) {
       this.container = Game.getObjectById(this.mem.data.containerId);
+
+      // Registered Container not found, remove it as it may have been destroyed
+      if (!this.container) {
+        delete this.mem.data.containerId;
+      }
     }
   }
 

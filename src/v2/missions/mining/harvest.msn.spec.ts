@@ -18,6 +18,7 @@ import {SpawnQueue, SpawnRequest} from 'spawn-system/spawnQueue';
 import {setupGlobal} from 'v2/global';
 
 import {mockSpawnQueueInstance} from '../testing/spawnQueue.mock';
+import {getMemory} from '../utils';
 
 import HarvestMsn, {HarvestMsnConfig} from './harvest.msn';
 
@@ -261,6 +262,15 @@ describe('Harvest Mission', () => {
            expect(creep.memory.mem.name).toBe('harvest');
            expect(creep.memory.mem.target.id).toBe(source.id);
          });
+
+      it('should forget containerId if structure is removed', () => {
+        const msn = new HarvestMsn(MISSION_NAME).init('N1W1', config);
+        Game.getObjectById = (): null => null;
+
+        msn.refresh();
+
+        expect(getMemory(msn).data.containerId).toBeUndefined();
+      });
     });
 
     it(`should send each new creep to 'relieve' the oldest creep`, () => {
