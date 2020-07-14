@@ -4,11 +4,11 @@ import HarvestMsn from 'v2/missions/mining/harvest.msn';
 import Mission from 'v2/missions/mission';
 import {Registry} from 'v2/registry/registry';
 
-import {getMemory as getMsnMemory} from '../missions/utils';
+import {getMemory as getMsnMemory} from '../../missions/utils';
+import {getMemory} from '../utils';
 
 import MiningOperation, {MiningOperationConfig} from './mining.op';
 import {analyzeSourceForHarvesting} from './sourceAnalysis';
-import {getMemory} from './utils';
 
 describe('Mining Operation', () => {
   const OPERATION_NAME = 'mining';
