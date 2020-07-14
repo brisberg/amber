@@ -1,3 +1,4 @@
+import MiningOperation from './mining/mining.op';
 import Operation from './operation';
 import Mockoperation from './testing/operation.mock';
 
@@ -12,6 +13,8 @@ export function constructOperationFromType(
   switch (type) {
     case Mockoperation.name:
       return new Mockoperation(name);
+    case MiningOperation.name:
+      return new MiningOperation(name);
     default:
       return null;  // No operation definition found for type
   }

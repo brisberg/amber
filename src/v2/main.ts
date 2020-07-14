@@ -2,7 +2,7 @@ import {SpawnQueue} from 'spawn-system/spawnQueue';
 
 import {getBehaviorMemory} from './behaviors/behavior';
 import {setupGlobal} from './global';
-import MiningOperation from './operations/mining.op';
+import MiningOperation from './operations/mining/mining.op';
 
 function formatMemory(): void {
   if (!Memory.missions) {

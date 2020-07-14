@@ -1,6 +1,6 @@
 import HarvestMsn from 'v2/missions/mining/harvest.msn';
 
-import Operation from './operation';
+import Operation from '../operation';
 import {analyzeSourceForHarvesting, SourceAnalysis} from './sourceAnalysis';
 
 export interface MiningOperationMemory {
