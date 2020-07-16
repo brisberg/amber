@@ -1,4 +1,9 @@
 import {Registerable} from 'v2/registry/registerable';
+import {Request} from './request';
+
+export interface NetworkMemory {
+  requests: Request[],
+}
 
 /**
  * The Logistics network is the subsystem coordinating Hauler creeps to move
@@ -13,7 +18,6 @@ import {Registerable} from 'v2/registry/registerable';
 export default class Network implements Registerable {
   /**
    * Total throughput required by the logistics system
-   *
    * TODO: Replace this with a calculation based on Requests
    */
   private throughput = 20;
@@ -23,4 +27,9 @@ export default class Network implements Registerable {
   refresh(): void {
     throw new Error('Method not implemented.');
   }
+}
+
+/** Helper to fetch the Memory of a Logistics.Network */
+export function getMemory(network: Network): NetworkMemory {
+  return Memory.rooms[network.name].network;
 }

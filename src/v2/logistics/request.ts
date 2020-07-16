@@ -3,7 +3,8 @@ export interface Request {
   resource: RESOURCE_ENERGY;  // TODO: Other Resources
   request: 'pickup'|'delivery';
   type: 'resource'|'creep'|'structure';
-  targetId: Id<RoomObject>;  // Target containing the resource or capacity
+  // Target containing the resource or capacity
+  targetId: Id<AnyStoreStructure>;
   total?: number;
   amount: number;  // Amount of Resources requested
   buffer: number;  // Buffer size of the container RoomObject

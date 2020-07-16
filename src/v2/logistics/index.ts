@@ -1,5 +1,5 @@
 import Network from './network';
-import {RoutePlan, RoutePlanStep} from './plan';
 import {Request} from './request';
+import {RoutePlan, RoutePlanStep} from './route-plan';
 
 export {Network, Request, RoutePlan, RoutePlanStep};
