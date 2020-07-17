@@ -28,6 +28,7 @@ export interface RoutePlanState {
 
 /** A single step in a RoutePlan */
 export interface RoutePlanStep {
+  id: number;           // Id of this Step in the plan
   requestId: number;    // Logistics.Request to be fulfilled
   duration: number;     // Estimated travel time
   pos: ProtoPos;        // Destination position for this leg
@@ -110,7 +111,10 @@ export function appendRequestToPlan(
     payload[RESOURCE] = -amount;
   }
 
+  const nextStepId = plan.steps[plan.steps.length - 1].id++;
+
   const step: RoutePlanStep = {
+    id: nextStepId,
     requestId: request.id,
     duration: dist,
     payload,

@@ -7,6 +7,9 @@ import Mission from 'v2/missions/mission';
 import {constructOperationFromType} from 'v2/operations';
 import Operation from 'v2/operations/operation';
 import {Registry} from 'v2/registry/registry';
+import * as Logistics from 'v2/logistics';
+import FetchBehavior from 'v2/behaviors/fetch';
+import DeliverBehavior from 'v2/behaviors/deliver';
 
 /**
  * Set up all Global Objects.
@@ -33,6 +36,8 @@ export function setupGlobal(): void {
     'c-harvest': new CHarvestBehavior(),
     'relieve': new RelieveBehavior(),
     'pickup': new PickupBehavior(),
+    'fetch': new FetchBehavior(),
+    'deliver': new DeliverBehavior(),
   };
 
   // Set up Mission Registry
@@ -42,4 +47,9 @@ export function setupGlobal(): void {
   // Set up Operation Registry
   global.opRegistry = new Registry<Operation>(constructOperationFromType);
   global.opRegistry.init(Memory.operations);
+
+  // Set up Logistics Network Registry
+  global.netRegistry =
+    new Registry<Logistics.Network>(Logistics.constructNetworkFromName);
+  global.netRegistry.init(Memory.networks);
 }

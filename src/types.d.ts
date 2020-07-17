@@ -13,6 +13,7 @@ interface Memory {
   pauseUtil?: number;  // Script paused until this Game Tick
   missions: {[name: string]: any};
   operations: {[name: string]: any};
+  networks: {[name: string]: any};
 }
 
 interface RoomMemory {
@@ -41,6 +42,9 @@ declare namespace NodeJS {
     // v2 Operation Registry
     opRegistry: import('./v2/registry/registry')
         .Registry<import('./v2/operations/operation').default>;
+    // v2 Logistics Network Registry
+    netRegistry: import('./v2/registry/registry')
+        .Registry<import('./v2/logistics/network').default>;
     // Global operation behavior registry
     operations: import('./operations').OperationMap;
     // Global Spawn Queue instances
