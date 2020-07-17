@@ -3,6 +3,7 @@ import {SpawnQueue} from 'spawn-system/spawnQueue';
 import {getBehaviorMemory} from './behaviors/behavior';
 import {setupGlobal} from './global';
 import MiningOperation from './operations/mining/mining.op';
+import * as Logistics from './logistics';
 
 function formatMemory(): void {
   if (!Memory.missions) {
@@ -11,6 +12,10 @@ function formatMemory(): void {
 
   if (!Memory.operations) {
     Memory.operations = {};
+  }
+
+  if (!Memory.networks) {
+    Memory.networks = {};
   }
 }
 
@@ -27,6 +32,12 @@ export const loop = (): void => {
   }
   if (spawns.length > 0) {
     global.spawnQueues[room] = new SpawnQueue(room, spawns);
+  }
+
+  if (!global.netRegistry.get(room)) {
+    console.log(`Initializing Logistics Network: ${room}`);
+    const op = new Logistics.Network(room);
+    global.netRegistry.register(op);
   }
 
   // Launch mining operation for each source
@@ -46,8 +57,8 @@ export const loop = (): void => {
   // Execute all of the operations in the Registry
   const operations = global.opRegistry.list();
   for (const op of operations) {
-    // msn.refresh();
-    // msn.rollCall();
+    // op.refresh();
+    // op.rollCall();
     op.refresh();
     op.run();
 
@@ -61,6 +72,17 @@ export const loop = (): void => {
     // msn.refresh();
     msn.rollCall();
     msn.run();
+
+    // TODO: Validate the missions.
+    // TODO: Retire missions no longer valid.
+  }
+
+  // Execute all of the Logistics.Networks in the Registry
+  const networks = global.netRegistry.list();
+  for (const network of networks) {
+    network.refresh();
+    // network.rollCall();
+    network.run();
 
     // TODO: Validate the missions.
     // TODO: Retire missions no longer valid.

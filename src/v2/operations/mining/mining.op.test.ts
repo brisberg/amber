@@ -13,7 +13,7 @@ const DIST_MAIN_JS = 'dist/main.js';
 
 const clearTerrain = '0'.repeat(2500);
 
-describe('drop mining mission operation', () => {
+describe.skip('drop mining mission operation', () => {
   let server: ScreepsServer;
   let player: User;
   let world: World;

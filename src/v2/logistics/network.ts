@@ -5,7 +5,7 @@ import {RoutePlan, newEmptyRoutePlan, appendRequestToPlan} from './route-plan';
 
 export interface NetworkMemory {
   requests: {[id: number]: Request};
-  transportMsn: string;
+  transportMsn: string|null;
   plans: {[creepname: string]: RoutePlan};
 }
 
@@ -31,6 +31,15 @@ export default class Network implements Registerable {
 
   constructor(public name: string) {
     this.mem = getMemory(this);
+    if (this.mem === undefined) {
+      // No existing memory, initialize default
+      this.mem = {
+        requests: {},
+        transportMsn: null,
+        plans: {},
+      };
+      setMemory(this, this.mem);
+    }
   }
 
   private get requests() {
@@ -75,6 +84,13 @@ export default class Network implements Registerable {
   public run(): void {
     if (!this.mem.transportMsn) {
       // launch TransportMsn
+      const msn = new TransportMsn(`${this.name}-tsp`);
+      msn.init(this.name, {
+        throughput: this.throughput,
+      });
+      global.msnRegistry.register(msn);
+      this.transportMsn = msn;
+      this.mem.transportMsn = msn.name;
     }
 
     // Prune old Plans, add empty plans for new Haulers
@@ -89,5 +105,11 @@ export default class Network implements Registerable {
 
 /** Helper to fetch the Memory of a Logistics.Network */
 export function getMemory(network: Network): NetworkMemory {
-  return Memory.rooms[network.name].network;
+  return Memory.networks[network.name];
+}
+
+/** Helper to set the Memory of a Logistics.Network */
+export function setMemory(
+  network: Network, memory: NetworkMemory): NetworkMemory {
+  return Memory.networks[network.name] = memory;
 }

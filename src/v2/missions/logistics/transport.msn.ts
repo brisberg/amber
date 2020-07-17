@@ -35,7 +35,9 @@ export default class TransportMsn extends
     return this.mem.creeps.map((name) => Game.creeps[name]);
   }
 
-  protected initialize(): void {
+  protected initialize(config: TransportMsnConfig): void {
+    console.log('Transport Mission Initialized');
+    this.mem.data.throughput = config.throughput;
     return;
   }
 
@@ -72,18 +74,17 @@ export default class TransportMsn extends
           const step = plan.steps[0];
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const request = network.getRequest(step.requestId)!;
+          const target = Game.getObjectById(request.targetId)!;
+          if (creep.pos.isNearTo(target)) {
+            // Move on to next step in the plan.
+            plan.steps.shift();
+          }
           if (creep.memory.mem.stepId !== step.id) {
             // TODO: Assign correct creep behavior
             if (request.request === 'pickup') {
-              setCreepBehavior(
-                creep,
-                fetch.new(Game.getObjectById(request.targetId)!),
-              );
+              setCreepBehavior(creep, fetch.new(target));
             } else {
-              setCreepBehavior(
-                creep,
-                deliver.new(Game.getObjectById(request.targetId)!),
-              );
+              setCreepBehavior(creep, deliver.new(target));
             }
           }
         }
