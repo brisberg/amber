@@ -71,15 +71,9 @@ export default class Network implements Registerable {
   public register(request: Request): void {
     // TODO: Validate the request
     this.requests[request.id] = request;
-
-    // TODO: Calculate temporally closest creep
-    const creep = this.haulers[this.nextHauler];
-    this.nextHauler = (this.nextHauler + 1) % this.haulers.length;
-
-    // TODO: Append it to their plan
-    const plan = this.mem.plans[creep.name];
-    appendRequestToPlan(plan, request);
   }
+
+  private setupPlans = false;
 
   public run(): void {
     if (!this.mem.transportMsn) {
@@ -100,6 +94,20 @@ export default class Network implements Registerable {
       plans[name] = this.mem.plans[name] || newEmptyRoutePlan(creep);
     }
     this.mem.plans = plans;
+
+    if (!this.setupPlans && this.haulers.length >= 2) {
+      for (let i = 1; i <= this.haulers.length; i++) {
+        const request = this.requests[i];
+        // TODO: Calculate temporally closest creep
+        const creep = this.haulers[i-1];
+        // this.nextHauler = (this.nextHauler + 1) % this.haulers.length;
+
+        // TODO: Append it to their plan
+        const plan = this.mem.plans[creep.name];
+        appendRequestToPlan(plan, request);
+      }
+      this.setupPlans = true;
+    }
   }
 }
 

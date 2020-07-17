@@ -111,7 +111,11 @@ export function appendRequestToPlan(
     payload[RESOURCE] = -amount;
   }
 
-  const nextStepId = plan.steps[plan.steps.length - 1].id++;
+  let nextStepId = 0;
+
+  if (plan.steps.length > 0) {
+    nextStepId = plan.steps[plan.steps.length - 1].id++;
+  }
 
   const step: RoutePlanStep = {
     id: nextStepId,

@@ -29,6 +29,12 @@ export function setupGlobal(): void {
       },
     });
   };
+  global.cc.registerLogistics = (request: Logistics.Request): void => {
+    const network = global.netRegistry.get('W1N1');
+    if (network) {
+      network.register(request);
+    }
+  };
 
   // Set up Behavior Map
   global.behaviorsMap = {

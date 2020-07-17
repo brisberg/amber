@@ -73,39 +73,39 @@ describe('Logistics Network Test', () => {
         storeCapacityResource: {energy: 2000},
         });
 
-    await player.console(`Memory.networks['W1N1'].requests[1] = {
+    await player.console(`cc.registerLogistics({
         id: 1,
         resource: RESOURCE_ENERGY,
         request: 'pickup',
         type: 'structure',
-        targetId: ${cont2.id},
+        targetId: '${cont2._id}',
         amount: 1000,
         buffer: 2000,
         delta: 0,
         timeout: 20000,
-      };`);
-    await player.console(`Memory.networks['W1N1'].requests[2] = {
+      });`);
+    await player.console(`cc.registerLogistics({
         id: 2,
         resource: RESOURCE_ENERGY,
         request: 'pickup',
         type: 'structure',
-        targetId: ${cont3.id},
+        targetId: '${cont3._id}',
         amount: 1000,
         buffer: 2000,
         delta: 0,
         timeout: 20000,
-      }`);
-    await player.console(`Memory.networks['W1N1'].requests[2] = {
+      });`);
+    await player.console(`cc.registerLogistics({
         id: 3,
         resource: RESOURCE_ENERGY,
         request: 'deliver',
         type: 'structure',
-        targetId: ${cont1.id},
+        targetId: '${cont1._id}',
         amount: 2000,
         buffer: 2000,
         delta: 0,
         timeout: 20000,
-      }`);
+      });`);
 
     // Subscribe to player's console output
     player.on('console', async (log: string[], results, userid, username) => {
@@ -168,6 +168,10 @@ describe('Logistics Network Test', () => {
     console.log(`Ended with ${creeps.length} hauler creeps.`);
     console.log(`Network Transfer completed in ${gameTime} ticks.`);
     console.log(`Average CPU used: ${cpuTotal / gameTime}.`);
+
+    const containers =
+        await db['rooms.objects'].find({room, type: 'container'});
+    console.log(JSON.stringify(containers));
 
     // `Logistics Network failed to transfer energy in ${TIMEOUT_TICKS} ticks.`
     expect(container.store.energy).toBe(2000);
