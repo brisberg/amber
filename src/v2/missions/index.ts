@@ -1,3 +1,4 @@
+import TransportMsn from './logistics/transport.msn';
 import HarvestMsn from './mining/harvest.msn';
 import Mission from './mission';
 import MockMission from './testing/mission.mock';
@@ -15,6 +16,8 @@ export function constructMissionFromType(type: string, name: string): Mission|
       return new MockMission(name);
     case HarvestMsn.name:
       return new HarvestMsn(name);
+    case TransportMsn.name:
+      return new TransportMsn(name);
     default:
       return null;  // No mission definition found for type
   }

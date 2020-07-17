@@ -2,7 +2,8 @@ import {Registerable} from 'v2/registry/registerable';
 import {Request} from './request';
 
 export interface NetworkMemory {
-  requests: Request[],
+  requests: Request[];
+  transportMsn: string;
 }
 
 /**
@@ -16,6 +17,7 @@ export interface NetworkMemory {
  * For now, there will be a single network for each Owned Room.
  */
 export default class Network implements Registerable {
+  private mem: NetworkMemory;
   /**
    * Total throughput required by the logistics system
    * TODO: Replace this with a calculation based on Requests
@@ -26,6 +28,12 @@ export default class Network implements Registerable {
 
   refresh(): void {
     throw new Error('Method not implemented.');
+  }
+
+  public run(): void {
+    if (!this.mem.transportMsn) {
+      // launch TransportMsn
+    }
   }
 }
 
