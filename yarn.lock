@@ -5242,9 +5242,9 @@ screeps-api@^1.11.0:
     bufferutil "^3.0.5"
     utf-8-validate "^4.0.2"
 
-"screeps-jest@github:brisberg/screeps-jest#ts-3.9":
-  version "1.0.0"
-  resolved "https://codeload.github.com/brisberg/screeps-jest/tar.gz/eaf7038e91c4c35a1dc6b37d85a5c365e4f8d232"
+"screeps-jest@github:brisberg/screeps-jest#ts-39-1.1.1":
+  version "1.1.1"
+  resolved "https://codeload.github.com/brisberg/screeps-jest/tar.gz/2dccc8308bc73b7dac8efcc7cafc42bc5ff19171"
 
 "semver@2 || 3 || 4 || 5", semver@^5.4.1, semver@^5.5.0, semver@^5.5.1:
   version "5.7.1"
