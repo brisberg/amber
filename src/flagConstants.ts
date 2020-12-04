@@ -96,10 +96,16 @@ export const BASE_OPERATION_FLAG: FlagColor = {
   color: COLOR_BLUE,
   secondaryColor: COLOR_PURPLE,
 };
-/** Reserve Purple/Blue flag color for Extension Groups */
+/** Reserve Purple/Blue flag color for Distribution Missions */
 export const DISTRIBUTION_MISSION_FLAG: FlagColor = {
   color: COLOR_PURPLE,
   secondaryColor: COLOR_BLUE,
+};
+
+/** Reserve Purple/Yellow flag color for Manager Missions */
+export const MANAGER_MISSION_FLAG: FlagColor = {
+  color: COLOR_PURPLE,
+  secondaryColor: COLOR_YELLOW,
 };
 
 /** Reserve Purple/White flag color for Colonization Operation */

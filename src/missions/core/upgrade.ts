@@ -5,6 +5,10 @@ import {
   ContainerUpgrader,
 } from 'behaviors/containerUpgrader';
 import {
+  LINK_UPGRADER,
+  LinkUpgrader,
+} from 'behaviors/linkUpgrader';
+import {
   GenerateCreepBodyOptions,
   WORKER,
   zeroRatio,
@@ -15,6 +19,7 @@ import {Mission, MissionMemory} from '../mission';
 interface UpgradeMissionMemory extends MissionMemory {
   containerID: Id<StructureContainer>|null;
   controllerID: Id<StructureController>|null;
+  linkID: Id<StructureLink>|null;
 }
 
 /**
@@ -34,6 +39,7 @@ export class UpgradeMission extends Mission<UpgradeMissionMemory> {
 
   private container: StructureContainer|null = null;
   private controller: StructureController|null = null;
+  private link: StructureLink|null = null;
 
   constructor(flag: Flag) {
     super(flag);
@@ -43,6 +49,7 @@ export class UpgradeMission extends Mission<UpgradeMissionMemory> {
     return {
       containerID: null,
       controllerID: null,
+      linkID: null,
       creeps: [],
     };
   }
@@ -56,6 +63,11 @@ export class UpgradeMission extends Mission<UpgradeMissionMemory> {
     if (!this.mem.controllerID || !Game.getObjectById(this.mem.controllerID)) {
       console.log('Upgrade Mission: Controller Missing. Retiring');
       return false;
+    }
+
+    // TODO: Unify this with container portion
+    if (this.mem.linkID) {
+      this.link = Game.getObjectById(this.mem.linkID);
     }
 
     this.container = Game.getObjectById(this.mem.containerID);
@@ -73,6 +85,11 @@ export class UpgradeMission extends Mission<UpgradeMissionMemory> {
     this.mem.containerID = container.id;
   }
 
+  public setLink(link: StructureLink): void {
+    this.link = link;
+    this.mem.linkID = link.id;
+  }
+
   /** Executes one update tick for this mission */
   public run(): void {
     if (this.mem.controllerID && !Game.getObjectById(this.mem.controllerID)) {
@@ -81,21 +98,40 @@ export class UpgradeMission extends Mission<UpgradeMissionMemory> {
     }
 
     if (this.container && this.controller) {
-      // Direct each creep to upgrade from the sourceNode
-      this.creeps.forEach((creep) => {
-        if (creep.memory.behavior !== CONTAINER_UPGRADER) {
-          // Upgrade controller
-          setCreepBehavior(
-              creep,
-              CONTAINER_UPGRADER,
-              ContainerUpgrader.initMemory(
-                  this.controller!,
-                  this.container!,
-                  ),
-          );
-          creep.memory.mission = this.name;
-        }
-      });
+      // TODO: Unify this with container upgrade path
+      if (this.link) {
+        // Direct each creep to upgrade from the link
+        this.creeps.forEach((creep) => {
+          if (creep.memory.behavior !== LINK_UPGRADER) {
+            // Upgrade controller
+            setCreepBehavior(
+                creep,
+                LINK_UPGRADER,
+                LinkUpgrader.initMemory(
+                    this.controller!,
+                    this.link!,
+                    ),
+            );
+            creep.memory.mission = this.name;
+          }
+        });
+      } else {
+        // Direct each creep to upgrade from the container
+        this.creeps.forEach((creep) => {
+          if (creep.memory.behavior !== CONTAINER_UPGRADER) {
+            // Upgrade controller
+            setCreepBehavior(
+                creep,
+                CONTAINER_UPGRADER,
+                ContainerUpgrader.initMemory(
+                    this.controller!,
+                    this.container!,
+                    ),
+            );
+            creep.memory.mission = this.name;
+          }
+        });
+      }
     }
   }
 

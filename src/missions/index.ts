@@ -7,6 +7,7 @@ import {
   DISTRIBUTION_MISSION_FLAG,
   flagIsColor,
   HARVEST_SOURCE_FLAG,
+  MANAGER_MISSION_FLAG,
   MANUAL_SCOUT_MISSION_FLAG,
   PIONEER_MISSION_FLAG,
   RAID_MISSION_FLAG,
@@ -23,6 +24,7 @@ import {DemolishMission} from './combat/demolish';
 import {RaidMission} from './combat/raid';
 import {BuildMission} from './core/build';
 import {DistributionMission} from './core/distribution';
+import {ManagerMission} from './core/manager';
 import {ManualMission} from './core/manual';
 import {UpgradeMission} from './core/upgrade';
 import {TransportMission} from './logistics/transport';
@@ -51,6 +53,8 @@ global.missions = (flag: Flag): Mission<any>|null => {
     return new UpgradeMission(flag);
   } else if (flagIsColor(flag, DISTRIBUTION_MISSION_FLAG)) {
     return new DistributionMission(flag);
+  } else if (flagIsColor(flag, MANAGER_MISSION_FLAG)) {
+    return new ManagerMission(flag);
   } else if (flagIsColor(flag, CLAIM_MISSION_FLAG)) {
     return new ClaimMission(flag);
   } else if (flagIsColor(flag, ATTACK_CONTROLLER_MISSION_FLAG)) {

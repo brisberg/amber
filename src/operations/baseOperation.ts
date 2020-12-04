@@ -1,5 +1,6 @@
 import {ExtensionGroup} from 'layout/extensionGroup';
 import {DistributionMission} from 'missions/core/distribution';
+import {ManagerMission} from 'missions/core/manager';
 
 import {EnergyNode} from '../energy-network/energyNode';
 import {
@@ -7,6 +8,7 @@ import {
   DISTRIBUTION_MISSION_FLAG,
   EXTENSION_GROUP_A_FLAG,
   EXTENSION_GROUP_B_FLAG,
+  MANAGER_MISSION_FLAG,
 } from '../flagConstants';
 
 /**
@@ -24,7 +26,8 @@ import {
  */
 
 export interface BaseOperationMemory {
-  distMsn: string|null;  // Distribution Mission
+  distMsn: string|null;     // Distribution Mission
+  managerMsn: string|null;  // Manager Mission
   spawnIDs: Array<Id<StructureSpawn>>;
   townSquareFlag: string|null;
   extensionFlags: string[];
@@ -40,6 +43,7 @@ export class BaseOperation {
 
   private spawns: StructureSpawn[] = [];
   private distMsn: DistributionMission|null = null;
+  private managerMsn: ManagerMission|null = null;
   private extensionGroups: ExtensionGroup[] = [];
   private towers: StructureTower[] = [];
   private eNode: EnergyNode|null = null;
@@ -52,6 +56,7 @@ export class BaseOperation {
     if (!Memory.operations[this.name]) {
       const mem: BaseOperationMemory = {
         distMsn: null,
+        managerMsn: null,
         eNodeFlag: null,
         extensionFlags: [],
         spawnIDs: [],
@@ -70,6 +75,13 @@ export class BaseOperation {
         this.mem.distMsn = null;
       } else {
         this.distMsn = new DistributionMission(Game.flags[this.mem.distMsn]);
+      }
+    }
+    if (this.mem.managerMsn) {
+      if (!Game.flags[this.mem.managerMsn]) {
+        this.mem.managerMsn = null;
+      } else {
+        this.managerMsn = new ManagerMission(Game.flags[this.mem.managerMsn]);
       }
     }
 
@@ -177,6 +189,26 @@ export class BaseOperation {
       this.distMsn.setExtensionGroups(this.extensionGroups);
       this.distMsn.setTowers(this.towers);
     }
+
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    if (!this.managerMsn && this.flag.room!.controller!.level >= 5) {
+      const link =
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          this.flag.room!
+              .find(
+                  FIND_MY_STRUCTURES,
+                  {filter: (s): boolean => s.structureType === STRUCTURE_LINK},
+                  )
+              .shift();
+      if (link) {  // Set up a Manager mission to supply link with energy
+        const managerMsn = this.setUpManagerMission(this.name + '_man');
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        managerMsn.setStorage(this.flag.room!.storage!);
+        managerMsn.setLink(link as StructureLink);
+        managerMsn.init();
+        this.mem.managerMsn = managerMsn.name;
+      }
+    }
   }
 
   private setUpDistributionMission(name: string): DistributionMission {
@@ -185,6 +217,20 @@ export class BaseOperation {
         DISTRIBUTION_MISSION_FLAG.secondaryColor);
     const flag = Game.flags[name];
     return new DistributionMission(flag);
+  }
+
+  private setUpManagerMission(name: string): ManagerMission {
+    // One cell above the storage
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const pos = this.flag.room!.getPositionAt(
+        this.flag.pos.x,
+        this.flag.pos.y - 1,
+    );
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    pos!.createFlag(
+        name, MANAGER_MISSION_FLAG.color, MANAGER_MISSION_FLAG.secondaryColor);
+    const flag = Game.flags[name];
+    return new ManagerMission(flag);
   }
 
   public setSpawns(spawns: StructureSpawn[]): void {
