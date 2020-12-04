@@ -42,8 +42,7 @@ export abstract class Mission<M extends MissionMemory> {
 
   protected readonly mem: M;
   protected creeps: Creep[] = [];
-
-  private readonly flag: Flag;
+  protected readonly flag: Flag;
 
   protected abstract readonly bodyType: string;
   protected abstract readonly bodyOptions: GenerateCreepBodyOptions;

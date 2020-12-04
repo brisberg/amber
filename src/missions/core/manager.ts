@@ -2,6 +2,7 @@
 import {setCreepBehavior} from 'behaviors/behavior';
 import {Depositer, DEPOSITER} from 'behaviors/depositer';
 import {Fetcher, FETCHER} from 'behaviors/fetcher';
+import {Sentry, SENTRY} from 'behaviors/sentry';
 import {GenerateCreepBodyOptions, TANKER} from 'spawn-system/bodyTypes';
 
 import {Mission, MissionMemory} from '../mission';
@@ -77,6 +78,11 @@ export class ManagerMission extends Mission<ManagerMemory> {
 
     this.creeps.forEach((manager) => {
       manager.memory.mission = this.name;
+
+      if (!manager.pos.isEqualTo(this.flag.pos)) {
+        setCreepBehavior(manager, SENTRY, Sentry.initMemory(this.name));
+        return;
+      }
 
       if (manager.store.energy > 0) {
         if (manager.memory.behavior !== DEPOSITER) {
