@@ -97,6 +97,23 @@ const offRoadHauler: CreepRatio = {
 creepBodyRatios[OR_HAULER] = offRoadHauler;
 
 /**
+ * Tanker
+ * Tankers can move 1 cell per tick when unloaded even off roads. Effectively
+ * immobile when loaded. Should be built with 1 Move Part appended.
+ */
+export const TANKER = 'tanker';
+const tanker: CreepRatio = {
+  attack: 0,
+  carry: 1,
+  claim: 0,
+  heal: 0,
+  move: 0,
+  tough: 0,
+  work: 0,
+};
+creepBodyRatios[TANKER] = tanker;
+
+/**
  * Claimer
  * Claimers can move 1 cell per tick when loaded even off roads
  */

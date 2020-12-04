@@ -30,6 +30,7 @@
     "push-main": "rollup -c --environment DEST:main",
     "push-pserver": "rollup -c --environment DEST:pserver",
     "push-sim": "rollup -c --environment DEST:sim",
+    "push-season": "rollup -c --environment DEST:season",
     "push-local": "rollup -c && cp dist/* /Users/brisberg/Library/Application\\ Support/Screeps/scripts/screeps.com/sim/",
     "test": "yarn run test-unit && yarn run test-integration",
     "test-unit": "jest",
@@ -39,6 +40,7 @@
     "watch-main": "rollup -cw --environment DEST:main",
     "watch-pserver": "rollup -cw --environment DEST:pserver",
     "watch-sim": "rollup -cw --environment DEST:sim",
+    "watch-season": "rollup -cw --environment DEST:season",
     "lint": "eslint \"src/**/*.ts\""
   },
   "dependencies": {

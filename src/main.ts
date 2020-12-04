@@ -6,6 +6,7 @@ import 'towers/tower'; // Required to initialize Tower Behavior
 
 import {IDLER} from 'behaviors/idler';
 import {registerEnergyNode} from 'energy-network/energyNode';
+import {operateLinks} from 'energy-network/linkConnection';
 import {RoomEnergyNetwork} from 'energy-network/roomEnergyNetwork';
 import {
   BASE_OPERATION_FLAG,
@@ -200,6 +201,11 @@ export const loop = (): void => {
       // Hack, check for existance of network
       if (room.find(FIND_FLAGS, {filter: CORE_ENERGY_NODE_FLAG}).length === 0) {
         roomHealthy = false;
+      }
+
+      // Hack, check for links and push energy to controller if so
+      if (room.controller.level >= 5) {
+        operateLinks(room);
       }
 
       // If we are in autoMode, automatically place oprations/layout flags
@@ -419,7 +425,7 @@ export const loop = (): void => {
   }
 
   // Convert excess CPU into Pixels
-  if (Game.cpu.bucket > 9000) {
+  if (Game.cpu.bucket > 9000 && Game.cpu.generatePixel) {
     // We have CPU to spare
     Game.cpu.generatePixel();
   }

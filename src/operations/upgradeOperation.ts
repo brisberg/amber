@@ -34,6 +34,7 @@ export interface UpgradeOperationMemory {
   containerID: Id<StructureContainer|ConstructionSite<STRUCTURE_CONTAINER>>|
       null;
   eNodeFlag: string|null;
+  linkID: Id<StructureLink>|null;
 }
 
 export class UpgradeOperation {
@@ -44,6 +45,7 @@ export class UpgradeOperation {
 
   private container: StructureContainer|ConstructionSite<STRUCTURE_CONTAINER>|
       null = null;
+  private link: StructureLink|null = null;
   private sourceNode: EnergyNode|null = null;
   private controller: StructureController|null = null;
   private upgradeMsn: UpgradeMission|null = null;
@@ -59,6 +61,7 @@ export class UpgradeOperation {
         containerID: null,
         controllerID: null,
         eNodeFlag: null,
+        linkID: null,
         upgradeMsn: null,
       };
       Memory.operations[this.name] = mem;
@@ -129,6 +132,19 @@ export class UpgradeOperation {
       }
     }
 
+    // TODO: Clean this up and integrat it into an auto-build sequence
+    // Requires a manual setting of the link ID
+    // Validate Container cache
+    if (this.mem.linkID) {
+      const link = Game.getObjectById(this.mem.linkID);
+      if (!link) {
+        console.log('Upgrade Operation: Link no longer exists');
+        this.mem.linkID = null;
+      } else {
+        this.link = link;
+      }
+    }
+
     return true;
   }
 
@@ -172,7 +188,7 @@ export class UpgradeOperation {
 
     if (this.container instanceof StructureContainer) {
       // Attach ourselves to the energy network
-      if (!this.mem.eNodeFlag) {
+      if (!this.mem.eNodeFlag && !this.link) {
         const flag = registerEnergyNode(
             this.controller.room, [this.container.pos.x, this.container.pos.y],
             {
@@ -194,6 +210,15 @@ export class UpgradeOperation {
         this.mem.upgradeMsn = upgradeMsn.name;
         upgradeMsn.setController(this.controller);
         upgradeMsn.setContainer(this.container);
+      }
+    }
+
+    // TODO: Unifiy this with the container transport option
+    if (this.link && this.upgradeMsn) {
+      this.upgradeMsn.setLink(this.link);
+      if (this.mem.eNodeFlag) {
+        unregisterEnergyNode(this.mem.eNodeFlag);
+        this.mem.eNodeFlag = null;
       }
     }
   }
