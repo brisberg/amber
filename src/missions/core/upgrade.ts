@@ -55,7 +55,13 @@ export class UpgradeMission extends Mission<UpgradeMissionMemory> {
   }
 
   public init(): boolean {
-    if (!this.mem.containerID || !Game.getObjectById(this.mem.containerID)) {
+    if (!this.mem.linkID && !this.mem.containerID) return false;
+
+    if (this.mem.linkID && !Game.getObjectById(this.mem.linkID)) {
+      console.log('Upgrade Mission: Link Missing. Retiring');
+      return false;
+    } else if (
+        this.mem.containerID && !Game.getObjectById(this.mem.containerID)) {
       console.log('Upgrade Mission: Container Missing. Retiring');
       return false;
     }
@@ -69,8 +75,9 @@ export class UpgradeMission extends Mission<UpgradeMissionMemory> {
     if (this.mem.linkID) {
       this.link = Game.getObjectById(this.mem.linkID);
     }
-
-    this.container = Game.getObjectById(this.mem.containerID);
+    if (this.mem.containerID) {
+      this.container = Game.getObjectById(this.mem.containerID);
+    }
     this.controller = Game.getObjectById(this.mem.controllerID);
     return true;
   }
@@ -97,7 +104,7 @@ export class UpgradeMission extends Mission<UpgradeMissionMemory> {
       // Remove this mission and deallocate all of the creeps
     }
 
-    if (this.container && this.controller) {
+    if ((this.container || this.link) && this.controller) {
       // TODO: Unify this with container upgrade path
       if (this.link) {
         // Direct each creep to upgrade from the link

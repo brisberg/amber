@@ -159,57 +159,69 @@ export class UpgradeOperation {
       this.mem.analysis = analyzeControllerForUpgrading(this.controller!);
     }
 
-    if (!this.container) {
-      // Look for an existing Container or Construction Site at these locations
-      const results = this.controller.room.lookAt(
-          this.mem.analysis.containerPos[0], this.mem.analysis.containerPos[1]);
-      results.some((lookup) => {
-        if (lookup.constructionSite &&
-            lookup.constructionSite.structureType === STRUCTURE_CONTAINER) {
-          this.setContainer(
-              lookup.constructionSite as ConstructionSite<STRUCTURE_CONTAINER>);
-          return true;
-        } else if (
-            lookup.structure &&
-            lookup.structure.structureType === STRUCTURE_CONTAINER) {
-          this.setContainer(lookup.structure as StructureContainer);
-          return true;
-        }
-        return false;
-      });
-
+    if (!this.link) {
       if (!this.container) {
-        // No container assigned or none exsists, need to build a new one
-        this.controller.room.createConstructionSite(
+        // Look for an existing Container or Construction Site at these
+        // locations
+        const results = this.controller.room.lookAt(
             this.mem.analysis.containerPos[0],
-            this.mem.analysis.containerPos[1], STRUCTURE_CONTAINER);
+            this.mem.analysis.containerPos[1]);
+        results.some((lookup) => {
+          if (lookup.constructionSite &&
+              lookup.constructionSite.structureType === STRUCTURE_CONTAINER) {
+            this.setContainer(
+                lookup.constructionSite as
+                ConstructionSite<STRUCTURE_CONTAINER>);
+            return true;
+          } else if (
+              lookup.structure &&
+              lookup.structure.structureType === STRUCTURE_CONTAINER) {
+            this.setContainer(lookup.structure as StructureContainer);
+            return true;
+          }
+          return false;
+        });
+
+        if (!this.container) {
+          // No container assigned or none exsists, need to build a new one
+          this.controller.room.createConstructionSite(
+              this.mem.analysis.containerPos[0],
+              this.mem.analysis.containerPos[1], STRUCTURE_CONTAINER);
+        }
+      }
+
+      if (this.container instanceof StructureContainer) {
+        // Attach ourselves to the energy network
+        if (!this.mem.eNodeFlag && !this.link) {
+          const flag = registerEnergyNode(
+              this.controller.room,
+              [this.container.pos.x, this.container.pos.y], {
+                color: ENERGY_NODE_FLAG,
+                coreBuffer: 1000,
+                persistant: true,
+                polarity: -10,
+                structureID: this.container.id,
+                type: 'structure',
+              });
+          this.mem.eNodeFlag = flag.name;
+          this.sourceNode = new EnergyNode(Game.flags[flag.name]);
+        }
       }
     }
 
-    if (this.container instanceof StructureContainer) {
-      // Attach ourselves to the energy network
-      if (!this.mem.eNodeFlag && !this.link) {
-        const flag = registerEnergyNode(
-            this.controller.room, [this.container.pos.x, this.container.pos.y],
-            {
-              color: ENERGY_NODE_FLAG,
-              coreBuffer: 1000,
-              persistant: true,
-              polarity: -10,
-              structureID: this.container.id,
-              type: 'structure',
-            });
-        this.mem.eNodeFlag = flag.name;
-        this.sourceNode = new EnergyNode(Game.flags[flag.name]);
-      }
-
-      if (!this.mem.upgradeMsn && this.sourceNode) {
+    if (!this.mem.upgradeMsn) {
+      if (this.container instanceof StructureContainer || this.link) {
         // Launch a new Upgrade Mission
         console.log('Launching new Upgrade Mission ' + this.name + '_upgrade');
         const upgradeMsn = this.setUpUpgradeMission(this.name + '_upgrade');
         this.mem.upgradeMsn = upgradeMsn.name;
         upgradeMsn.setController(this.controller);
-        upgradeMsn.setContainer(this.container);
+        if (this.link) {
+          upgradeMsn.setLink(this.link);
+        } else if (
+            this.container instanceof StructureContainer && this.sourceNode) {
+          upgradeMsn.setContainer(this.container);
+        }
       }
     }
 
