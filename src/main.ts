@@ -28,6 +28,7 @@ import {Mission} from 'missions/mission';
 import {AllOperations} from 'operations';
 import {BaseOperation} from 'operations/baseOperation';
 import {MiningOperation} from 'operations/miningOperation';
+import {ScoreCollectMemory, ScoreMission} from 'season1/scoreCollection';
 import {declareOrphan} from 'spawn-system/orphans';
 import {SpawnQueue} from 'spawn-system/spawnQueue';
 
@@ -72,7 +73,7 @@ export const loop = (): void => {
       }
 
       if (!Memory.rooms[roomName]) {
-        Memory.rooms[roomName] = {network: null, damaged: []};
+        Memory.rooms[roomName] = {network: null, damaged: [], score: undefined};
       }
 
       // TODO: Pass all spawns to the Spawn Queue
@@ -393,6 +394,36 @@ export const loop = (): void => {
           // }
         }
       }
+
+      // Season 1 Score Collection
+      if (!room.memory.score) {
+        // No score mission, scan for containers
+        const scoreConts: StructureContainer[] =
+            room.find(10011 as FindConstant, {
+              filter: (c: StructureContainer) => {
+                return c.store['score' as ResourceConstant] > 0;
+              },
+            }) as StructureContainer[];
+        if (scoreConts.length > 0) {
+          const mem: ScoreCollectMemory = {
+            room: room.name,
+            scoreID: scoreConts[0].id,
+            creep: null,
+          };
+          room.memory.score = mem;
+        }
+      } else {
+        // We have a score mission, run it.
+        const msn = new ScoreMission(room.memory.score);
+
+        // If mission cannot be initialized, clear it
+        if (!msn.init()) {
+          room.memory.score = undefined;
+        } else {
+          msn.requestCreep();
+          msn.run();
+        }
+      }
     }
   }
 
@@ -412,10 +443,13 @@ export const loop = (): void => {
         continue;
       }
 
-      if (!creep.memory.mission || !Memory.missions[creep.memory.mission]) {
-        // Creep is Orphaned, or its mission was cancelled
-        if (creep.memory.behavior !== IDLER) {
-          declareOrphan(creep);
+      // Hack for season1 score collection
+      if (creep.memory.mission !== 'score') {
+        if (!creep.memory.mission || !Memory.missions[creep.memory.mission]) {
+          // Creep is Orphaned, or its mission was cancelled
+          if (creep.memory.behavior !== IDLER) {
+            declareOrphan(creep);
+          }
         }
       }
 

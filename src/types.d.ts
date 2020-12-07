@@ -15,8 +15,10 @@ interface Memory {
 }
 
 interface RoomMemory {
-  damaged: Array<Id<Structure>>;  // List of damaged structures
-  network: any;                   // Energy Network Memory
+  score: import('./season1/scoreCollection')
+      .ScoreCollectMemory|undefined;  // Season 1
+  damaged: Array<Id<Structure>>;      // List of damaged structures
+  network: any;                       // Energy Network Memory
 }
 
 interface FlagMemory {
