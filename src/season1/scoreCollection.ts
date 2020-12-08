@@ -71,56 +71,56 @@ export class ScoreMission {
 
     // Direct each creep to pick up or dropoff
     const creep = Game.creeps[this.mem.creep];
+    if (!creep) return;
 
     if (creep.memory.behavior === IDLER) {
       // Pickup newly spawned idle creeps
       creep.memory.behavior = FETCHER;
       creep.memory.mission = 'score';
+    }
 
+    if (creep.memory.behavior === FETCHER) {
+      if (Fetcher.getTarget(creep.memory.mem) !== this.container.id) {
+        // Update fetch target
+        setCreepBehavior(
+            creep,
+            FETCHER,
+            Fetcher.initMemory(this.container, RESOURCE_SCORE),
+        );
+      }
 
-      if (creep.memory.behavior === FETCHER) {
-        if (Fetcher.getTarget(creep.memory.mem) !== this.container.id) {
-          // Update fetch target
+      if (creep.store.getFreeCapacity() === 0 ||
+          this.container.store[RESOURCE_SCORE] === 0) {
+        // Have score, travel to destination
+        setCreepBehavior(
+            creep,
+            DEPOSITER,
+            Depositer.initMemory(this.dest, RESOURCE_SCORE),
+        );
+        creep.memory.mission = 'score';
+      }
+    } else if (creep.memory.behavior === DEPOSITER) {
+      if (Depositer.getTarget(creep.memory.mem) !== this.dest.id) {
+        // Update fetch target
+        creep.memory.mem = Depositer.initMemory(this.dest, RESOURCE_SCORE);
+      }
+
+      if (creep.store[RESOURCE_SCORE] === 0) {
+        if ((creep.ticksToLive || 100) < 100) {
+          // Decommission this hauler after it has delivered its payload
+          console.log(
+              'ScoreCollector ' + this.mem.room + ' decommissioning a hauler ' +
+              creep.name);
+          declareOrphan(creep);
+          this.mem.creep = null;
+        } else {
+          // Fetch more energy
           setCreepBehavior(
               creep,
               FETCHER,
               Fetcher.initMemory(this.container, RESOURCE_SCORE),
           );
-        }
-
-        if (creep.store.getFreeCapacity() === 0 ||
-            this.container.store[RESOURCE_SCORE] === 0) {
-          // Have score, travel to destination
-          setCreepBehavior(
-              creep,
-              DEPOSITER,
-              Depositer.initMemory(this.dest, RESOURCE_SCORE),
-          );
           creep.memory.mission = 'score';
-        }
-      } else if (creep.memory.behavior === DEPOSITER) {
-        if (Depositer.getTarget(creep.memory.mem) !== this.dest.id) {
-          // Update fetch target
-          creep.memory.mem = Depositer.initMemory(this.dest, RESOURCE_SCORE);
-        }
-
-        if (creep.store[RESOURCE_SCORE] === 0) {
-          if ((creep.ticksToLive || 100) < 100) {
-            // Decommission this hauler after it has delivered its payload
-            console.log(
-                'ScoreCollector ' + this.mem.room +
-                ' decommissioning a hauler ' + creep.name);
-            declareOrphan(creep);
-            this.mem.creep = null;
-          } else {
-            // Fetch more energy
-            setCreepBehavior(
-                creep,
-                FETCHER,
-                Fetcher.initMemory(this.container, RESOURCE_SCORE),
-            );
-            creep.memory.mission = 'score';
-          }
         }
       }
 
