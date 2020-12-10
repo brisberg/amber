@@ -12,6 +12,7 @@ interface Memory {
   pauseUtil?: number;  // Script paused until this Game Tick
   missions: {[name: string]: any};
   operations: {[name: string]: any};
+  excavation: import('./season1/excavation').ExcavationMemory;
 }
 
 interface RoomMemory {
