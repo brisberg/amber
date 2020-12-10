@@ -426,15 +426,15 @@ export const loop = (): void => {
           msn.run();
         }
       }
-
-      // Season 1 Score Excavation
-      if (Memory.excavation) {
-        const msn = new ExcavationMission(Memory.excavation);
-        msn.init();
-        msn.requestCreep();
-        msn.run();
-      }
     }
+  }
+
+  // Season 1 Score Excavation
+  if (Memory.excavation) {
+    const msn = new ExcavationMission(Memory.excavation);
+    msn.init();
+    msn.requestCreep();
+    msn.run();
   }
 
   // SpawnQueue must execute after missions have a chance request creeps

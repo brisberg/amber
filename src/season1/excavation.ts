@@ -65,7 +65,7 @@ export class ExcavationMission {
         creep.moveTo(new RoomPosition(25, 25, this.mem.target!), {range: 10});
       } else {
         let wall: StructureWall|null = null;
-        const path = this.mem.path;
+        const path = [...this.mem.path];
 
         while (!wall) {
           const coords = path.shift();
