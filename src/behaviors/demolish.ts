@@ -34,11 +34,16 @@ export class Demolisher extends Behavior<DemolishMemory> {
 
       // We have arrived
 
-      // Dismantl the structure
+      // Dismantle the structure
       creep.dismantle(target);
       return false;
     }
     return false;
+  }
+
+  /** Returns the target structure to be demolished */
+  public static getTargetID(mem: DemolishMemory): Id<Structure>|null {
+    return mem.structureID;
   }
 
   public static initMemory(roomname: string, struct: Structure):

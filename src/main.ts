@@ -28,6 +28,7 @@ import {Mission} from 'missions/mission';
 import {AllOperations} from 'operations';
 import {BaseOperation} from 'operations/baseOperation';
 import {MiningOperation} from 'operations/miningOperation';
+import {ExcavationMission} from 'season1/excavation';
 import {ScoreCollectMemory, ScoreMission} from 'season1/scoreCollection';
 import {declareOrphan} from 'spawn-system/orphans';
 import {SpawnQueue} from 'spawn-system/spawnQueue';
@@ -57,6 +58,7 @@ export const loop = (): void => {
     upgrade: true,
     enetwork: true,
   };
+  Memory.excavation = Memory.excavation || null;
   global.spawnQueues = global.spawnQueues || {};
 
   installConsoleCommands();
@@ -423,6 +425,14 @@ export const loop = (): void => {
           msn.requestCreep();
           msn.run();
         }
+      }
+
+      // Season 1 Score Excavation
+      if (Memory.excavation) {
+        const msn = new ExcavationMission(Memory.excavation);
+        msn.init();
+        msn.requestCreep();
+        msn.run();
       }
     }
   }
