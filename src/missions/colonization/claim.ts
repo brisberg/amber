@@ -95,7 +95,8 @@ export class ClaimMission extends Mission<ClaimMissionMemory> {
   protected needMoreCreeps(): boolean {
     // Do not spawn a claimer if it will not be able to attack the controller in
     // its lifetime.
-    if (this.controller && this.controller.upgradeBlocked >= 600) {
+    const room = Game.rooms[this.mem.roomName || ''];
+    if (room.controller && room.controller.upgradeBlocked >= 600) {
       return false;
     }
 
