@@ -73,7 +73,9 @@ export class ExcavationMission {
 
           const structs = this.target.lookAt(coords[0], coords[1]);
           const wallr = structs.find((s) => {
-            return s.structure && s.structure.structureType === STRUCTURE_WALL;
+            // return s.structure && s.structure.structureType ===
+            // STRUCTURE_WALL;
+            return !!s.structure;
           });
           wall = wallr ? wallr.structure as StructureWall : null;
         }
