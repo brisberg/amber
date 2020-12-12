@@ -35,10 +35,15 @@ export class Claimer extends Behavior<ClaimerMemory> {
       // We have arrived
 
       // Claim the controller
-      if (!ctrl.my && ctrl.reservation && ctrl.reservation.ticksToEnd > 0) {
-        creep.attackController(ctrl);
-      } else {
-        creep.claimController(ctrl);
+      if (!ctrl.my) {
+        if (!ctrl.owner) {
+          creep.claimController(ctrl);
+        }
+
+        if (ctrl.owner ||
+            (ctrl.reservation && ctrl.reservation.ticksToEnd > 0)) {
+          creep.attackController(ctrl);
+        }
       }
       return false;
     }
