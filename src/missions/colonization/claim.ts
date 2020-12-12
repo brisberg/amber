@@ -39,7 +39,8 @@ export class ClaimMission extends Mission<ClaimMissionMemory> {
   }
 
   public init(): boolean {
-    if (!this.mem.roomName || !Game.map.isRoomAvailable(this.mem.roomName)) {
+    if (!this.mem.roomName ||
+        Game.map.getRoomStatus(this.mem.roomName).status !== 'normal') {
       console.log(`Claim Mission: Room ${
           this.mem.roomName} is not available. Retiring`);
       return false;
