@@ -78,18 +78,17 @@ export class ColonizeOperation {
   public run(): void {
     const room = Game.rooms[this.mem.roomname];
 
+    if (room && !room.controller) {
+      console.log(`Retiring Colonization Operation for ${
+          this.mem.roomname}. Target Room has no controller`);
+      return;
+    }
+
     if (room && room.controller && room.controller.my &&
         room.find(FIND_MY_SPAWNS).length > 0) {
       // Built a new spawn, operation complete!
       console.log(`Colonization of ${room.name} complete! Retiring Operation.`);
       this.retire();
-      return;
-    }
-
-    if (room && room.controller && room.controller.owner &&
-        room.controller.owner.username !== getUsername()) {
-      console.log(`Retiring Colonization Operation for ${
-          this.mem.roomname}. Room is not claimable or has no controller`);
       return;
     }
 
@@ -166,8 +165,8 @@ export class ColonizeOperation {
     }
 
     // HACK for now
-    this.mem.host = 'E17N16';
-    return 'E17N16';
+    this.mem.host = 'E4S28';
+    return 'E4S28';
 
     // this.mem.host = closest.name;
     // return closest.name;

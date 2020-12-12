@@ -46,7 +46,7 @@ export class AttackMission extends Mission<AttackMissionMemory> {
   public init(): boolean {
     // Hack
     this.mem.all = true;
-    this.mem.spawnSource = 'E17N16';
+    this.mem.spawnSource = 'E4S28';
 
     if (!this.room) return true;
 

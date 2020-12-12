@@ -31,7 +31,8 @@ export class ManualMission extends Mission<ManualMissionMemory> {
   }
 
   public init(): boolean {
-    this.mem.spawnSource = 'E17N16';  // HACK: Hardcoding middle base
+    // HACK: Hardcoding to left base on season server
+    this.mem.spawnSource = 'E4S28';
     return true;
   }
 

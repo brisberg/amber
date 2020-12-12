@@ -21,7 +21,7 @@ export class ClaimMission extends Mission<ClaimMissionMemory> {
   protected readonly spawnPriority = 5;
   protected readonly bodyType = CLAIMER_BODY;
   protected readonly bodyOptions: GenerateCreepBodyOptions = {
-    max: {claim: 1, move: 1},
+    max: {claim: 4, move: 4},
   };
 
   private controller: StructureController|null = null;
@@ -93,6 +93,12 @@ export class ClaimMission extends Mission<ClaimMissionMemory> {
    * Returns true if we need another Claimer.
    */
   protected needMoreCreeps(): boolean {
+    // Do not spawn a claimer if it will not be able to attack the controller in
+    // its lifetime.
+    if (this.controller && this.controller.upgradeBlocked >= 600) {
+      return false;
+    }
+
     const creeps = this.getYoungCreeps();
     if (creeps.length >= this.maxClaimers) {
       return false;
