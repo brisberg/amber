@@ -46,12 +46,14 @@ export class DefendMission extends Mission<DefendMissionMemory> {
     this.mem.all = true;
     this.mem.spawnSource = 'E4S28';
 
-    if (!this.room) return true;
+    if (!this.room) {
+      return true;
+    }
 
     if (this.mem.all) {
       // Find all structures in the room
       this.targets = this.room.find(FIND_HOSTILE_STRUCTURES);
-      this.targets.concat(this.room.find(FIND_HOSTILE_CREEPS));
+      this.targets = this.targets.concat(this.room.find(FIND_HOSTILE_CREEPS));
 
       // Target InvaderCore
       const core = this.targets.find((target) => {
@@ -82,7 +84,7 @@ export class DefendMission extends Mission<DefendMissionMemory> {
         this.targets = [Game.getObjectById(this.mem.tarID)!];
       } else {
         console.log(
-            `Attack Mission ${this.name}: Could not find Target. Retiring`);
+            `Defend Mission ${this.name}: Could not find Target. Retiring`);
         return false;
       }
     }
@@ -105,26 +107,20 @@ export class DefendMission extends Mission<DefendMissionMemory> {
 
     const struct = this.targets[0];
 
+    const tar = struct ? struct : this.flag;
+    const tarId = struct ? struct.id : this.flag.name;
     // Direct each creep to pick up or dropoff
     this.creeps.forEach((creep) => {
-      if (creep.memory.behavior !== RANGER) {
+      if (creep.memory.behavior !== RANGER ||
+          creep.memory.mem['targetID'] !== tarId) {
         // Pickup newly spawned idle creeps
         creep.memory.mission = this.name;
-        if (!struct) {
-          // Update demoplishss target
-          setCreepBehavior(
-              creep,
-              RANGER,
-              Ranger.initMemory(this.flag),
-          );
-        } else {
-          // Update demoplishss target
-          setCreepBehavior(
-              creep,
-              RANGER,
-              Ranger.initMemory(struct),
-          );
-        }
+        // Update attack target
+        setCreepBehavior(
+            creep,
+            RANGER,
+            Ranger.initMemory(tar),
+        );
       }
     });
   }
