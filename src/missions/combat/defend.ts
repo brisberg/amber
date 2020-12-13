@@ -103,24 +103,28 @@ export class DefendMission extends Mission<DefendMissionMemory> {
   public run(): void {
     this.mem.all = true;  // Hack
 
-    if (this.targets.length === 0) {
-      return;
-    }
-
     const struct = this.targets[0];
 
     // Direct each creep to pick up or dropoff
     this.creeps.forEach((creep) => {
-      if (creep.memory.behavior !== RANGER ||
-          creep.memory.mem.targetID !== struct.id) {
+      if (creep.memory.behavior !== RANGER) {
         // Pickup newly spawned idle creeps
         creep.memory.mission = this.name;
-        // Update demoplishss target
-        setCreepBehavior(
-            creep,
-            RANGER,
-            Ranger.initMemory(struct),
-        );
+        if (!struct) {
+          // Update demoplishss target
+          setCreepBehavior(
+              creep,
+              RANGER,
+              Ranger.initMemory(this.flag),
+          );
+        } else {
+          // Update demoplishss target
+          setCreepBehavior(
+              creep,
+              RANGER,
+              Ranger.initMemory(struct),
+          );
+        }
       }
     });
   }

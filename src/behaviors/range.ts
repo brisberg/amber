@@ -1,7 +1,7 @@
 import {Behavior, BehaviorMemory} from './behavior';
 
 interface RangerMemory extends BehaviorMemory {
-  targetID: Id<Structure|Creep>;
+  targetID: Id<Structure|Creep>|string;
 }
 
 export const RANGER = 'ranger';
@@ -18,7 +18,8 @@ export const RANGER = 'ranger';
 export class Ranger extends Behavior<RangerMemory> {
   /* @override */
   protected behaviorActions(creep: Creep, mem: RangerMemory): boolean {
-    const target = Game.getObjectById(mem.targetID);
+    const target = Game.getObjectById(mem.targetID) as Structure;
+    const flag = Game.flags[mem.targetID];
 
     if (target) {
       creep.rangedAttack(target);
@@ -33,13 +34,21 @@ export class Ranger extends Behavior<RangerMemory> {
       // Attack the target
       // creep.rangedAttack(target);
       return false;
+    } else {
+      creep.moveTo(flag);
     }
     return false;
   }
 
-  public static initMemory(target: Structure|Creep): RangerMemory {
-    return {
-      targetID: target.id,
-    };
+  public static initMemory(target: Structure|Creep|Flag): RangerMemory {
+    if (target instanceof Flag) {
+      return {
+        targetID: target.name,
+      };
+    } else {
+      return {
+        targetID: target.id,
+      };
+    }
   }
 }
