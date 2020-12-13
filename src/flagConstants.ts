@@ -134,6 +134,11 @@ export const ATTACK_MISSION_FLAG: FlagColor = {
   color: COLOR_RED,
   secondaryColor: COLOR_RED,
 };
+/** Reserve Red/Blue flag color for Defend Mission */
+export const DEFEND_MISSION_FLAG: FlagColor = {
+  color: COLOR_RED,
+  secondaryColor: COLOR_BLUE,
+};
 
 /**
  * -----------------

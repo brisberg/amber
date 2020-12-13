@@ -3,6 +3,7 @@ import {
   ATTACK_MISSION_FLAG,
   BUILD_TARGET_FLAG,
   CLAIM_MISSION_FLAG,
+  DEFEND_MISSION_FLAG,
   DISMANTLE_MISSION_FLAG,
   DISTRIBUTION_MISSION_FLAG,
   flagIsColor,
@@ -20,6 +21,7 @@ import {ClaimMission} from './colonization/claim';
 import {PioneerMission} from './colonization/pioneer';
 import {AttackMission} from './combat/attack';
 import {AttackControllerMission} from './combat/attackController';
+import {DefendMission} from './combat/defend';
 import {DemolishMission} from './combat/demolish';
 import {RaidMission} from './combat/raid';
 import {BuildMission} from './core/build';
@@ -65,6 +67,8 @@ global.missions = (flag: Flag): Mission<any>|null => {
     return new RaidMission(flag);
   } else if (flagIsColor(flag, ATTACK_MISSION_FLAG)) {
     return new AttackMission(flag);
+  } else if (flagIsColor(flag, DEFEND_MISSION_FLAG)) {
+    return new DefendMission(flag);
   }
 
   return null;

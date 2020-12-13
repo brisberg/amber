@@ -17,6 +17,7 @@ import {Harvester, HARVESTER} from './harvester';
 import {Idler, IDLER} from './idler';
 import {LINK_UPGRADER, LinkUpgrader} from './linkUpgrader';
 import {Pioneer, PIONEER} from './pioneer';
+import {Ranger, RANGER} from './range';
 import {Repairer, REPAIRER} from './repairer';
 import {SENTRY, Sentry} from './sentry';
 import {SOURCE_BUILDER, SourceBuilder} from './sourceBuilder';
@@ -28,7 +29,7 @@ export type BehaviorKey = typeof ATTACKER|typeof PIONEER|typeof REPAIRER|
     typeof ENET_BUILDER|typeof ENET_FETCHER|typeof ENET_DEPOSITER|
     typeof UPGRADER|typeof CONTAINER_UPGRADER|typeof LINK_UPGRADER|
     typeof DISTRIBUTOR|typeof DEMOLISHER|typeof CLAIMER|typeof CLAIM_ATTTACK|
-    typeof SENTRY|typeof IDLER;
+    typeof RANGER|typeof SENTRY|typeof IDLER;
 
 export interface BehaviorMap {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -38,6 +39,7 @@ export interface BehaviorMap {
 /** Convenience mapping of behavior key to behavior update function. */
 global.behaviors = {
   [ATTACKER]: new Attacker(),
+  [RANGER]: new Ranger(),
   [PIONEER]: new Pioneer(),
   [HARVESTER]: new Harvester(),
   [REPAIRER]: new Repairer(),
