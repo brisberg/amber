@@ -26,6 +26,7 @@ export class ManagerMission extends Mission<ManagerMemory> {
       carry: 0,
       work: 0,
       attack: 0,
+      range: 0,
       heal: 0,
       tough: 0,
       claim: 0,

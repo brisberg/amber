@@ -1,13 +1,13 @@
 import {Behavior, BehaviorMemory} from './behavior';
 
-interface AttackerMemory extends BehaviorMemory {
+interface RangerMemory extends BehaviorMemory {
   targetID: Id<Structure|Creep>|string;
 }
 
-export const ATTACKER = 'attack';
+export const RANGER = 'ranger';
 
 /**
- * Creep behavior class for a single creep to attack a target.
+ * Creep behavior class for a single creep to ranged a target.
  *
  * Takes a creep and a target construction site. Handles moving the creep
  * towards the target and building it.
@@ -15,14 +15,14 @@ export const ATTACKER = 'attack';
  * Low level behavior as it will not fetch more energy if the creep is out of
  * energy.
  */
-export class Attacker extends Behavior<AttackerMemory> {
+export class Ranger extends Behavior<RangerMemory> {
   /* @override */
-  protected behaviorActions(creep: Creep, mem: AttackerMemory): boolean {
+  protected behaviorActions(creep: Creep, mem: RangerMemory): boolean {
     const target = Game.getObjectById(mem.targetID) as Structure;
     const flag = Game.flags[mem.targetID];
 
     if (target) {
-      creep.attack(target);
+      creep.rangedAttack(target);
 
       if (!creep.pos.inRangeTo(target, 1)) {
         creep.moveTo(target);
@@ -40,7 +40,7 @@ export class Attacker extends Behavior<AttackerMemory> {
     return false;
   }
 
-  public static initMemory(target: Structure|Creep|Flag): AttackerMemory {
+  public static initMemory(target: Structure|Creep|Flag): RangerMemory {
     if (target instanceof Flag) {
       return {
         targetID: target.name,

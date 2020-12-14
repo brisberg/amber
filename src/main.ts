@@ -398,32 +398,34 @@ export const loop = (): void => {
       }
 
       // Season 1 Score Collection
-      if (!room.memory.score) {
-        // No score mission, scan for containers
-        const scoreConts: StructureContainer[] =
-            room.find(10011 as FindConstant, {
-              filter: (c: StructureContainer) => {
-                return c.store['score' as ResourceConstant] > 0;
-              },
-            }) as StructureContainer[];
-        if (scoreConts.length > 0) {
-          const mem: ScoreCollectMemory = {
-            room: room.name,
-            scoreID: scoreConts[0].id,
-            creep: null,
-          };
-          room.memory.score = mem;
-        }
-      } else {
-        // We have a score mission, run it.
-        const msn = new ScoreMission(room.memory.score);
-
-        // If mission cannot be initialized, clear it
-        if (!msn.init()) {
-          room.memory.score = undefined;
+      if (room.storage) {
+        if (!room.memory.score) {
+          // No score mission, scan for containers
+          const scoreConts: StructureContainer[] =
+              room.find(10011 as FindConstant, {
+                filter: (c: StructureContainer) => {
+                  return c.store['score' as ResourceConstant] > 0;
+                },
+              }) as StructureContainer[];
+          if (scoreConts.length > 0) {
+            const mem: ScoreCollectMemory = {
+              room: room.name,
+              scoreID: scoreConts[0].id,
+              creep: null,
+            };
+            room.memory.score = mem;
+          }
         } else {
-          msn.requestCreep();
-          msn.run();
+          // We have a score mission, run it.
+          const msn = new ScoreMission(room.memory.score);
+
+          // If mission cannot be initialized, clear it
+          if (!msn.init()) {
+            room.memory.score = undefined;
+          } else {
+            msn.requestCreep();
+            msn.run();
+          }
         }
       }
     }

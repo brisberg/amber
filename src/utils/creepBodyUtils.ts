@@ -7,12 +7,13 @@
  * part counts.
  */
 export function createCreepBody(
-    work: number, carry: number, move: number, attack: number, heal: number,
-    tough: number, claim: number): BodyPartConstant[] {
+    work: number, carry: number, move: number, attack: number, range: number,
+    heal: number, tough: number, claim: number): BodyPartConstant[] {
   const workParts = Array<BodyPartConstant>(work).fill(WORK);
   const carryParts = Array<BodyPartConstant>(carry).fill(CARRY);
   const moveParts = Array<BodyPartConstant>(move).fill(MOVE);
   const attackParts = Array<BodyPartConstant>(attack).fill(ATTACK);
+  const rangeParts = Array<BodyPartConstant>(range).fill(RANGED_ATTACK);
   const healParts = Array<BodyPartConstant>(heal).fill(HEAL);
   const toughParts = Array<BodyPartConstant>(tough).fill(TOUGH);
   const claimParts = Array<BodyPartConstant>(claim).fill(CLAIM);
@@ -21,6 +22,7 @@ export function createCreepBody(
       workParts,
       claimParts,
       attackParts,
+      rangeParts,
       healParts,
       carryParts,
       moveParts,
@@ -33,7 +35,7 @@ export function createCreepBody(
  */
 export function createWorkerBody(
     work: number, carry: number, move: number): BodyPartConstant[] {
-  return createCreepBody(work, carry, move, 0, 0, 0, 0);
+  return createCreepBody(work, carry, move, 0, 0, 0, 0, 0);
 }
 
 /** Utility to return the total cost of a creep Body */

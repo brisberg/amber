@@ -14,6 +14,7 @@ interface CreepRatio {
   carry: number;
   move: number;
   attack: number;
+  range: number;
   heal: number;
   tough: number;
   claim: number;
@@ -26,6 +27,7 @@ export const zeroRatio: CreepRatio = {
   claim: 0,
   heal: 0,
   move: 0,
+  range: 0,
   tough: 0,
   work: 0,
 };
@@ -41,6 +43,7 @@ const worker: CreepRatio = {
   claim: 0,
   heal: 0,
   move: 1,
+  range: 0,
   tough: 0,
   work: 2,
 };
@@ -59,6 +62,7 @@ const carryWorker: CreepRatio = {
   claim: 0,
   heal: 0,
   move: 2,
+  range: 0,
   tough: 0,
   work: 1,
 };
@@ -75,6 +79,7 @@ const hauler: CreepRatio = {
   claim: 0,
   heal: 0,
   move: 1,
+  range: 0,
   tough: 0,
   work: 0,
 };
@@ -91,6 +96,7 @@ const offRoadHauler: CreepRatio = {
   claim: 0,
   heal: 0,
   move: 1,
+  range: 0,
   tough: 0,
   work: 0,
 };
@@ -108,6 +114,7 @@ const tanker: CreepRatio = {
   claim: 0,
   heal: 0,
   move: 0,
+  range: 0,
   tough: 0,
   work: 0,
 };
@@ -124,6 +131,7 @@ const claimer: CreepRatio = {
   claim: 1,
   heal: 0,
   move: 1,
+  range: 0,
   tough: 0,
   work: 0,
 };
@@ -140,14 +148,15 @@ const scout: CreepRatio = {
   claim: 0,
   heal: 0,
   move: 1,
+  range: 0,
   tough: 0,
   work: 0,
 };
 creepBodyRatios[SCOUT] = scout;
 
 /**
- * Scout
- * Scouts can move 1 cell per tick when loaded even off roads
+ * Fighter
+ * Fighters can move 1 cell per tick on roads
  */
 export const FIGHTER = 'fight';
 const fighter: CreepRatio = {
@@ -156,10 +165,28 @@ const fighter: CreepRatio = {
   claim: 0,
   heal: 0,
   move: 1,
+  range: 0,
   tough: 0,
   work: 0,
 };
 creepBodyRatios[FIGHTER] = fighter;
+
+/**
+ * Ranger
+ * Rangers can move 1 cell per tick on roads
+ */
+export const RANGED = 'ranged';
+const ranged: CreepRatio = {
+  attack: 0,
+  carry: 0,
+  claim: 0,
+  heal: 0,
+  move: 1,
+  range: 1,
+  tough: 0,
+  work: 0,
+};
+creepBodyRatios[RANGED] = ranged;
 
 export interface GenerateCreepBodyOptions {
   min?: CreepRatio;
@@ -168,6 +195,7 @@ export interface GenerateCreepBodyOptions {
     carry?: number;
     move?: number;
     attack?: number;
+    range?: number,
     heal?: number;
     tough?: number;
     claim?: number;
@@ -181,6 +209,7 @@ function addToRatio(base: CreepRatio, addition: CreepRatio): CreepRatio {
     claim: base.claim + addition.claim,
     heal: base.heal + addition.heal,
     move: base.move + addition.move,
+    range: base.range + addition.range,
     tough: base.tough + addition.tough,
     work: base.work + addition.work,
   };
@@ -190,6 +219,7 @@ function costOfRatio(ratio: CreepRatio): number {
   return ratio.attack * BODYPART_COST[ATTACK] +
       ratio.carry * BODYPART_COST[CARRY] + ratio.claim * BODYPART_COST[CLAIM] +
       ratio.heal * BODYPART_COST[HEAL] + ratio.move * BODYPART_COST[MOVE] +
+      ratio.range * BODYPART_COST[RANGED_ATTACK] +
       ratio.tough * BODYPART_COST[TOUGH] + ratio.work * BODYPART_COST[WORK];
 }
 
@@ -215,6 +245,7 @@ export function generateFlexibleCreep(
           nextBody.carry > (max.carry || 99) ||
           nextBody.move > (max.move || 99) ||
           nextBody.attack > (max.attack || 99) ||
+          nextBody.range > (max.range || 99) ||
           nextBody.heal > (max.heal || 99) ||
           nextBody.tough > (max.tough || 99) ||
           nextBody.claim > (max.claim || 99)) {
@@ -228,6 +259,6 @@ export function generateFlexibleCreep(
   }
 
   return createCreepBody(
-      body.work, body.carry, body.move, body.attack, body.heal, body.tough,
-      body.claim);
+      body.work, body.carry, body.move, body.attack, body.range, body.heal,
+      body.tough, body.claim);
 }
