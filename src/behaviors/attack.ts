@@ -1,7 +1,7 @@
 import {Behavior, BehaviorMemory} from './behavior';
 
 interface AttackerMemory extends BehaviorMemory {
-  targetID: Id<Structure|Creep>;
+  targetID: Id<Structure|Creep>|string;
 }
 
 export const ATTACKER = 'attack';
@@ -18,9 +18,12 @@ export const ATTACKER = 'attack';
 export class Attacker extends Behavior<AttackerMemory> {
   /* @override */
   protected behaviorActions(creep: Creep, mem: AttackerMemory): boolean {
-    const target = Game.getObjectById(mem.targetID);
+    const target = Game.getObjectById(mem.targetID) as Structure;
+    const flag = Game.flags[mem.targetID];
 
     if (target) {
+      creep.attack(target);
+
       if (!creep.pos.inRangeTo(target, 1)) {
         creep.moveTo(target);
         return true;
@@ -29,15 +32,23 @@ export class Attacker extends Behavior<AttackerMemory> {
       // We have arrived
 
       // Attack the target
-      creep.attack(target);
+      // creep.rangedAttack(target);
       return false;
+    } else {
+      creep.moveTo(flag);
     }
     return false;
   }
 
-  public static initMemory(target: Structure|Creep): AttackerMemory {
-    return {
-      targetID: target.id,
-    };
+  public static initMemory(target: Structure|Creep|Flag): AttackerMemory {
+    if (target instanceof Flag) {
+      return {
+        targetID: target.name,
+      };
+    } else {
+      return {
+        targetID: target.id,
+      };
+    }
   }
 }

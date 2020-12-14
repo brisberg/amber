@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import {ATTACKER, Attacker} from 'behaviors/attack';
 import {setCreepBehavior} from 'behaviors/behavior';
-import {Ranger, RANGER} from 'behaviors/range';
-import {GenerateCreepBodyOptions, RANGED} from 'spawn-system/bodyTypes';
+import {
+  FIGHTER,
+  GenerateCreepBodyOptions,
+} from 'spawn-system/bodyTypes';
 
 import {Mission, MissionMemory} from '../mission';
 
@@ -18,7 +21,7 @@ interface DefendMissionMemory extends MissionMemory {
  */
 export class DefendMission extends Mission<DefendMissionMemory> {
   protected readonly spawnPriority = 3;
-  protected readonly bodyType = RANGED;
+  protected readonly bodyType = FIGHTER;
   protected readonly bodyOptions: GenerateCreepBodyOptions = {
     max: {
       range: 10,
@@ -111,15 +114,15 @@ export class DefendMission extends Mission<DefendMissionMemory> {
     const tarId = struct ? struct.id : this.flag.name;
     // Direct each creep to pick up or dropoff
     this.creeps.forEach((creep) => {
-      if (creep.memory.behavior !== RANGER ||
+      if (creep.memory.behavior !== ATTACKER ||
           creep.memory.mem['targetID'] !== tarId) {
         // Pickup newly spawned idle creeps
         creep.memory.mission = this.name;
         // Update attack target
         setCreepBehavior(
             creep,
-            RANGER,
-            Ranger.initMemory(tar),
+            ATTACKER,
+            Attacker.initMemory(tar),
         );
       }
     });
