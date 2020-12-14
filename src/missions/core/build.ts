@@ -119,17 +119,18 @@ export class BuildMission extends Mission<BuildMissionMemory> {
       const conts: StructureContainer[] = this.room!.find(FIND_STRUCTURES, {
         filter: (s) => s.structureType === STRUCTURE_CONTAINER,
       }) as StructureContainer[];
-      if (creep.store.energy === 0 && conts.length > 0) {
-        conts.forEach((cont) => {
+      if (creep.store.energy === 0 && conts.length > 0 && !this.eNode) {
+        for (const cont of conts) {
           if (cont.store.energy > 0) {
             setCreepBehavior(
                 creep,
                 FETCHER,
                 Fetcher.initMemory(cont, RESOURCE_ENERGY),
             );
+            // break early
             return;
           }
-        });
+        }
       }
 
       if (this.rawSource) {
