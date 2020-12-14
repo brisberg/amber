@@ -2,6 +2,8 @@ import {Behavior, BehaviorMemory} from './behavior';
 
 interface RepairerMemory extends BehaviorMemory {
   structureID: Id<Structure<StructureConstant>>;
+  // Max hit point to repair up to (suitable for walls and ramparts)
+  maxHits?: number;
 }
 
 export const REPAIRER = 'repairer';
@@ -30,7 +32,7 @@ export class Repairer extends Behavior<RepairerMemory> {
       // We have arrived
 
       // Repair structure if it is low
-      const hitsMissing = structure.hitsMax - structure.hits;
+      const hitsMissing = (mem.maxHits || structure.hitsMax) - structure.hits;
       if (hitsMissing > 0 &&
           creep.store.energy >= (repairPower * REPAIR_COST)) {
         creep.repair(structure);
@@ -40,9 +42,28 @@ export class Repairer extends Behavior<RepairerMemory> {
     return false;
   }
 
-  public static initMemory(structure: Structure): RepairerMemory {
-    return {
+  public static getTarget(mem: RepairerMemory): Structure|null {
+    return Game.getObjectById(mem.structureID);
+  }
+
+  public static getRepairRemaining(mem: RepairerMemory): number {
+    const struct = Game.getObjectById(mem.structureID);
+    if (!struct) {
+      return 0;
+    }
+
+    return (mem.maxHits || struct.hitsMax) - struct.hits;
+  }
+
+  public static initMemory(structure: Structure, maxHits?: number):
+      RepairerMemory {
+    const mem: RepairerMemory = {
       structureID: structure.id,
+      maxHits,
     };
+    if (maxHits) {
+      mem.maxHits = maxHits;
+    }
+    return mem;
   }
 }
