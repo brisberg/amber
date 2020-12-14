@@ -45,13 +45,15 @@ export class TowerBehavior {
         Math.min(tower.pos.y + 7, 49),
         Math.min(tower.pos.x + 7, 49),
       ];
-      const structs =
-          tower.room
-              .lookForAtArea(
-                  LOOK_STRUCTURES, lookRanges[0], lookRanges[1], lookRanges[2],
-                  lookRanges[3], true)
-              .map((result) => result.structure)
-              .filter((struct) => struct.structureType !== STRUCTURE_WALL);
+      const structs = tower.room
+                          .lookForAtArea(
+                              LOOK_STRUCTURES, lookRanges[0], lookRanges[1],
+                              lookRanges[2], lookRanges[3], true)
+                          .map((result) => result.structure)
+                          .filter((struct) => {
+                            return struct.structureType !== STRUCTURE_WALL &&
+                                struct.structureType !== STRUCTURE_RAMPART;
+                          });
       const damaged = structs.filter(
           (struct) => struct.hitsMax - struct.hits >= TOWER_POWER_REPAIR);
       Memory.rooms[tower.room.name].damaged =

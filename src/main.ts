@@ -32,6 +32,7 @@ import {ExcavationMission} from 'season1/excavation';
 import {ScoreCollectMemory, ScoreMission} from 'season1/scoreCollection';
 import {declareOrphan} from 'spawn-system/orphans';
 import {SpawnQueue} from 'spawn-system/spawnQueue';
+import {FortifyMission} from 'towers/fortify';
 
 import {installConsoleCommands} from './consoleCommands';
 import garbageCollection from './garbageCollect';
@@ -75,7 +76,18 @@ export const loop = (): void => {
       }
 
       if (!Memory.rooms[roomName]) {
-        Memory.rooms[roomName] = {network: null, damaged: [], score: undefined};
+        Memory.rooms[roomName] = {
+          network: null,
+          damaged: [],
+          score: undefined,
+          fortify: {
+            creep: null,
+            room: roomName,
+            eNodeFlag: null,
+            targetIDs: [],
+            wallHeight: 1000,
+          },
+        };
       }
 
       // TODO: Pass all spawns to the Spawn Queue
@@ -351,11 +363,47 @@ export const loop = (): void => {
             for (const site of sites) {
               // Check for existing source builder flag or global room build
               // flag
-              if (!Game.flags['build-' + site.id] &&
-                  !Game.flags['build-op-' + room.name]) {
-                site.pos.createFlag(
-                    'build-op-' + room.name, BUILD_OPERATION_FLAG.color,
-                    BUILD_OPERATION_FLAG.secondaryColor);
+              if (site.structureType !== STRUCTURE_WALL &&
+                  site.structureType !== STRUCTURE_RAMPART) {
+                if (!Game.flags['build-' + site.id] &&
+                    !Game.flags['build-op-' + room.name]) {
+                  site.pos.createFlag(
+                      'build-op-' + room.name, BUILD_OPERATION_FLAG.color,
+                      BUILD_OPERATION_FLAG.secondaryColor);
+                }
+              }
+            }
+
+
+            // Fortify defences
+            if (Game.time % 30 === 0) {
+              if (!room.memory.fortify) {
+                room.memory.fortify = {
+                  creep: null,
+                  room: roomName,
+                  eNodeFlag: null,
+                  targetIDs: [],
+                  wallHeight: 1000,
+                };
+              }
+              room.memory.fortify.targetIDs = [];
+              // for (const site of sites) {
+              //   if (site.structureType === STRUCTURE_WALL ||
+              //       site.structureType === STRUCTURE_RAMPART) {
+              //     room.memory.fortify.targetIDs.push(
+              //         site.id as Id<ConstructionSite<STRUCTURE_WALL>>);
+              //   }
+              // }
+
+              const structs = room.find(FIND_STRUCTURES);
+              for (const struct of structs) {
+                if (struct.structureType === STRUCTURE_WALL ||
+                    struct.structureType === STRUCTURE_RAMPART) {
+                  if (struct.hits < (room.memory.fortify.wallHeight + 5000)) {
+                    room.memory.fortify.targetIDs.push(
+                        struct.id as Id<StructureWall>);
+                  }
+                }
               }
             }
           }
@@ -394,6 +442,20 @@ export const loop = (): void => {
           //       'town_square', TOWN_SQUARE_FLAG.color,
           //       TOWN_SQUARE_FLAG.secondaryColor);
           // }
+        }
+      }
+
+      // Run fortify mission
+      if (room.memory.fortify) {
+        // We have a fortify mission, run it.
+        const msn = new FortifyMission(room.memory.fortify);
+
+        // If mission cannot be initialized, clear it
+        if (!msn.init()) {
+          room.memory.score = undefined;
+        } else {
+          msn.requestCreep();
+          msn.run();
         }
       }
 
@@ -456,7 +518,8 @@ export const loop = (): void => {
       }
 
       // Hack for season1 score collection
-      if (creep.memory.mission !== 'score') {
+      if (creep.memory.mission !== 'score' &&
+          creep.memory.mission !== 'fortify') {
         if (!creep.memory.mission || !Memory.missions[creep.memory.mission]) {
           // Creep is Orphaned, or its mission was cancelled
           if (creep.memory.behavior !== IDLER) {
