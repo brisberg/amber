@@ -115,6 +115,23 @@ export class BuildMission extends Mission<BuildMissionMemory> {
         return;
       }
 
+      // Hack, get builders to pull from containers as well
+      const conts: StructureContainer[] = this.room!.find(FIND_STRUCTURES, {
+        filter: (s) => s.structureType === STRUCTURE_CONTAINER,
+      }) as StructureContainer[];
+      if (creep.store.energy === 0 && conts.length > 0) {
+        conts.forEach((cont) => {
+          if (cont.store.energy > 0) {
+            setCreepBehavior(
+                creep,
+                FETCHER,
+                Fetcher.initMemory(cont, RESOURCE_ENERGY),
+            );
+            return;
+          }
+        });
+      }
+
       if (this.rawSource) {
         // Harvest the energy ourselves right from the source
         if (creep.memory.behavior !== SOURCE_BUILDER) {
