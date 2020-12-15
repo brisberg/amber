@@ -15,7 +15,7 @@ export interface FortifyMemory {
   wallHeight: number;
 }
 
-const REPAIR_BUFFER = 5000;
+export const REPAIR_BUFFER = 100000;
 
 /**
  * Fortify Mission is a room scopped mission to build and repair walls/ramparts

@@ -33,7 +33,7 @@ import {ScoreCollectMemory, ScoreMission} from 'season1/scoreCollection';
 import {ScoreTransportMission} from 'season1/scoreTransport';
 import {declareOrphan} from 'spawn-system/orphans';
 import {SpawnQueue} from 'spawn-system/spawnQueue';
-import {FortifyMission} from 'towers/fortify';
+import {FortifyMission, REPAIR_BUFFER} from 'towers/fortify';
 
 import {installConsoleCommands} from './consoleCommands';
 import garbageCollection from './garbageCollect';
@@ -401,7 +401,8 @@ export const loop = (): void => {
               for (const struct of structs) {
                 if (struct.structureType === STRUCTURE_WALL ||
                     struct.structureType === STRUCTURE_RAMPART) {
-                  if (struct.hits < (room.memory.fortify.wallHeight + 5000)) {
+                  if (struct.hits <
+                      (room.memory.fortify.wallHeight + REPAIR_BUFFER)) {
                     room.memory.fortify.targetIDs.push(
                         struct.id as Id<StructureWall>);
                   }
