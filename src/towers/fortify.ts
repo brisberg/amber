@@ -98,7 +98,7 @@ export class FortifyMission {
         setCreepBehavior(
             creep,
             REPAIRER,
-            Repairer.initMemory(target, this.mem.wallHeight),
+            Repairer.initMemory(target, this.mem.wallHeight + REPAIR_BUFFER),
         );
         creep.memory.mission = 'fortify';
       }
@@ -119,8 +119,8 @@ export class FortifyMission {
             StructureRampart | null;
         if (newTarget) {
           // Update repair target
-          creep.memory.mem =
-              Repairer.initMemory(newTarget, this.mem.wallHeight);
+          creep.memory.mem = Repairer.initMemory(
+              newTarget, this.mem.wallHeight + REPAIR_BUFFER);
         }
       }
 
