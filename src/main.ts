@@ -30,6 +30,7 @@ import {BaseOperation} from 'operations/baseOperation';
 import {MiningOperation} from 'operations/miningOperation';
 import {ExcavationMission} from 'season1/excavation';
 import {ScoreCollectMemory, ScoreMission} from 'season1/scoreCollection';
+import {ScoreTransportMission} from 'season1/scoreTransport';
 import {declareOrphan} from 'spawn-system/orphans';
 import {SpawnQueue} from 'spawn-system/spawnQueue';
 import {FortifyMission} from 'towers/fortify';
@@ -60,6 +61,7 @@ export const loop = (): void => {
     enetwork: true,
   };
   Memory.excavation = Memory.excavation || null;
+  Memory.transport = Memory.transport || null;
   global.spawnQueues = global.spawnQueues || {};
 
   installConsoleCommands();
@@ -499,6 +501,15 @@ export const loop = (): void => {
     msn.init();
     msn.requestCreep();
     msn.run();
+  }
+
+  // Season 1 blind Score Transport
+  if (Memory.transport) {
+    const msn = new ScoreTransportMission(Memory.transport);
+    if (msn.init()) {
+      msn.requestCreep();
+      msn.run();
+    }
   }
 
   // SpawnQueue must execute after missions have a chance request creeps

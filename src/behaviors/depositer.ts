@@ -54,6 +54,7 @@ export class Depositer extends Behavior<DepositerMemory> {
         creep.transfer(target, mem.resource, amount);
         return false;
       }
+      creep.transfer(target, mem.resource);
     }
     return false;
   }

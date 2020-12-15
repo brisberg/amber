@@ -13,6 +13,7 @@ interface Memory {
   missions: {[name: string]: any};
   operations: {[name: string]: any};
   excavation: import('./season1/excavation').ExcavationMemory;
+  transport: import('./season1/scoreTransport').ScoreTransportMemory;
 }
 
 interface RoomMemory {
