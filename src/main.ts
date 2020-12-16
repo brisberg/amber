@@ -401,8 +401,7 @@ export const loop = (): void => {
               for (const struct of structs) {
                 if (struct.structureType === STRUCTURE_WALL ||
                     struct.structureType === STRUCTURE_RAMPART) {
-                  if (struct.hits <
-                      (room.memory.fortify.wallHeight + REPAIR_BUFFER)) {
+                  if (struct.hits < (room.memory.fortify.wallHeight)) {
                     room.memory.fortify.targetIDs.push(
                         struct.id as Id<StructureWall>);
                   }
