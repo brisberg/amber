@@ -1,7 +1,7 @@
 import {Behavior, BehaviorMemory} from './behavior';
 
 export type UnitWithStore =|StructureContainer|StructureStorage|StructureSpawn|
-    StructureExtension|StructureLink|StructureTower|Creep;
+    StructureExtension|StructureLink|StructureTower|StructureTerminal|Creep;
 
 interface DepositerMemory extends BehaviorMemory {
   resource: ResourceConstant;

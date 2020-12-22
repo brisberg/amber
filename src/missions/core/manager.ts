@@ -9,8 +9,11 @@ import {Mission, MissionMemory} from '../mission';
 
 interface ManagerMemory extends MissionMemory {
   storageID: Id<StructureStorage>|null;
+  terminalID: Id<StructureTerminal>|null;
   linkID: Id<StructureLink>|null;
 }
+
+const RESOURCE_SCORE = 'score' as ResourceConstant;
 
 /**
  * Mission construct to facilitate transfering energy from Storage to the core
@@ -35,6 +38,7 @@ export class ManagerMission extends Mission<ManagerMemory> {
   protected readonly spawnPriority = 2;
 
   private storage: StructureStorage|null = null;
+  private terminal: StructureTerminal|null = null;
   private link: StructureLink|null = null;
 
   constructor(flag: Flag) {
@@ -44,6 +48,11 @@ export class ManagerMission extends Mission<ManagerMemory> {
   public setStorage(storage: StructureStorage): void {
     this.storage = storage;
     this.mem.storageID = storage.id;
+  }
+
+  public setTerminal(terminal: StructureTerminal): void {
+    this.terminal = terminal;
+    this.mem.terminalID = terminal.id;
   }
 
   public setLink(link: StructureLink): void {
@@ -56,6 +65,7 @@ export class ManagerMission extends Mission<ManagerMemory> {
     return {
       creeps: [],
       storageID: null,
+      terminalID: null,
       linkID: null,
     };
   }
@@ -67,6 +77,7 @@ export class ManagerMission extends Mission<ManagerMemory> {
     }
 
     this.storage = Game.getObjectById(this.mem.storageID);
+    this.terminal = Game.getObjectById(this.mem.terminalID || '');
     this.link = Game.getObjectById(this.mem.linkID);
     return true;
   }
@@ -85,20 +96,56 @@ export class ManagerMission extends Mission<ManagerMemory> {
         return;
       }
 
-      if (manager.store.energy > 0) {
-        if (manager.memory.behavior !== DEPOSITER) {
-          setCreepBehavior(
-              manager, DEPOSITER,
-              Depositer.initMemory(this.link!, RESOURCE_ENERGY));
-          return;
+      if (manager.store.getUsedCapacity() > 0) {
+        if (manager.store[RESOURCE_ENERGY] > 0) {
+          if (manager.memory.behavior !== DEPOSITER) {
+            // Keep terminal energy up
+            if (this.terminal && this.terminal.store[RESOURCE_ENERGY] <= 2000) {
+              setCreepBehavior(
+                  manager, DEPOSITER,
+                  Depositer.initMemory(
+                      this.terminal as unknown as StructureStorage,
+                      RESOURCE_ENERGY));
+              return;
+            } else {
+              setCreepBehavior(
+                  manager, DEPOSITER,
+                  Depositer.initMemory(this.link!, RESOURCE_ENERGY));
+              return;
+            }
+          }
+        } else if (manager.store[RESOURCE_SCORE] > 0) {
+          // Season 1
+          if (this.terminal) {
+            setCreepBehavior(
+                manager, DEPOSITER,
+                Depositer.initMemory(this.terminal, RESOURCE_SCORE));
+            return;
+          } else {
+            setCreepBehavior(
+                manager, DEPOSITER,
+                Depositer.initMemory(this.storage!, RESOURCE_SCORE));
+            return;
+          }
         }
-      } else {
+      }
+
+      if (this.storage!.store[RESOURCE_ENERGY] >= 100000) {
         // Limit managers from taking energy from low energy storage
-        if (manager.memory.behavior !== FETCHER &&
-            this.storage!.store.energy >= 100000) {
+        if (manager.memory.behavior !== FETCHER ||
+            manager.memory.mem.resource !== RESOURCE_ENERGY) {
           setCreepBehavior(
               manager, FETCHER,
               Fetcher.initMemory(this.storage!, RESOURCE_ENERGY));
+          return;
+        }
+      } else if (this.storage!.store[RESOURCE_SCORE] >= 0) {
+        // Season 1 Extract score
+        if (manager.memory.behavior !== FETCHER ||
+            manager.memory.mem.resource !== RESOURCE_SCORE) {
+          setCreepBehavior(
+              manager, FETCHER,
+              Fetcher.initMemory(this.storage!, RESOURCE_SCORE));
           return;
         }
       }

@@ -31,6 +31,7 @@ import {MiningOperation} from 'operations/miningOperation';
 import {ExcavationMission} from 'season1/excavation';
 import {ScoreCollectMemory, ScoreMission} from 'season1/scoreCollection';
 import {ScoreTransportMission} from 'season1/scoreTransport';
+import {operateTerminals} from 'season1/terminals';
 import {declareOrphan} from 'spawn-system/orphans';
 import {SpawnQueue} from 'spawn-system/spawnQueue';
 import {FortifyMission} from 'towers/fortify';
@@ -223,6 +224,11 @@ export const loop = (): void => {
       // Hack, check for links and push energy to controller if so
       if (room.controller.level >= 5) {
         operateLinks(room);
+      }
+
+      // Season 1 Hack, pushes Score to 'E1S29'
+      if (room.controller.level >= 6) {
+        operateTerminals(room);
       }
 
       // If we are in autoMode, automatically place oprations/layout flags
