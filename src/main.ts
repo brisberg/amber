@@ -33,7 +33,7 @@ import {ScoreCollectMemory, ScoreMission} from 'season1/scoreCollection';
 import {ScoreTransportMission} from 'season1/scoreTransport';
 import {declareOrphan} from 'spawn-system/orphans';
 import {SpawnQueue} from 'spawn-system/spawnQueue';
-import {FortifyMission, REPAIR_BUFFER} from 'towers/fortify';
+import {FortifyMission} from 'towers/fortify';
 
 import {installConsoleCommands} from './consoleCommands';
 import garbageCollection from './garbageCollect';
