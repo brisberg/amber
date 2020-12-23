@@ -53,7 +53,7 @@ export class Idler extends Behavior<IdlerMemory> {
     return false;
   }
 
-  public static initMemory(): IdlerMemory {
-    return {};
+  public static initMemory(pos?: [number, number]): IdlerMemory {
+    return pos ? {destPos: pos} : {};
   }
 }

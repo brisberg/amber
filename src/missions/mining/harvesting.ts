@@ -3,6 +3,7 @@ import {
   CONTAINER_HARVESTER,
   ContainerHarvester,
 } from 'behaviors/containerHarvester';
+import {Idler, IDLER} from 'behaviors/idler';
 import {WORKER, zeroRatio} from 'spawn-system/bodyTypes';
 
 import {MAX_WORK_PER_SOURCE} from '../../constants';
@@ -79,19 +80,22 @@ export class HarvestingMission extends Mission<HarvestingMemory> {
   /** Executes one update tick for this mission */
   public run(): void {
     this.creeps.forEach((harvester, index) => {
+      // Hack, force first miner to attempt to move to Container location
+      if (index === 0 && this.container) {
+        if (!harvester.pos.isEqualTo(this.container.pos)) {
+          setCreepBehavior(
+              harvester, IDLER,
+              Idler.initMemory([this.container.pos.x, this.container.pos.y]));
+          return;
+        }
+      }
+
       // Reassign the harvesters if they were given to us
       if (harvester.memory.behavior !== CONTAINER_HARVESTER) {
         setCreepBehavior(
             harvester, CONTAINER_HARVESTER,
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             ContainerHarvester.initMemory(this.source!, this.container!));
-      }
-
-      // Hack, force first miner to attempt to move to Container location
-      if (index === 0 && this.container) {
-        if (!harvester.pos.isEqualTo(this.container.pos)) {
-          harvester.moveTo(this.container.pos);
-        }
       }
     });
   }
