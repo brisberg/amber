@@ -122,7 +122,8 @@ export class ScoreTransportMission {
       creep.memory.mission = 'score';
     } else if (creep.memory.behavior === DEPOSITER) {
       if (creep.store.getUsedCapacity() === 0) {
-        if ((creep.ticksToLive || 0) > 200) {
+        // Hardcoded 250 value. Twice the distance from Season E1S29 to W1S30
+        if ((creep.ticksToLive || CREEP_LIFE_TIME) > 250) {
           creep.memory.behavior = FETCHER;
           this.mem.travelIdx = -1;
         } else {
