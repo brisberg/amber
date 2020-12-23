@@ -30,7 +30,7 @@ import {BaseOperation} from 'operations/baseOperation';
 import {MiningOperation} from 'operations/miningOperation';
 import {ExcavationMission} from 'season1/excavation';
 import {ScoreCollectMemory, ScoreMission} from 'season1/scoreCollection';
-import {ScoreTransportMission} from 'season1/scoreTransport';
+import {ScoreTransportMission} from 'season1/scoreTransport2';
 import {operateTerminals} from 'season1/terminals';
 import {declareOrphan} from 'spawn-system/orphans';
 import {SpawnQueue} from 'spawn-system/spawnQueue';

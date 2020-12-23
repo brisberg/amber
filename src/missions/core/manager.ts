@@ -129,23 +129,22 @@ export class ManagerMission extends Mission<ManagerMemory> {
           }
         }
       }
-
-      if (this.storage!.store[RESOURCE_ENERGY] >= 100000) {
-        // Limit managers from taking energy from low energy storage
-        if (manager.memory.behavior !== FETCHER ||
-            manager.memory.mem.resource !== RESOURCE_ENERGY) {
-          setCreepBehavior(
-              manager, FETCHER,
-              Fetcher.initMemory(this.storage!, RESOURCE_ENERGY));
-          return;
-        }
-      } else if (this.storage!.store[RESOURCE_SCORE] >= 0) {
+      if (this.storage!.store[RESOURCE_SCORE] > 0) {
         // Season 1 Extract score
         if (manager.memory.behavior !== FETCHER ||
             manager.memory.mem.resource !== RESOURCE_SCORE) {
           setCreepBehavior(
               manager, FETCHER,
               Fetcher.initMemory(this.storage!, RESOURCE_SCORE));
+          return;
+        }
+      } else if (this.storage!.store[RESOURCE_ENERGY] >= 100000) {
+        // Limit managers from taking energy from low energy storage
+        if (manager.memory.behavior !== FETCHER ||
+            manager.memory.mem.resource !== RESOURCE_ENERGY) {
+          setCreepBehavior(
+              manager, FETCHER,
+              Fetcher.initMemory(this.storage!, RESOURCE_ENERGY));
           return;
         }
       }

@@ -20,9 +20,9 @@ export function operateTerminals(room: Room): void {
     return;
   }
 
-  // Add a buffer
-  const amount = room.terminal.store[RESOURCE_SCORE];
-  if (amount >= 1000) {
+  // Add a buffer (Limit transfers to 15k)
+  const amount = Math.min(room.terminal.store[RESOURCE_SCORE], 15000);
+  if (amount >= 10000) {
     room.terminal.send(RESOURCE_SCORE, amount, 'E1S29');
   }
 }
