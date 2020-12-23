@@ -129,7 +129,7 @@ export class ManagerMission extends Mission<ManagerMemory> {
           }
         }
       }
-      if (this.storage!.store[RESOURCE_SCORE] > 0) {
+      if (this.terminal && this.storage!.store[RESOURCE_SCORE] > 0) {
         // Season 1 Extract score
         if (manager.memory.behavior !== FETCHER ||
             manager.memory.mem.resource !== RESOURCE_SCORE) {
