@@ -5,6 +5,7 @@
  * be expanded later into a more sophisticated definition system.
  */
 
+import _ from 'lodash';
 import {createCreepBody} from '../utils/creepBodyUtils';
 
 export const creepBodyRatios: {[name: string]: CreepRatio} = {};
@@ -223,6 +224,10 @@ function costOfRatio(ratio: CreepRatio): number {
       ratio.tough * BODYPART_COST[TOUGH] + ratio.work * BODYPART_COST[WORK];
 }
 
+function bodySize(body: CreepRatio): number {
+  return _.sum(Object.values(body));
+}
+
 export function generateFlexibleCreep(
     maxEnergy: number, ratio: CreepRatio,
     opts?: GenerateCreepBodyOptions): BodyPartConstant[] {
@@ -236,7 +241,8 @@ export function generateFlexibleCreep(
   }
 
   const costPerTier = costOfRatio(ratio);
-  while (energy + costPerTier <= maxEnergy) {
+  while (energy + costPerTier <= maxEnergy &&
+         bodySize(body) + bodySize(ratio) <= 50) {
     const nextBody = addToRatio(body, ratio);
 
     if (opts && opts.max) {
