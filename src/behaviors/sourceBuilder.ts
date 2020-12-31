@@ -48,7 +48,19 @@ export class SourceBuilder extends Behavior<SourceBuilderMemory> {
           mem.mem = Harvester.initMemory(source);
           return false;
         } else {
-          creep.moveTo(source);
+          creep.moveTo(source, {
+            costCallback: (roomname, costMatrix) => {
+              // Hack for season instance to avoid a hostil room
+              if (roomname === 'E7S28') {
+                for (let i = 0; i < 50; i++) {
+                  // North exit is unwalkable
+                  costMatrix.set(i, 0, 255);
+                }
+              }
+
+              return costMatrix;
+            },
+          });
           return true;
         }
       } else if (mem.state === 'build') {
@@ -62,7 +74,22 @@ export class SourceBuilder extends Behavior<SourceBuilderMemory> {
           mem.mem = Builder.initMemory(target);
           return false;
         } else {
-          creep.moveTo(target);
+          creep.moveTo(
+              target,
+              {
+                costCallback: (roomname, costMatrix) => {
+                  // Hack for season instance to avoid a hostil room
+                  if (roomname === 'E7S28') {
+                    for (let i = 0; i < 50; i++) {
+                      // North exit is unwalkable
+                      costMatrix.set(i, 0, 255);
+                    }
+                  }
+
+                  return costMatrix;
+                },
+              },
+          );
           return true;
         }
       }

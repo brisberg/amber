@@ -28,7 +28,19 @@ export class Claimer extends Behavior<ClaimerMemory> {
       }
 
       if (!creep.pos.inRangeTo(ctrl, 1)) {
-        creep.moveTo(ctrl);
+        creep.moveTo(ctrl, {
+          costCallback: (roomname, costMatrix) => {
+            // Hack for season instance to avoid a hostil room
+            if (roomname === 'E7S28') {
+              for (let i = 0; i < 50; i++) {
+                // North exit is unwalkable
+                costMatrix.set(i, 0, 255);
+              }
+            }
+
+            return costMatrix;
+          },
+        });
         return true;
       }
 

@@ -21,7 +21,7 @@ export class ClaimMission extends Mission<ClaimMissionMemory> {
   protected readonly spawnPriority = 5;
   protected readonly bodyType = CLAIMER_BODY;
   protected readonly bodyOptions: GenerateCreepBodyOptions = {
-    max: {claim: 4, move: 4},
+    max: {claim: 1, move: 1},
   };
 
   private controller: StructureController|null = null;
