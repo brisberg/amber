@@ -32,7 +32,7 @@ export class ManualMission extends Mission<ManualMissionMemory> {
 
   public init(): boolean {
     // HACK: Hardcoding to left base on season server
-    this.mem.spawnSource = 'E4S28';
+    this.mem.spawnSource = 'E6S28';
     return true;
   }
 
