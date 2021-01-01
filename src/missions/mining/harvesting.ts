@@ -81,7 +81,8 @@ export class HarvestingMission extends Mission<HarvestingMemory> {
   public run(): void {
     this.creeps.forEach((harvester, index) => {
       // Hack, force first miner to attempt to move to Container location
-      if (index === 0 && this.container) {
+      if (index === 0 && this.container &&
+          harvester.room.name === this.container.room.name) {
         if (!harvester.pos.isEqualTo(this.container.pos)) {
           setCreepBehavior(
               harvester, IDLER,

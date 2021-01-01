@@ -76,7 +76,19 @@ export class ENetBuilder extends Behavior<ENetBuilderMemory> {
       if (mem.destPos) {
         const destPos = mem.destPos;
         if (!creep.pos.inRangeTo(destPos[0], destPos[1], 0)) {
-          creep.moveTo(destPos[0], destPos[1]);
+          creep.moveTo(destPos[0], destPos[1], {
+            costCallback: (roomname, costMatrix) => {
+              // Hack for season instance to avoid a hostil room
+              if (roomname === 'E7S28') {
+                for (let i = 0; i < 50; i++) {
+                  // North exit is unwalkable
+                  costMatrix.set(i, 0, 255);
+                }
+              }
+
+              return costMatrix;
+            },
+          });
           return true;
         }
       }

@@ -150,7 +150,7 @@ export class ScoreTransportMission {
     }
     const terminal = Game.rooms[this.mem.source].terminal!;
     // Only request a new creep if we have a chunk of score to move
-    if (terminal.store[RESOURCE_SCORE] <= 30000) {
+    if (terminal.store[RESOURCE_SCORE] <= 10000) {
       return false;
     }
 
