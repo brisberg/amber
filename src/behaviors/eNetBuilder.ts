@@ -56,6 +56,30 @@ export class ENetBuilder extends Behavior<ENetBuilderMemory> {
               const occupied =
                   creep.room.lookForAt(LOOK_CREEPS, pos.x, pos.y).length > 0;
               if (!occupied) {
+                const site =
+                    creep.room.lookForAt(LOOK_CONSTRUCTION_SITES, pos.x, pos.y)
+                        .filter((s) => {
+                          const type = s.structureType;
+                          return type !== STRUCTURE_ROAD &&
+                              type !== STRUCTURE_RAMPART &&
+                              type !== STRUCTURE_CONTAINER;
+                        })
+                        .length > 0;
+                const struct =
+                    creep.room.lookForAt(LOOK_STRUCTURES, pos.x, pos.y)
+                        .filter((s) => {
+                          const type = s.structureType;
+                          return type !== STRUCTURE_ROAD &&
+                              type !== STRUCTURE_RAMPART &&
+                              type !== STRUCTURE_CONTAINER;
+                        })
+                        .length > 0;
+
+                if (site || struct) {
+                  // Skip any position containing an impassable structure or
+                  // construction site
+                  continue;
+                }
                 mem.destPos = [pos.x, pos.y];
               }
             }

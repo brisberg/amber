@@ -8,7 +8,6 @@ import {CARRY_WORKER, GenerateCreepBodyOptions} from 'spawn-system/bodyTypes';
 
 export interface FortifyMemory {
   room: string|null;
-  // TODO: Update screeps types with score container
   eNodeFlag: string|null;
   targetIDs: Array<Id<StructureWall>|Id<StructureRampart>>;
   creep: string|null;
