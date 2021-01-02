@@ -129,16 +129,17 @@ export class BuildOperation {
     if (!this.node && !this.source) {
       // Search for the closest Energy node or Source
       // First look for an adjacent source to harvest from directly
-      const source = this.flag.pos.findClosestByPath(FIND_SOURCES);
+      const source = this.flag.pos.findClosestByPath(
+          FIND_SOURCES, {filter: () => true, ignoreCreeps: true});
       if (!source || !this.flag.pos.isNearTo(source)) {
         // No Source, look for Core Energy Node first
         const coreNode = this.flag.pos.findClosestByPath(
-            FIND_FLAGS, {filter: CORE_ENERGY_NODE_FLAG});
+            FIND_FLAGS, {filter: CORE_ENERGY_NODE_FLAG, ignoreCreeps: true});
 
         if (!coreNode) {
           // No Core Not Yet, Look for a fringe Energy Node
           const eNode = this.flag.pos.findClosestByPath(
-              FIND_FLAGS, {filter: ENERGY_NODE_FLAG});
+              FIND_FLAGS, {filter: ENERGY_NODE_FLAG, ignoreCreeps: true});
 
           if (!eNode) {
             console.log(
