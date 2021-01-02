@@ -152,12 +152,14 @@ export class FortifyMission {
 
       // Request a new hauler creep
       const queue = global.spawnQueues[this.mem.room!];
-      this.mem.creep = queue.requestCreep({
-        bodyOptions: this.bodyOptions,
-        bodyRatio: this.bodyType,
-        mission: 'fortify',
-        priority: this.spawnPriority,
-      });
+      if (queue) {
+        this.mem.creep = queue.requestCreep({
+          bodyOptions: this.bodyOptions,
+          bodyRatio: this.bodyType,
+          mission: 'fortify',
+          priority: this.spawnPriority,
+        });
+      }
 
       return true;
     }

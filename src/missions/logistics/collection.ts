@@ -144,12 +144,14 @@ export class CollectMission {
 
     // Request a new hauler creep
     const queue = global.spawnQueues[this.mem.room!];
-    this.mem.creep = queue.requestCreep({
-      bodyOptions: this.bodyOptions,
-      bodyRatio: this.bodyType,
-      mission: 'collect',
-      priority: this.spawnPriority,
-    });
+    if (queue) {
+      this.mem.creep = queue.requestCreep({
+        bodyOptions: this.bodyOptions,
+        bodyRatio: this.bodyType,
+        mission: 'collect',
+        priority: this.spawnPriority,
+      });
+    }
     return true;
   }
 }

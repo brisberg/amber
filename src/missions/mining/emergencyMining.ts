@@ -55,7 +55,11 @@ export class EmergencyMining {
       // Request another miner
       const spawn = this.room.find(FIND_MY_SPAWNS)[0];
       const source = spawn.pos.findClosestByPath(FIND_SOURCES);
-      this.mem.nextCreep = global.spawnQueues[this.room.name].requestCreep({
+      const queue = global.spawnQueues[this.room.name];
+      if (!queue) {
+        return;
+      }
+      this.mem.nextCreep = queue.requestCreep({
         bodyRatio: CARRY_WORKER,
         mission: this.name,
         options: {

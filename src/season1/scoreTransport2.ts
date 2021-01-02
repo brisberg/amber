@@ -156,11 +156,13 @@ export class ScoreTransportMission {
 
     // Request a new hauler creep
     const queue = global.spawnQueues[this.mem.source!];
-    this.mem.creep = queue.requestCreep({
-      bodyRatio: this.bodyType,
-      mission: 'score',
-      priority: this.spawnPriority,
-    });
+    if (queue) {
+      this.mem.creep = queue.requestCreep({
+        bodyRatio: this.bodyType,
+        mission: 'score',
+        priority: this.spawnPriority,
+      });
+    }
     return true;
   }
 }

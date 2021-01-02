@@ -111,6 +111,11 @@ export abstract class Mission<M extends MissionMemory> {
   protected requestCreep(
       bodyRatio: string, bodyOptions?: GenerateCreepBodyOptions,
       critical = false): string {
+    if (!global.spawnQueues[this.spawnSource]) {
+      // No Spawn Queue for this source. Maybe the room has been destroyed?
+      // TODO: Report this error better
+      return '';
+    }
     return global.spawnQueues[this.spawnSource].requestCreep({
       bodyOptions,
       bodyRatio,
