@@ -77,7 +77,7 @@ export class SpawnQueue {
 
     // Attempt to fulfill requests with orphans in priority order and filter out
     // those requests in the process
-    this.requests.filter((request) => {
+    const requests = this.requests.filter((request) => {
       const index = orphans.findIndex((orphan) => {
         // TODO: Expand this check to look for things like Min/Max parts
         return orphan.memory.bodyRatio === request.bodyRatio &&
@@ -102,7 +102,7 @@ export class SpawnQueue {
 
 
     // Attempt to spawn the highest priority remaining request
-    const req = this.requests.shift();
+    const req = requests.shift();
 
     if (!req) {
       // No requests were made
