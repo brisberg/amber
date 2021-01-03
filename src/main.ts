@@ -87,7 +87,7 @@ export const loop = (): void => {
             creep: null,
             room: roomName,
             eNodeFlag: null,
-            targetIDs: [],
+            targetIDs: {},
             wallHeight: 1000,
           },
         };
@@ -227,7 +227,7 @@ export const loop = (): void => {
       }
 
       // Season 1 Hack, pushes Score to 'E1S29'
-      if (room.controller.level >= 6) {
+      if (room.controller.level >= 6 && Game.shard.name === 'shardSeason') {
         operateTerminals(room);
       }
 
@@ -390,11 +390,11 @@ export const loop = (): void => {
                   creep: null,
                   room: roomName,
                   eNodeFlag: null,
-                  targetIDs: [],
+                  targetIDs: {},
                   wallHeight: 1000,
                 };
               }
-              room.memory.fortify.targetIDs = [];
+              // room.memory.fortify.targetIDs = [];
               // for (const site of sites) {
               //   if (site.structureType === STRUCTURE_WALL ||
               //       site.structureType === STRUCTURE_RAMPART) {
@@ -407,9 +407,11 @@ export const loop = (): void => {
               for (const struct of structs) {
                 if (struct.structureType === STRUCTURE_WALL ||
                     struct.structureType === STRUCTURE_RAMPART) {
-                  if (struct.hits < (room.memory.fortify.wallHeight)) {
-                    room.memory.fortify.targetIDs.push(
-                        struct.id as Id<StructureWall>);
+                  const repairAmt =
+                      room.memory.fortify.wallHeight - struct.hits;
+                  if (repairAmt > 0) {
+                    room.memory.fortify.targetIDs[struct.id as string] =
+                        repairAmt;
                   }
                 }
               }

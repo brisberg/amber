@@ -9,7 +9,7 @@ import {CARRY_WORKER, GenerateCreepBodyOptions} from 'spawn-system/bodyTypes';
 export interface FortifyMemory {
   room: string|null;
   eNodeFlag: string|null;
-  targetIDs: Array<Id<StructureWall>|Id<StructureRampart>>;
+  targetIDs: {[id: string]: number};
   creep: string|null;
   wallHeight: number;
 }
@@ -17,8 +17,8 @@ export interface FortifyMemory {
 export const REPAIR_BUFFER = 100000;
 
 /**
- * Fortify Mission is a room scopped mission to build and repair walls/ramparts
- * to enhance defences.
+ * Fortify Mission is a room scopped mission to build and repair
+ * walls/ramparts to enhance defences.
  *
  * This mission will request a cworker creep to perform the repairs.
  */
@@ -45,7 +45,8 @@ export class FortifyMission {
       this.eNode = new EnergyNode(Game.flags[this.mem.eNodeFlag]);
     }
     this.targets =
-        this.mem.targetIDs.map((id) => Game.getObjectById(id))
+        Object.keys(this.mem.targetIDs)
+            .map((id) => Game.getObjectById(id))
             .filter((t) => !!t) as Array<StructureWall|StructureRampart>;
 
     return true;
@@ -110,11 +111,12 @@ export class FortifyMission {
             Repairer.initMemory(target, this.mem.wallHeight + REPAIR_BUFFER);
       }
 
-      if (Repairer.getRepairRemaining(creep.memory.mem) === 0) {
+      if (Repairer.getRepairRemaining(creep.memory.mem) <= 0) {
         // Finished repairing
-        this.mem.targetIDs.shift();
+        delete this.mem.targetIDs[target.id];
         const newTarget =
-            Game.getObjectById(this.mem.targetIDs[0]) as StructureWall |
+            Game.getObjectById(Object.keys(this.mem.targetIDs)[0]) as
+                StructureWall |
             StructureRampart | null;
         if (newTarget) {
           // Update repair target
