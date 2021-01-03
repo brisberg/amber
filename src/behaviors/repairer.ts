@@ -26,7 +26,7 @@ export class Repairer extends Behavior<RepairerMemory> {
 
     if (structure) {
       if (!creep.pos.inRangeTo(structure, 3)) {
-        creep.moveTo(structure);
+        creep.moveTo(structure, {range: 3});
         return true;
       }
 
