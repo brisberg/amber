@@ -21,7 +21,8 @@ export class Repairer extends Behavior<RepairerMemory> {
   /* @override */
   protected behaviorActions(creep: Creep, mem: RepairerMemory): boolean {
     const structure = Game.getObjectById(mem.structureID);
-    const repairPower = creep.getActiveBodyparts(WORK) * REPAIR_POWER;
+    // RepairPower isn't necessary, as we should repair down to 0 energy.
+    // const repairPower = creep.getActiveBodyparts(WORK) * REPAIR_POWER;
 
     if (structure) {
       if (!creep.pos.inRangeTo(structure, 3)) {
@@ -33,8 +34,9 @@ export class Repairer extends Behavior<RepairerMemory> {
 
       // Repair structure if it is low
       const hitsMissing = (mem.maxHits || structure.hitsMax) - structure.hits;
-      if (hitsMissing > 0 &&
-          creep.store.energy >= (repairPower * REPAIR_COST)) {
+      // if (hitsMissing > 0 &&
+      //     creep.store.energy >= (repairPower * REPAIR_COST)) {
+      if (hitsMissing > 0 && creep.store.energy > 0) {
         creep.repair(structure);
         return false;
       }
