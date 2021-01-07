@@ -12,6 +12,9 @@ type ManualMissionMemory = MissionMemory;
  *
  * This mission will request a single scout creep, which will move to the
  * location as best it can.
+ *
+ * The Mission must be initialized with the closest spawn source
+ * `Memory.missions['scout_1'].spawnSource = 'N1W1'`
  */
 export class ManualMission extends Mission<ManualMissionMemory> {
   protected readonly spawnPriority = 5;
@@ -31,8 +34,6 @@ export class ManualMission extends Mission<ManualMissionMemory> {
   }
 
   public init(): boolean {
-    // HACK: Hardcoding to left base on season server
-    this.mem.spawnSource = 'E6S28';
     return true;
   }
 
@@ -41,7 +42,6 @@ export class ManualMission extends Mission<ManualMissionMemory> {
     // Direct each creep to move to mission flag
     this.creeps.forEach((creep) => {
       if (creep.memory.behavior !== SENTRY) {
-        // Upgrade controller
         setCreepBehavior(
             creep,
             SENTRY,
@@ -52,17 +52,22 @@ export class ManualMission extends Mission<ManualMissionMemory> {
     });
   }
 
-  private get maxClaimers(): number {
+  private get maxScouts(): number {
     return 1;
   }
 
   /**
    * @override
-   * Returns true if we need another Claimer.
+   * Returns true if we need another Scout.
    */
   protected needMoreCreeps(): boolean {
+    // Don't spawn scout until a spawn source is manually set
+    if (!this.mem.spawnSource) {
+      return false;
+    }
+
     const creeps = this.getYoungCreeps();
-    if (creeps.length >= this.maxClaimers) {
+    if (creeps.length >= this.maxScouts) {
       return false;
     }
 

@@ -83,6 +83,7 @@ export const loop = (): void => {
           network: null,
           damaged: [],
           score: undefined,
+          collectRooms: [],
           fortify: {
             creep: null,
             room: roomName,
@@ -470,15 +471,22 @@ export const loop = (): void => {
       }
 
       // Season 1 Score Collection
-      if (room.storage) {
+      if (room.storage && room.memory.collectRooms) {
         if (!room.memory.score) {
+          const searchRooms =
+              room.memory.collectRooms.map((name) => Game.rooms[name])
+                  .filter((r): r is Room => !!r);
           // No score mission, scan for containers
           const scoreConts: StructureContainer[] =
-              room.find(10011 as FindConstant, {
-                filter: (c: StructureContainer) => {
-                  return c.store['score' as ResourceConstant] > 0;
-                },
-              }) as StructureContainer[];
+              searchRooms.reduce<StructureContainer[]>((conts, rm) => {
+                const containers = rm.find(10011 as FindConstant, {
+                  filter: (c: StructureContainer) => {
+                    return c.store['score' as ResourceConstant] > 0;
+                  },
+                }) as StructureContainer[];
+                return conts.concat(containers);
+              }, []);
+
           if (scoreConts.length > 0) {
             const mem: ScoreCollectMemory = {
               room: room.name,
