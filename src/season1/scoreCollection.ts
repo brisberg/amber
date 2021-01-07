@@ -3,7 +3,7 @@ import {setCreepBehavior} from 'behaviors/behavior';
 import {Depositer, DEPOSITER} from 'behaviors/depositer';
 import {Fetcher, FETCHER} from 'behaviors/fetcher';
 import {IDLER} from 'behaviors/idler';
-import {GenerateCreepBodyOptions, HAULER} from 'spawn-system/bodyTypes';
+import {GenerateCreepBodyOptions, OR_HAULER} from 'spawn-system/bodyTypes';
 import {declareOrphan} from 'spawn-system/orphans';
 
 const RESOURCE_SCORE: ResourceConstant = 'score' as ResourceConstant;
@@ -23,9 +23,8 @@ export interface ScoreCollectMemory {
  */
 export class ScoreMission {
   protected readonly spawnPriority = 3;
-  protected readonly bodyType = HAULER;
-  // Hack: Limited size to save cost. Should be able to gather ~25k each
-  protected readonly bodyOptions: GenerateCreepBodyOptions = {max: {carry: 10}};
+  protected readonly bodyType = OR_HAULER;
+  protected readonly bodyOptions: GenerateCreepBodyOptions = {max: {carry: 25}};
 
   public container: StructureContainer|null = null;
   public dest: StructureStorage|null = null;
