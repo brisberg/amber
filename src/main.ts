@@ -488,12 +488,19 @@ export const loop = (): void => {
               }, []);
 
           if (scoreConts.length > 0) {
+            const target = scoreConts[0];
             const mem: ScoreCollectMemory = {
               room: room.name,
-              scoreID: scoreConts[0].id,
+              scoreID: target.id,
               creep: null,
             };
             room.memory.score = mem;
+            Game.notify(
+                `Detected a ScoreContainer (${
+                    target.store['score' as ResourceConstant]}) in ${
+                    target.room.name}. Dispatching collectors from ${
+                    room.name}.`,
+                60);
           }
         } else {
           // We have a score mission, run it.
