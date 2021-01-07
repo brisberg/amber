@@ -17,6 +17,7 @@ interface Memory {
 }
 
 interface RoomMemory {
+  collectRooms: string[];
   score: import('./season1/scoreCollection')
       .ScoreCollectMemory|undefined;  // Season 1
   fortify: import('./towers/fortify').FortifyMemory;
