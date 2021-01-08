@@ -27,14 +27,38 @@ export class ENetDepositer extends Behavior<ENetDepositerMemory> {
       if (node.isOccupied()) {
         // Stay back from occupied nodes
         if (!creep.pos.inRangeTo(tarX, tarY, 3)) {
-          creep.moveTo(tarX, tarY);
+          creep.moveTo(tarX, tarY, {
+            costCallback: (roomname, costMatrix) => {
+              // Hack for season instance to avoid a hostil room
+              if (roomname === 'E7S28') {
+                for (let i = 0; i < 50; i++) {
+                  // North exit is unwalkable
+                  costMatrix.set(i, 0, 255);
+                }
+              }
+
+              return costMatrix;
+            },
+          });
           return true;
         }
       } else {
         // Actually move into Creep nodes
         const range = node.mem.type === 'creep' ? 0 : 1;
         if (!creep.pos.inRangeTo(tarX, tarY, range)) {
-          creep.moveTo(tarX, tarY);
+          creep.moveTo(tarX, tarY, {
+            costCallback: (roomname, costMatrix) => {
+              // Hack for season instance to avoid a hostil room
+              if (roomname === 'E7S28') {
+                for (let i = 0; i < 50; i++) {
+                  // North exit is unwalkable
+                  costMatrix.set(i, 0, 255);
+                }
+              }
+
+              return costMatrix;
+            },
+          });
           return true;
         }
       }
