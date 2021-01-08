@@ -100,7 +100,8 @@ export class ManagerMission extends Mission<ManagerMemory> {
         if (manager.store[RESOURCE_ENERGY] > 0) {
           if (manager.memory.behavior !== DEPOSITER) {
             // Keep terminal energy up
-            if (this.terminal && this.terminal.store[RESOURCE_ENERGY] <= 2000) {
+            if (this.terminal &&
+                this.terminal.store[RESOURCE_ENERGY] <= 20000) {
               setCreepBehavior(
                   manager, DEPOSITER,
                   Depositer.initMemory(
