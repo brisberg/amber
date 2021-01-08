@@ -4,9 +4,7 @@ import {Depositer, DEPOSITER} from 'behaviors/depositer';
 import {Fetcher, FETCHER} from 'behaviors/fetcher';
 import {IDLER} from 'behaviors/idler';
 import {OR_HAULER} from 'spawn-system/bodyTypes';
-
-const RESOURCE_SCORE: ResourceConstant = 'score' as ResourceConstant;
-const FIND_SCORE_COLLECTORS: FindConstant = 10012 as FindConstant;
+import {FIND_SCORE_COLLECTORS, RESOURCE_SCORE} from './types';
 
 export interface ScoreTransportMemory {
   source: string|null;
