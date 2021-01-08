@@ -3,7 +3,7 @@
  * Terminal to terminal of 'E6S28'.
  */
 
-const RESOURCE_SCORE = 'score' as ResourceConstant;
+import {RESOURCE_SCORE} from './types';
 
 /**
  * operateTerminals takes a room, pushes score from the Terminal to the Terminal

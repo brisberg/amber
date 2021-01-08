@@ -5,8 +5,7 @@ import {Fetcher, FETCHER} from 'behaviors/fetcher';
 import {IDLER} from 'behaviors/idler';
 import {GenerateCreepBodyOptions, OR_HAULER} from 'spawn-system/bodyTypes';
 import {declareOrphan} from 'spawn-system/orphans';
-
-const RESOURCE_SCORE: ResourceConstant = 'score' as ResourceConstant;
+import {RESOURCE_SCORE} from './types';
 
 export interface ScoreCollectMemory {
   room: string|null;
