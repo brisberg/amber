@@ -62,7 +62,6 @@ export const loop = (): void => {
     enetwork: true,
   };
   Memory.excavation = Memory.excavation || null;
-  Memory.transport = Memory.transport || null;
   global.spawnQueues = global.spawnQueues || {};
 
   installConsoleCommands();
@@ -83,6 +82,7 @@ export const loop = (): void => {
           network: null,
           damaged: [],
           score: undefined,
+          transport: undefined,
           collectRooms: [],
           fortify: {
             creep: null,
@@ -515,6 +515,15 @@ export const loop = (): void => {
           }
         }
       }
+
+      // Season 1 blind Score Transport
+      if (room.memory.transport) {
+        const msn = new ScoreTransportMission(room.memory.transport);
+        if (msn.init()) {
+          msn.requestCreep();
+          msn.run();
+        }
+      }
     }
   }
 
@@ -524,15 +533,6 @@ export const loop = (): void => {
     msn.init();
     msn.requestCreep();
     msn.run();
-  }
-
-  // Season 1 blind Score Transport
-  if (Memory.transport) {
-    const msn = new ScoreTransportMission(Memory.transport);
-    if (msn.init()) {
-      msn.requestCreep();
-      msn.run();
-    }
   }
 
   // SpawnQueue must execute after missions have a chance request creeps

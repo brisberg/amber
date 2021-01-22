@@ -14,16 +14,16 @@ export interface ScoreTransportMemory {
 }
 
 /**
- * Temporary Mission construct to facilitate hauling Score from Room Terminal to
- * a foreign collector.
+ * Temporary Mission construct to facilitate hauling Score from Room Terminal or
+ * Storage to a foreign collector.
  *
- * This mission will request a hauler creeps.
+ * This mission will request a orhauler creep.
  */
 export class ScoreTransportMission {
   protected readonly spawnPriority = 5;
   protected readonly bodyType = OR_HAULER;
 
-  public source: StructureTerminal|null = null;
+  public source: StructureTerminal|StructureStorage|undefined = undefined;
   public collector: StructureContainer|null = null;
 
   constructor(private mem: ScoreTransportMemory) {}
@@ -36,13 +36,23 @@ export class ScoreTransportMission {
     }
 
     const room = Game.rooms[this.mem.source];
-    if (!room.controller || !room.controller.my || !room.terminal) {
-      console.log(`Score Transport ${
-          this.mem.source}: Room not owned or has no Terminal. Retiring`);
+    if (!room || !room.controller || !room.controller.my) {
+      console.log(
+          `Score Transport ${this.mem.source}: Room not owned. Retiring.`);
       return false;
     }
 
-    this.source = room.terminal;
+    if (!room.terminal && !room.storage) {
+      console.log(`Score Transport ${
+          this.mem.source}: Room has no Terminal or Storage. Retiring.`);
+      return false;
+    }
+
+    this.source = room.terminal || room.storage;
+    if (!this.source) {
+      return false;
+    }
+
     if (this.source.store[RESOURCE_SCORE] <= 1250) {
       return false;
     }
@@ -121,7 +131,9 @@ export class ScoreTransportMission {
     } else if (creep.memory.behavior === DEPOSITER) {
       if (creep.store.getUsedCapacity() === 0) {
         // Hardcoded 250 value. Twice the distance from Season E1S29 to W1S30
-        if ((creep.ticksToLive || CREEP_LIFE_TIME) > 250) {
+        const dist = Game.map.getRoomLinearDistance(
+            this.mem.source!, creep.pos.roomName);
+        if ((creep.ticksToLive || CREEP_LIFE_TIME) > (dist * 100) + 100) {
           creep.memory.behavior = FETCHER;
           this.mem.travelIdx = -1;
         } else {
@@ -142,13 +154,11 @@ export class ScoreTransportMission {
       return false;
     }
 
-    if (!this.mem.source || !Game.rooms[this.mem.source] ||
-        !Game.rooms[this.mem.source].terminal) {
+    if (!this.mem.source || !Game.rooms[this.mem.source] || !this.source) {
       return false;
     }
-    const terminal = Game.rooms[this.mem.source].terminal!;
     // Only request a new creep if we have a chunk of score to move
-    if (terminal.store[RESOURCE_SCORE] <= 10000) {
+    if (this.source && this.source.store[RESOURCE_SCORE] <= 10000) {
       return false;
     }
 
