@@ -23,19 +23,7 @@ export class ENetFetcher extends Behavior<ENetFetcherMemory> {
 
     if (node && node.getStoredEnergy() >= mem.buffer) {
       if (!creep.pos.inRangeTo(node.flag.pos, 1)) {
-        creep.moveTo(node.flag.pos, {
-          costCallback: (roomname, costMatrix) => {
-            // Hack for season instance to avoid a hostil room
-            if (roomname === 'E7S28') {
-              for (let i = 0; i < 50; i++) {
-                // North exit is unwalkable
-                costMatrix.set(i, 0, 255);
-              }
-            }
-
-            return costMatrix;
-          },
-        });
+        creep.moveTo(node.flag.pos);
         return true;
       }
 
