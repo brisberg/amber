@@ -28,10 +28,6 @@ import {Mission} from 'missions/mission';
 import {AllOperations} from 'operations';
 import {BaseOperation} from 'operations/baseOperation';
 import {MiningOperation} from 'operations/miningOperation';
-import {ExcavationMission} from 'season1/excavation';
-import {ScoreCollectMemory, ScoreMission} from 'season1/scoreCollection';
-import {ScoreTransportMission} from 'season1/scoreTransport2';
-import {operateTerminals} from 'season1/terminals';
 import {declareOrphan} from 'spawn-system/orphans';
 import {SpawnQueue} from 'spawn-system/spawnQueue';
 import {FortifyMission} from 'towers/fortify';
@@ -61,7 +57,6 @@ export const loop = (): void => {
     upgrade: true,
     enetwork: true,
   };
-  Memory.excavation = Memory.excavation || null;
   global.spawnQueues = global.spawnQueues || {};
 
   installConsoleCommands();
@@ -81,9 +76,6 @@ export const loop = (): void => {
         Memory.rooms[roomName] = {
           network: null,
           damaged: [],
-          score: undefined,
-          transport: undefined,
-          collectRooms: [],
           fortify: {
             creep: null,
             room: roomName,
@@ -225,11 +217,6 @@ export const loop = (): void => {
       // Hack, check for links and push energy to controller if so
       if (room.controller.level >= 5) {
         operateLinks(room);
-      }
-
-      // Season 1 Hack, pushes Score to 'E1S29'
-      if (room.controller.level >= 6 && Game.shard.name === 'shardSeason') {
-        operateTerminals(room);
       }
 
       // If we are in autoMode, automatically place oprations/layout flags
@@ -463,76 +450,13 @@ export const loop = (): void => {
 
         // If mission cannot be initialized, clear it
         if (!msn.init()) {
-          room.memory.score = undefined;
+          room.memory.fortify.eNodeFlag = null;
         } else {
-          msn.requestCreep();
-          msn.run();
-        }
-      }
-
-      // Season 1 Score Collection
-      if (room.storage && room.memory.collectRooms) {
-        if (!room.memory.score) {
-          const searchRooms =
-              room.memory.collectRooms.map((name) => Game.rooms[name])
-                  .filter((r): r is Room => !!r);
-          // No score mission, scan for containers
-          const scoreConts: StructureContainer[] =
-              searchRooms.reduce<StructureContainer[]>((conts, rm) => {
-                const containers = rm.find(10011 as FindConstant, {
-                  filter: (c: StructureContainer) => {
-                    return c.store['score' as ResourceConstant] > 0;
-                  },
-                }) as StructureContainer[];
-                return conts.concat(containers);
-              }, []);
-
-          if (scoreConts.length > 0) {
-            const target = scoreConts[0];
-            const mem: ScoreCollectMemory = {
-              room: room.name,
-              scoreID: target.id,
-              creep: null,
-            };
-            room.memory.score = mem;
-            Game.notify(
-                `Detected a ScoreContainer (${
-                    target.store['score' as ResourceConstant]}) in ${
-                    target.room.name}. Dispatching collectors from ${
-                    room.name}.`,
-                60);
-          }
-        } else {
-          // We have a score mission, run it.
-          const msn = new ScoreMission(room.memory.score);
-
-          // If mission cannot be initialized, clear it
-          if (!msn.init()) {
-            room.memory.score = undefined;
-          } else {
-            msn.requestCreep();
-            msn.run();
-          }
-        }
-      }
-
-      // Season 1 blind Score Transport
-      if (room.memory.transport) {
-        const msn = new ScoreTransportMission(room.memory.transport);
-        if (msn.init()) {
           msn.requestCreep();
           msn.run();
         }
       }
     }
-  }
-
-  // Season 1 Score Excavation
-  if (Memory.excavation) {
-    const msn = new ExcavationMission(Memory.excavation);
-    msn.init();
-    msn.requestCreep();
-    msn.run();
   }
 
   // SpawnQueue must execute after missions have a chance request creeps
@@ -551,9 +475,8 @@ export const loop = (): void => {
         continue;
       }
 
-      // Hack for season1 score collection
-      if (creep.memory.mission !== 'score' &&
-          creep.memory.mission !== 'fortify') {
+      // Hack for fortify missions
+      if (creep.memory.mission !== 'fortify') {
         if (!creep.memory.mission || !Memory.missions[creep.memory.mission]) {
           // Creep is Orphaned, or its mission was cancelled
           if (creep.memory.behavior !== IDLER) {

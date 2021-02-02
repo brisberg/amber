@@ -28,7 +28,18 @@ export class Depositer extends Behavior<DepositerMemory> {
 
     if (target) {
       if (!creep.pos.inRangeTo(target, 1)) {
-        creep.moveTo(target);
+        creep.moveTo(target, {
+          costCallback: (roomName, matrix) => {
+            // Hack for Season 1 Server score deliver
+            if (roomName === 'E0S30') {
+              for (let x = 23; x <= 29; x++) {
+                for (let y = 12; y <= 18; y++) {
+                  matrix.set(x, y, 255);
+                }
+              }
+            }
+          },
+        });
         return true;
       }
 

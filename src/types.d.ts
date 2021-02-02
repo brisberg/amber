@@ -12,15 +12,9 @@ interface Memory {
   pauseUtil?: number;  // Script paused until this Game Tick
   missions: {[name: string]: any};
   operations: {[name: string]: any};
-  excavation: import('./season1/excavation').ExcavationMemory;
 }
 
 interface RoomMemory {
-  collectRooms: string[];
-  score: import('./season1/scoreCollection')
-      .ScoreCollectMemory|undefined;  // Season 1
-  transport?:
-      import('./season1/scoreTransport1').ScoreTransportMemory;  // Season 1
   fortify: import('./towers/fortify').FortifyMemory;
   damaged: Array<Id<Structure>>;  // List of damaged structures
   network: any;                   // Energy Network Memory
