@@ -87,7 +87,7 @@ export class BaseOperation {
 
     // Validate Spawns cache
     const spawnNames = this.mem.spawnIDs.filter((spawn) => {
-      return Game.getObjectById(spawn) !== undefined;
+      return !!Game.getObjectById(spawn);
     });
     this.mem.spawnIDs = spawnNames;
     this.spawns = spawnNames.map((spawn) => {
